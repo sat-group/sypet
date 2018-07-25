@@ -38,6 +38,7 @@ import java.util.List;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.JastAddJ.TypeAccess;
 
 /**
  * Data structure that describes a method signature, including

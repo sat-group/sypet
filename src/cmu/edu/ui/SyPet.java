@@ -91,9 +91,11 @@ public class SyPet {
 		}
 
 		// 0. Read input from the user
+		System.out.println("c Reading input from user");
 		SyPetInput jsonInput = JsonParser.parseJsonInput(args[0]);
 
 		// 1. Read configuration file
+		System.out.println("c Reading configuration file");
 		SyPetConfig jsonConfig = JsonParser.parseJsonConfig("config/config.json");
 		Set<String> acceptableSuperClasses = new HashSet<>();
 		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
@@ -101,7 +103,8 @@ public class SyPet {
 		String methodName = jsonInput.methodName;
 		List<String> libs = jsonInput.libs;
 		List<String> inputs = jsonInput.srcTypes;
-
+		
+		
 		List<String> varNames = jsonInput.paramNames;
 		String retType = jsonInput.tgtType;
 		File file = new File(jsonInput.testPath);
@@ -117,8 +120,11 @@ public class SyPet {
 		TimerUtils.startTimer("total");
 		TimerUtils.startTimer("soot");
 
+		// 2. parse Library
+		System.out.println("c Parsing library");
 		JarParser parser = new JarParser(libs);
 		List<MethodSignature> sigs = parser.parseJar(libs, jsonInput.packages, jsonConfig.blacklist);
+		System.out.println("c Creating polymorphic edges");
 		Map<String, Set<String>> superclassMap = JarParser.getSuperClasses(acceptableSuperClasses);
 		Map<String, Set<String>> subclassMap = new HashMap<>();
 		for (String key : superclassMap.keySet()) {
@@ -129,21 +135,23 @@ public class SyPet {
 				subclassMap.get(value).add(key);
 			}
 		}
-		System.out.println(sigs);
 
 		TimerUtils.stopTimer("soot");
 		// 3. build a petrinet and signatureMap of library
+		System.out.println("c Building Petri Net");
 		TimerUtils.startTimer("buildnet");
 		BuildNet b = new BuildNet();
 		PetriNet net = b.build(sigs, superclassMap, subclassMap, inputs, copyPoly);
+		Map<String, MethodSignature> signatureMap = b.dict;
 		TimerUtils.stopTimer("buildnet");
 
+		int loc_max = 3;
 		int loc = 1;
 		int paths = 0;
 		int programs = 0;
 		boolean solution = false;
 
-		while (!solution) {
+		while (!solution && loc <= loc_max) {
 			TimerUtils.startTimer("path");
 			// create a formula that has the same semantics as the petri-net
 			Encoding encoding = new SequentialEncoding(net, loc);
@@ -166,6 +174,10 @@ public class SyPet {
 				for (Variable s : result) {
 					apis.add(s.getName());
 					path += s.toString() + "\n";
+					MethodSignature sig = signatureMap.get(s.getName());
+					if(sig != null) { //check if s is a line of a code
+                        signatures.add(sig);
+                    }
 				}
 				TimerUtils.stopTimer("path");
 				if (true) {
@@ -190,7 +202,6 @@ public class SyPet {
 						// 6. Run the test cases
 						// TODO: write this code; if all test cases pass then we can terminate
 						TimerUtils.startTimer("compile");
-						System.out.println("code = " + code);
 						boolean compre = Test.runTest(code, testCode);
 						TimerUtils.stopTimer("compile");
 						if (compre) {
@@ -204,8 +215,6 @@ public class SyPet {
 							writeLog(out, "code:\n");
 							writeLog(out, code + "\n");
 							writeLog(out, "Soot time: " + TimerUtils.getCumulativeTime("soot") + "\n");
-							writeLog(out, "Equivalent program preprocess time: " + TimerUtils.getCumulativeTime("equiv")
-									+ "\n");
 							writeLog(out, "Build graph time: " + TimerUtils.getCumulativeTime("buildnet") + "\n");
 							writeLog(out, "Find path time: " + TimerUtils.getCumulativeTime("path") + "\n");
 							writeLog(out, "Form code time: " + TimerUtils.getCumulativeTime("code") + "\n");

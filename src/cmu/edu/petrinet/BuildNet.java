@@ -252,7 +252,7 @@ public class BuildNet {
         }
     }
 
-    private static void setMaxTokens(List<String> inputs) {
+    public void setMaxTokens(List<String> inputs) {
         //Set max tokens for each place
         for (Place p : petrinet.getPlaces()) {
             int count = 0;

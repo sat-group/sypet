@@ -38,9 +38,23 @@ import java.util.List;
 /**
  * This represents the input for SyPet.
  * @author Kaige Liu
+ * @author Ruben Martins
  * 
  */
 public class SyPetInput {
+	
+	public SyPetInput(int id, String methodName, List<String> paramNames,
+					  List<String> srcTypes, String tgtType, List<String> packages,
+					  List<String> libs, String testPath) {
+		this.id = id;
+		this.methodName = methodName;
+		this.paramNames = paramNames;
+		this.srcTypes = srcTypes;
+		this.tgtType = tgtType;
+		this.packages = packages;
+		this.libs = libs;
+		this.testPath = testPath;
+	}
 	
 	public int id;
     public String methodName;
