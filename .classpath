@@ -4,8 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/sat4j-pb.jar"/>
 	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/gson-2.8.5.jar"/>
-	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/soot.jar"/>
 	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/apt.jar"/>
 	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="/Users/utcs/Desktop/sypet/lib/soot-trunk.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

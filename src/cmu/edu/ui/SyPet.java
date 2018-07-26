@@ -39,6 +39,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,12 +84,17 @@ public class SyPet {
 		boolean clone = true;
 		boolean equiv = true;
 		boolean copyPoly = true;
-		String jsonPath;
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(System.out));
 
 		if (args.length != 1) {
 			System.out.println("Error: wrong number of arguments= " + args.length);
 			System.out.println("Usage: ./sypet.sh <filename.json>");
+			System.exit(0);
+		}
+		
+		Path jsonFilePath = Paths.get(args[0]);
+		if (!Files.exists(jsonFilePath)) {
+			System.out.println("File does not exist= " + args[0]);
 			System.exit(0);
 		}
 
@@ -96,14 +104,20 @@ public class SyPet {
 
 		// 1. Read configuration file
 		System.out.println("c Reading configuration file");
-		SyPetConfig jsonConfig = JsonParser.parseJsonConfig("config/config.json");
+		
+		String configPath = "config/config.json";
+		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), new ArrayList<>());		
+		Path configFilepath = Paths.get(configPath);
+
+		if (Files.exists(configFilepath))
+			jsonConfig = JsonParser.parseJsonConfig(configPath); 
+		
 		Set<String> acceptableSuperClasses = new HashSet<>();
 		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
 
 		String methodName = jsonInput.methodName;
 		List<String> libs = jsonInput.libs;
 		List<String> inputs = jsonInput.srcTypes;
-		
 		
 		List<String> varNames = jsonInput.paramNames;
 		String retType = jsonInput.tgtType;

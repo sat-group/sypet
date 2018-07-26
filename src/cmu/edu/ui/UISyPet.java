@@ -113,7 +113,8 @@ public class UISyPet {
 
 		int loc = 1;
 		boolean solution = false;
-		String code = "";
+		String synthesizedCode = "";
+		String code;
 
 		while (!solution && loc <= max_loc) {
 			// create a formula that has the same semantics as the petri-net
@@ -159,6 +160,7 @@ public class UISyPet {
 					}
 					if (compre) {
 						solution = true;
+						synthesizedCode = code;
 						break;
 					}
 
@@ -171,7 +173,7 @@ public class UISyPet {
 			// we did not find a program of length = loc
 			loc++;
 		}
-		return code;
+		return synthesizedCode;
 
 	}
 
