@@ -38,9 +38,15 @@ import java.util.List;
 /**
  * This represents the configuration options for SyPet.
  * @author Kaige Liu
+ * @author Ruben Martins
  * 
  */
 public class SyPetConfig {
     public List<String> acceptableSuperClasses;
     public List<String> blacklist;
+    
+    public SyPetConfig (List<String> superClasses, List<String> blacklist){
+    	this.acceptableSuperClasses = superClasses;
+    	this.blacklist = blacklist;
+    }
 }

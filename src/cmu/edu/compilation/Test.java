@@ -33,16 +33,17 @@
 
 package cmu.edu.compilation;
 
-import cmu.edu.utils.TestUtils;
-
 import java.io.IOException;
+import java.util.List;
+
 
 /**
  * Write code given the tests and classes.
+ * 
+ * @author Ruben Martins
+ * @author Kaige Liu
  */
 public class Test {
-    private static String classOutputFolder = "build";
-
     private static final String CLASSNAME = "Target";
 
     /**
@@ -51,21 +52,24 @@ public class Test {
      * @param testCode test code with name "test"
      * @return whether test pasted
      */
-    public static boolean runTest(String code,String testCode) throws IOException {
+    public static boolean runTest(String code, String testCode, List<String> libs) throws IOException {
         //Create file;
         String classCode = writeCode(code,testCode);
-        boolean runResult = TestUtils.runTest(classCode);
-        //if (!runResult) file.delete();
+        Compile compile = new Compile(CLASSNAME);
+        boolean runResult = compile.runTest(classCode, libs);
         return runResult;
     }
-
+    
     private static String writeCode(String code,String testCode) throws IOException {
         StringBuilder builder = new StringBuilder();
         builder.append("public class "+CLASSNAME  +" {\n");
         builder.append(code);
-        builder.append(testCode);
+        // test cases need to be static for compilation to succeed
+        if (!testCode.contains("public static"))
+        	builder.append(testCode.replace("public", "public static"));
+        else
+        	builder.append(testCode);
         builder.append("}\n");
         return builder.toString();
     }
-
 }

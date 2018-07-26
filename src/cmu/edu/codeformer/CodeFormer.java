@@ -223,7 +223,7 @@ public class CodeFormer {
         int slotCount = 0;
 
         //Add method signature
-        builder.append("public ");
+        builder.append("public static ");
         if (retType != null){
             builder.append(retType.toString());
             builder.append(" ");

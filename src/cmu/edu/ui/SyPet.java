@@ -182,8 +182,6 @@ public class SyPet {
 				TimerUtils.stopTimer("path");
 				if (true) {
 					// 5. Convert a path to a program
-					// NOTE: one path may correspond to multiple programs and we may need a loop
-					// here!
 					boolean sat = true;
 					CodeFormer former = new CodeFormer(signatures, inputs, retType, varNames, methodName, subclassMap,
 							superclassMap);
@@ -202,7 +200,7 @@ public class SyPet {
 						// 6. Run the test cases
 						// TODO: write this code; if all test cases pass then we can terminate
 						TimerUtils.startTimer("compile");
-						boolean compre = Test.runTest(code, testCode);
+						boolean compre = Test.runTest(code, testCode, libs);
 						TimerUtils.stopTimer("compile");
 						if (compre) {
 							solution = true;
@@ -219,9 +217,6 @@ public class SyPet {
 							writeLog(out, "Find path time: " + TimerUtils.getCumulativeTime("path") + "\n");
 							writeLog(out, "Form code time: " + TimerUtils.getCumulativeTime("code") + "\n");
 							writeLog(out, "Compilation time: " + TimerUtils.getCumulativeTime("compile") + "\n");
-
-							File compfile = new File("build/Target.class");
-							compfile.delete();
 							break;
 						}
 					}

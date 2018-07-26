@@ -3,6 +3,9 @@ package cmu.edu.ui;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +43,8 @@ public class UISyPet {
 	private List<MethodSignature> sigs;
 	private Map<String, Set<String>> superclassMap;
 	private Map<String, Set<String>> subclassMap;
+	private List<String> packages;
+	private List<String> libs;
 
 	private PetriNet net;
 	private Map<String, MethodSignature> signatureMap;
@@ -55,8 +60,17 @@ public class UISyPet {
 	public UISyPet(List<String> packages, List<String> libs) {
 
 		//loadCache();
+		
+		this.packages = packages;
+		this.libs = libs;
+		
+		String configPath = "config/config.json";
+		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), new ArrayList<>());		
+		Path path = Paths.get(configPath);
 
-		SyPetConfig jsonConfig = JsonParser.parseJsonConfig("config/config.json");
+		if (Files.exists(path))
+			jsonConfig = JsonParser.parseJsonConfig(configPath); 
+		
 		Set<String> acceptableSuperClasses = new HashSet<>();
 		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
 
@@ -138,7 +152,8 @@ public class UISyPet {
 					// 6. Run the test cases
 					boolean compre = false;
 					try {
-						compre = Test.runTest(code, testCode);
+						compre = Test.runTest(code, testCode, libs);
+						//compre = Test.runTest(code, testCode);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -204,7 +219,7 @@ public class UISyPet {
 					// 6. Run the test cases
 					boolean compre = false;
 					try {
-						compre = Test.runTest(code, testCode);
+						compre = Test.runTest(code, testCode, this.libs);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
