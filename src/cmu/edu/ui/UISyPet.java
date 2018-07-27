@@ -7,12 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.sat4j.specs.TimeoutException;
 
 import com.google.gson.Gson;
@@ -54,30 +57,49 @@ public class UISyPet {
 	private String testCode;
 	private String methodName;
 	private List<String> varNames;
+	
+	private List<Pair<String,Integer>> atLeast;
+	private List<Pair<String,Integer>> atMost;
 
 	private BuildNet buildNet;
 
 	public UISyPet(List<String> packages, List<String> libs) {
-
-		//loadCache();
+		
+		atLeast = new ArrayList<>();
+		atMost = new ArrayList<>();
 		
 		this.packages = packages;
 		this.libs = libs;
 		
 		String configPath = "config/config.json";
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), new ArrayList<>());		
+		List<List<String>> globalSuperClasses = new ArrayList<>();
+		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
+		globalSuperClasses.add(poly1);
+		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>());
+		
 		Path path = Paths.get(configPath);
 
 		if (Files.exists(path))
-			jsonConfig = JsonParser.parseJsonConfig(configPath); 
+			jsonConfig = JsonParser.parseJsonConfig(configPath);
 		
-		Set<String> acceptableSuperClasses = new HashSet<>();
-		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
-
+		Set<String> localSuperClasses = new HashSet<>();
+		localSuperClasses.addAll(jsonConfig.localSuperClasses);
+		
 		JarParser parser = new JarParser(libs);
 		this.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
-		this.superclassMap = JarParser.getSuperClasses(acceptableSuperClasses);
-
+		this.superclassMap = JarParser.getSuperClasses(localSuperClasses);
+		for (List<String> poly : jsonConfig.globalSuperClasses) {
+			assert (poly.size() == 2);
+			
+			if (this.superclassMap.containsKey(poly.get(0))) {
+				this.superclassMap.get(poly.get(0)).add(poly.get(1));
+			} else {
+				Set<String> subclass = new HashSet<>();
+				subclass.add(poly.get(1));
+				this.superclassMap.put(poly.get(0), subclass);
+			}
+			
+		}
 		this.subclassMap = new HashMap<>();
 		for (String key : superclassMap.keySet()) {
 			for (String value : superclassMap.get(key)) {
@@ -95,6 +117,8 @@ public class UISyPet {
 			e.printStackTrace();
 		}
 		signatureMap = BuildNet.dict;
+		System.out.println("c #Transitions = " + net.getTransitions().size());
+		System.out.println("c #Places = " + net.getPlaces().size());
 	}
 
 	public void setSignature(String methodName, List<String> paramNames, List<String> srcTypes, String tgtType,
@@ -108,6 +132,10 @@ public class UISyPet {
 
 		buildNet.setMaxTokens(srcTypes);
 	}
+	
+	public void addAtLeastK(String methodName, int k) {
+		atLeast.add(new ImmutablePair<String,Integer>(methodName,k));
+	}
 
 	public String synthesize(int max_loc) {
 
@@ -115,6 +143,8 @@ public class UISyPet {
 		boolean solution = false;
 		String synthesizedCode = "";
 		String code;
+		int paths = 0;
+		int programs = 0;
 
 		while (!solution && loc <= max_loc) {
 			// create a formula that has the same semantics as the petri-net
@@ -122,11 +152,13 @@ public class UISyPet {
 			// set initial state and final state
 			encoding.setState(EncodingUtil.setInitialState(net, inputs), 0);
 			encoding.setState(EncodingUtil.setGoalState(net, retType), loc);
+			encoding.setAtLeastK(atLeast);
 
 			// 4. Perform reachability analysis
 
 			// for each loc find all possible programs
 			List<Variable> result = Encoding.solver.findPath(loc);
+			paths++;
 			while (!result.isEmpty() && !solution) {
 				List<String> apis = new ArrayList<String>();
 				// A list of method signatures
@@ -145,6 +177,7 @@ public class UISyPet {
 				while (sat) {
 					try {
 						code = former.solve();
+						programs++;
 					} catch (TimeoutException e) {
 						sat = false;
 						break;
@@ -154,7 +187,6 @@ public class UISyPet {
 					boolean compre = false;
 					try {
 						compre = Test.runTest(code, testCode, libs);
-						//compre = Test.runTest(code, testCode);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -164,15 +196,17 @@ public class UISyPet {
 						break;
 					}
 
-					// the current path did not result in a program that passes all test cases find
-					// the next path
-					result = Encoding.solver.findPath(loc);
 				}
+				// the current path did not result in a program that passes all test cases find the next path
+				paths++;
+				result = Encoding.solver.findPath(loc);
 			}
 
 			// we did not find a program of length = loc
 			loc++;
 		}
+		System.out.println("c #Programs explored = " + programs);
+		System.out.println("c #Paths explored = " + paths);
 		return synthesizedCode;
 
 	}

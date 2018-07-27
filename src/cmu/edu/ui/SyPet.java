@@ -106,14 +106,14 @@ public class SyPet {
 		System.out.println("c Reading configuration file");
 		
 		String configPath = "config/config.json";
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), new ArrayList<>());		
+		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());		
 		Path configFilepath = Paths.get(configPath);
 
 		if (Files.exists(configFilepath))
 			jsonConfig = JsonParser.parseJsonConfig(configPath); 
 		
 		Set<String> acceptableSuperClasses = new HashSet<>();
-		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
+		acceptableSuperClasses.addAll(jsonConfig.localSuperClasses);
 
 		String methodName = jsonInput.methodName;
 		List<String> libs = jsonInput.libs;
@@ -131,6 +131,19 @@ public class SyPet {
 		}
 		br.close();
 		String testCode = fileContents.toString();
+		
+		List<String> packages = jsonInput.packages;
+		
+		UISyPet sypet = new UISyPet(packages, libs);
+		ArrayList<String> paramNames = new ArrayList<String>(
+				Arrays.asList("sypet_arg0","sypet_arg1","sypet_arg2"));
+
+		ArrayList<String> srcTypes = new ArrayList<String>(
+				Arrays.asList("int","int","int"));
+		
+		String tgtType = "java.time.OffsetDateTime";
+		
+		
 		TimerUtils.startTimer("total");
 		TimerUtils.startTimer("soot");
 

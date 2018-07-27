@@ -79,7 +79,7 @@ public class CodeFormer {
         this.methodName = methodName;
         this.subclassMap = subclassMap;
         this.superclassMap = superclassMap;
-        solver.setTimeout(1000000);
+        //solver.setTimeout(1000000);
         //Setup
         //Add method input
         for (String input : inputTypes){

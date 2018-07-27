@@ -126,6 +126,18 @@ public class JarParser {
 		}
 		return result;
 	}
+	
+	public static Map<String, Set<String>> getSuperClasses(Set<String> acceptableSuperClasses, String pkg) {
+		Map<String, Set<String>> result = new HashMap<>();
+		for (SootClass cl : Scene.v().getClasses()) {
+			if (cl.getName().startsWith(pkg)) {
+				System.out.println("name = " + cl.getName());
+				result.put(cl.getName(), getSuperClassesOfClass(acceptableSuperClasses, cl));
+				break;
+			}
+		}
+		return result;
+	}
 
 	private static Set<String> getSuperClassesOfClass(Set<String> acceptableSuperClasses, SootClass cl) {
 		Set<String> res;

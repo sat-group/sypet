@@ -42,11 +42,13 @@ import java.util.List;
  * 
  */
 public class SyPetConfig {
-    public List<String> acceptableSuperClasses;
+    public List<String> localSuperClasses;
+    public List<List<String>> globalSuperClasses;
     public List<String> blacklist;
     
-    public SyPetConfig (List<String> superClasses, List<String> blacklist){
-    	this.acceptableSuperClasses = superClasses;
+    public SyPetConfig (List<String> localSuperClasses, List<List<String>> glocalSuperClasses, List<String> blacklist){
+    	this.localSuperClasses = localSuperClasses;
+    	this.globalSuperClasses = glocalSuperClasses;
     	this.blacklist = blacklist;
     }
 }

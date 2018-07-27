@@ -1,21 +1,11 @@
 {
-  "acceptableSuperClasses": ["cmu.symonster.Shape",
-    "java.awt.Shape",
-    "org.joda.time.ReadablePartial",
-    "org.w3c.dom.Node",
-    "org.jsoup.nodes.Element",
-    "java.io.Reader",
-    "org.joda.time.base.AbstractDateTime",
-    "org.joda.time.field.AbstractReadableInstantFieldProperty",
-    "org.apache.commons.math.linear.SingularValueDecomposition"],
-  "blacklist": ["hashCode",
-    "add",
-    "toString",
-    "DateTimeFormatterBuilder",
-    "access$",
-    "compareTo",
-    "Iterator",
-    "clinit",
-    "contains",
-    "<clinit>"]
+  "localSuperClasses": [
+    ],
+  "globalSuperClasses": [
+    [ "java.lang.String" , "java.lang.CharSequence" ]
+    ],
+  "blacklist": [
+    "hashCode",
+    "toString"
+    ]
 }

@@ -69,6 +69,12 @@ public class SequentialEncoding implements Encoding {
 		System.out.println("#constraints = " + solver.getNbConstraints());
 	}
 	
+	public void setAtLeastK(List<Pair<String, Integer>> atLeastK) {
+		for (Pair<String, Integer> p : atLeastK) {
+			atLeastK(p.getRight(), p.getLeft());
+		}
+	}
+	
 	public void atMostK(int k) {
 		for (Transition tr : pnet.getTransitions()) {
 			VecInt constraint = new VecInt();
@@ -83,16 +89,23 @@ public class SequentialEncoding implements Encoding {
 	}
 	
 	public void atLeastK(int k, String transition) {
-//		for (Transition tr : pnet.getTransitions()) {
-		Transition tr = pnet.getTransition(transition);
-			VecInt constraint = new VecInt();
-			for (int t = 0; t < loc; t++) {
-				// create a variable with <place in the petri-net, timestamp, value>
-				Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
-				Variable var = transition2variable.get(pair);
-				constraint.push(var.getId());
+		
+		// TODO: support multiple methods with the same name with auxiliary variables
+		for (Transition tr : pnet.getTransitions()) {
+			
+			if (tr.getId().equals(transition)){
+				VecInt constraint = new VecInt();
+				for (int t = 0; t < loc; t++) {
+					// create a variable with <place in the petri-net, timestamp, value>
+					Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+					Variable var = transition2variable.get(pair);
+					constraint.push(var.getId());
+				}
+				solver.addClause(constraint);
+				//solver.addConstraint(constraint, ConstraintType.GTE, k);
+				break;
 			}
-			solver.addConstraint(constraint, ConstraintType.GTE, k);
+		}
 	}
 
 
@@ -368,8 +381,6 @@ public class SequentialEncoding implements Encoding {
 		// if no transitions were fired that used the place p then the marking
 		// of p remains the same from times step t to t+1
 		noTransitionTokens();
-		
-		//atMostK(1);
 
 	}
 

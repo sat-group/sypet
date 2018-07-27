@@ -25,7 +25,7 @@ public class Cache {
 	public Cache(List<String> packages, List<String> libs) {
 		SyPetConfig jsonConfig = JsonParser.parseJsonConfig("config/config.json");
 		Set<String> acceptableSuperClasses = new HashSet<>();
-		acceptableSuperClasses.addAll(jsonConfig.acceptableSuperClasses);
+		acceptableSuperClasses.addAll(jsonConfig.localSuperClasses);
 
 		JarParser parser = new JarParser(libs);
 		Cache.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
