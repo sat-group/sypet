@@ -3,6 +3,7 @@ package cmu.edu.ui;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.sat4j.specs.TimeoutException;
@@ -85,6 +87,11 @@ public class UISyPet {
 		Set<String> localSuperClasses = new HashSet<>();
 		localSuperClasses.addAll(jsonConfig.localSuperClasses);
 		
+		// suppress warnings from Soot
+		PrintStream origOutput = System.out;
+		PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
+		System.setOut(newOutput);
+		
 		JarParser parser = new JarParser(libs);
 		this.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
 		this.superclassMap = JarParser.getSuperClasses(localSuperClasses);
@@ -110,6 +117,7 @@ public class UISyPet {
 			}
 		}
 
+		System.setOut(origOutput);
 		buildNet = new BuildNet();
 		try {
 			net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
@@ -137,9 +145,9 @@ public class UISyPet {
 		atLeast.add(new ImmutablePair<String,Integer>(methodName,k));
 	}
 
-	public String synthesize(int max_loc) {
+	public String synthesize(int min_loc, int max_loc) {
 
-		int loc = 1;
+		int loc = min_loc;
 		boolean solution = false;
 		String synthesizedCode = "";
 		String code;

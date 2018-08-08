@@ -43,10 +43,12 @@ import java.util.List;
  */
 public class SyPetInput {
 	
-	public SyPetInput(int id, String methodName, List<String> paramNames,
+	public SyPetInput(int id, int lb, int ub, String methodName, List<String> paramNames,
 					  List<String> srcTypes, String tgtType, List<String> packages,
-					  List<String> libs, String testPath) {
+					  List<String> libs, String testPath, List<String> calls, List<String> types) {
 		this.id = id;
+		this.lb = lb;
+		this.ub = ub;
 		this.methodName = methodName;
 		this.paramNames = paramNames;
 		this.srcTypes = srcTypes;
@@ -54,6 +56,8 @@ public class SyPetInput {
 		this.packages = packages;
 		this.libs = libs;
 		this.testPath = testPath;
+		this.calls = calls;
+		this.types = types;
 	}
 	
 	public int id;
@@ -64,5 +68,9 @@ public class SyPetInput {
     public List<String> packages;
     public List<String> libs;
     public String testPath;
+    public List<String> calls;
+    public List<String> types;
+    public int lb;
+    public int ub;
 
 }

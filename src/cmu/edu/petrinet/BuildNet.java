@@ -306,7 +306,7 @@ public class BuildNet {
 
         setMaxTokens(inputs);
 
-        System.out.println("Done.");
+        //System.out.println("Done.");
         return petrinet;
     }
 }

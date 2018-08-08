@@ -61,6 +61,10 @@ public class JsonParser {
 		try (Reader reader = new InputStreamReader(new FileInputStream(new File(path)))) {
 			Gson gson = new GsonBuilder().create();
 			SyPetInput p = gson.fromJson(reader, SyPetInput.class);
+			if (p.lb == 0)
+				p.lb = 1;
+			if (p.ub == 0)
+				p.ub = 10;
 			return p;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

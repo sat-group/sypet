@@ -39,7 +39,7 @@ public class UIExample {
 	    "}\n";
 		
 		sypet.setSignature(methodName, paramNames, srcTypes,tgtType, testCode);
-		String code = sypet.synthesize(3);
+		String code = sypet.synthesize(1,3);
 		System.out.println("code = " + code);
 		
 //		

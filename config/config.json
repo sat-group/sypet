@@ -1,5 +1,6 @@
 {
   "localSuperClasses": [
+  	"java.awt.Shape"
     ],
   "globalSuperClasses": [
     [ "java.lang.String" , "java.lang.CharSequence" ]

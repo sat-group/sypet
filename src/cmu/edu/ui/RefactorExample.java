@@ -77,7 +77,7 @@ public class RefactorExample {
 //		sypet.addAtLeastK("(static)java.time.LocalDate.parse(java.lang.CharSequence java.time.format.DateTimeFormatter )java.time.LocalDatePoly:(java.lang.String java.time.format.DateTimeFormatter )", 1);
 //		sypet.addAtLeastK("java.time.LocalDate.plusDays(java.time.LocalDate long )java.time.LocalDate", 1);
 //		sypet.addAtLeastK("java.time.LocalDate.format(java.time.LocalDate java.time.format.DateTimeFormatter )java.lang.String", 1);
-		String code = sypet.synthesize(7);
+		String code = sypet.synthesize(1,7);
 		System.out.println("code = " + code);
 
 	}

@@ -66,7 +66,7 @@ public class SequentialEncoding implements Encoding {
 
 		createVariables();
 		createConstraints();
-		System.out.println("#constraints = " + solver.getNbConstraints());
+		//System.out.println("#constraints = " + solver.getNbConstraints());
 	}
 	
 	public void setAtLeastK(List<Pair<String, Integer>> atLeastK) {
@@ -86,6 +86,10 @@ public class SequentialEncoding implements Encoding {
 			}
 			solver.addConstraint(constraint, ConstraintType.LTE, k);
 		}
+	}
+	
+	public void facts(String transition) {
+		
 	}
 	
 	public void atLeastK(int k, String transition) {
