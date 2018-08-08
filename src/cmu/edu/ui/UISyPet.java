@@ -37,6 +37,8 @@ import cmu.edu.reachability.EncodingUtil;
 import cmu.edu.reachability.SequentialEncoding;
 import cmu.edu.reachability.Variable;
 import uniol.apt.adt.pn.PetriNet;
+import uniol.apt.adt.pn.Place;
+import uniol.apt.adt.pn.Transition;
 
 /**
  * This represents the UI for SyPet to be called by other applications.
@@ -77,7 +79,7 @@ public class UISyPet {
 		List<List<String>> globalSuperClasses = new ArrayList<>();
 		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
 		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>());
+		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>(), new ArrayList<>());
 		
 		Path path = Paths.get(configPath);
 
@@ -118,7 +120,7 @@ public class UISyPet {
 		}
 
 		System.setOut(origOutput);
-		buildNet = new BuildNet();
+		buildNet = new BuildNet(jsonConfig.noSideEffects);
 		try {
 			net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
 		} catch (IOException e) {

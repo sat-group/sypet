@@ -3,8 +3,12 @@
   	"java.awt.Shape"
     ],
   "globalSuperClasses": [
-    [ "java.lang.String" , "java.lang.CharSequence" ]
+    [ "java.lang.String" , "java.lang.CharSequence" ],
+    [ "javax.swing.JFrame" , "java.awt.Window" ]
     ],
+  "noSideEffects": [
+    "java.awt.Window"
+  ],
   "blacklist": [
     "hashCode",
     "toString"

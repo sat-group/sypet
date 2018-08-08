@@ -66,7 +66,6 @@ public class SyPet {
 			System.exit(0);
 		}
 
-		// 0. Read input from the user
 		SyPetInput jsonInput = JsonParser.parseJsonInput(args[0]);
 
 		List<String> packages = jsonInput.packages;

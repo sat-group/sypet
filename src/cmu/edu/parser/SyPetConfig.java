@@ -37,18 +37,22 @@ import java.util.List;
 
 /**
  * This represents the configuration options for SyPet.
+ * 
  * @author Kaige Liu
  * @author Ruben Martins
  * 
  */
 public class SyPetConfig {
-    public List<String> localSuperClasses;
-    public List<List<String>> globalSuperClasses;
-    public List<String> blacklist;
-    
-    public SyPetConfig (List<String> localSuperClasses, List<List<String>> glocalSuperClasses, List<String> blacklist){
-    	this.localSuperClasses = localSuperClasses;
-    	this.globalSuperClasses = glocalSuperClasses;
-    	this.blacklist = blacklist;
-    }
+	public List<String> localSuperClasses;
+	public List<List<String>> globalSuperClasses;
+	public List<String> blacklist;
+	public List<String> noSideEffects;
+
+	public SyPetConfig(List<String> localSuperClasses, List<List<String>> glocalSuperClasses, List<String> blacklist,
+			List<String> noSideEffects) {
+		this.localSuperClasses = localSuperClasses;
+		this.globalSuperClasses = glocalSuperClasses;
+		this.blacklist = blacklist;
+		this.noSideEffects = noSideEffects;
+	}
 }
