@@ -95,7 +95,9 @@ public class SyPet {
 		
 		sypet.setSignature(methodName, paramNames, srcTypes, tgtType, testCode);
 		String code = sypet.synthesize(jsonInput.lb, jsonInput.ub);
-		System.out.println("c Synthesized code:\n" + code);
+		if (!code.equals(""))
+			System.out.println("c Synthesized code:\n" + code);
+		System.exit(0);
 	}
 
 }

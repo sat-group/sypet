@@ -1,13 +1,15 @@
 {
   "localSuperClasses": [
-  	"java.awt.Shape"
+    "java.awt.Shape",
+    "javax.swing.border.Border"
     ],
   "globalSuperClasses": [
     [ "java.lang.String" , "java.lang.CharSequence" ],
-    [ "javax.swing.JFrame" , "java.awt.Window" ]
+    [ "javax.swing.JFrame" , "java.awt.Window" ],
+    [ "javax.swing.JFrame" , "java.awt.Frame" ],
+    [ "javax.swing.JPanel" , "javax.swing.JComponent" ]
     ],
   "noSideEffects": [
-    "java.awt.Window"
   ],
   "blacklist": [
     "hashCode",

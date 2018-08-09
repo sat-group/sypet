@@ -94,7 +94,7 @@ public class JarParser {
 								break;
 							}
 						}
-						if (method.getParameterTypes().size() > 3)
+						if (method.getParameterTypes().size() > 4)
 							sat = false;
 						if (sat)
 							sigs.add(getMethodSignature(method));

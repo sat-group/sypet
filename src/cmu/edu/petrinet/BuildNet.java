@@ -1,24 +1,24 @@
 /**
  * BSD 3-Clause License
- *	
- *	
+ *
+ *
  *	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
  *	All rights reserved.
- *	
+ *
  *	Redistribution and use in source and binary forms, with or without
  *	modification, are permitted provided that the following conditions are met:
- *	
+ *
  *	* Redistributions of source code must retain the above copyright notice, this
  *	  list of conditions and the following disclaimer.
- *	
+ *
  *	* Redistributions in binary form must reproduce the above copyright notice,
  *	  this list of conditions and the following disclaimer in the documentation
  *	  and/or other materials provided with the distribution.
- *	
+ *
  *	* Neither the name of the copyright holder nor the names of its
  *	  contributors may be used to endorse or promote products derived from
  *	  this software without specific prior written permission.
- *	
+ *
  *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -51,7 +51,7 @@ import uniol.apt.adt.pn.Transition;
 
 /**
  * Build petri net from a set of libraries.
- * 
+ *
  * @author Ruben Martins
  * @author Anlun Xu
  */
@@ -90,17 +90,54 @@ public class BuildNet {
 			if (petrinet.containsTransition(newTransitionName)) {
 				return;
 			}
-			Transition newTransition = petrinet.createTransition(newTransitionName);
-			for (Place p : polyInputs) {
-				addFlow(p.getId(), newTransitionName, 1);
-			}
 
+			boolean polymorphicOutput = false;
 			for (Flow f : t.getPostsetEdges()) {
 				Place p = f.getPlace();
-				int w = f.getWeight();
-				petrinet.createFlow(newTransition, p, w);
+				List<String> subClasses = subDict.get(p.getId());
+				if (subClasses != null){
+					polymorphicOutput = true;
+					break;
+				}
+				if (polymorphicOutput)
+					break;
 			}
-			dict.put(newTransitionName, dict.get(t.getId()));
+
+			Transition newTransition = null;
+			if (!polymorphicOutput){
+
+				 newTransition = petrinet.createTransition(newTransitionName);
+				for (Place p : polyInputs) {
+					// NOTE: why is the weight of the flow restricted to 1?
+					addFlow(p.getId(), newTransitionName, 1);
+				}
+
+				for (Flow f : t.getPostsetEdges()) {
+					Place p = f.getPlace();
+					int w = f.getWeight();
+					petrinet.createFlow(newTransition, p, w);
+				}
+				dict.put(newTransitionName, dict.get(t.getId()));
+
+			} else {
+
+				for (Flow f : t.getPostsetEdges()) {
+					Place p = f.getPlace();
+					List<String> subClasses = subDict.get(p.getId());
+					for (String s : subClasses){
+						String newPolyTransitionName = newTransitionName+"(" + s + ")";
+						assert (!petrinet.containsTransition(newPolyTransitionName));
+						newTransition = petrinet.createTransition(newPolyTransitionName);
+						for (Place p2 : polyInputs) {
+							addFlow(p2.getId(), newPolyTransitionName, 1);
+						}
+						int w = f.getWeight();
+						petrinet.createFlow(newTransition, petrinet.getPlace(s), w);
+						dict.put(newPolyTransitionName, dict.get(t.getId()));
+					}
+				}
+
+			}
 
 		} else {
 			Place p = inputs.get(count);
@@ -316,7 +353,7 @@ public class BuildNet {
 		for (Place p : petrinet.getPlaces()) {
 			maxTokenMap.put(p.getId(), 1);
 		}
-		
+
 		// compute max.
 		for (Transition t : petrinet.getTransitions()) {
 			for (Flow flow : t.getPresetEdges()) {
@@ -332,7 +369,7 @@ public class BuildNet {
 			assert (maxTokenMap.containsKey(p.getId()));
 			p.setMaxToken(maxTokenMap.get(p.getId())+1);
 		}
-		
+
 		// Update the maxtoken for inputs
 		HashMap<Place, Integer> count = new HashMap<Place, Integer>();
 		for (String input : inputs) {
@@ -349,7 +386,7 @@ public class BuildNet {
 				p.setMaxToken(count.get(p));
 			}
 		}
-		
+
 	}
 
 	public PetriNet build(List<MethodSignature> result, Map<String, Set<String>> superClassMap,
