@@ -103,23 +103,20 @@ public class BuildNet {
 					break;
 			}
 
-			Transition newTransition = null;
-			if (!polymorphicOutput){
+			Transition newTransition = petrinet.createTransition(newTransitionName);
+			for (Place p : polyInputs) {
+				// NOTE: why is the weight of the flow restricted to 1?
+				addFlow(p.getId(), newTransitionName, 1);
+			}
 
-				 newTransition = petrinet.createTransition(newTransitionName);
-				for (Place p : polyInputs) {
-					// NOTE: why is the weight of the flow restricted to 1?
-					addFlow(p.getId(), newTransitionName, 1);
-				}
+			for (Flow f : t.getPostsetEdges()) {
+				Place p = f.getPlace();
+				int w = f.getWeight();
+				petrinet.createFlow(newTransition, p, w);
+			}
+			dict.put(newTransitionName, dict.get(t.getId()));
 
-				for (Flow f : t.getPostsetEdges()) {
-					Place p = f.getPlace();
-					int w = f.getWeight();
-					petrinet.createFlow(newTransition, p, w);
-				}
-				dict.put(newTransitionName, dict.get(t.getId()));
-
-			} else {
+			if (polymorphicOutput){
 
 				for (Flow f : t.getPostsetEdges()) {
 					Place p = f.getPlace();
@@ -194,6 +191,9 @@ public class BuildNet {
 	private static void getPolymorphismInformation(Map<String, Set<String>> superClassMap,
 			Map<String, Set<String>> subClassMap) {
 		for (String s : superClassMap.keySet()) {
+			if (!petrinet.containsPlace(s))
+				continue;
+
 			Set<String> superClasses = superClassMap.get(s);
 			if (superClasses.size() != 0) {
 				List<String> superClassList = new ArrayList<>(superClasses);
@@ -201,6 +201,9 @@ public class BuildNet {
 			}
 		}
 		for (String s : subClassMap.keySet()) {
+			if (!petrinet.containsPlace(s))
+				continue;
+			
 			Set<String> subClasses = subClassMap.get(s);
 			if (subClasses.size() != 0) {
 				List<String> subClassList = new ArrayList<>(subClasses);
@@ -392,11 +395,11 @@ public class BuildNet {
 	public PetriNet build(List<MethodSignature> result, Map<String, Set<String>> superClassMap,
 			Map<String, Set<String>> subClassMap, List<String> inputs, boolean copyPoly) throws java.io.IOException {
 
-		getPolymorphismInformation(superClassMap, subClassMap);
-
 		for (MethodSignature k : result) {
 			addTransition(k);
 		}
+
+		getPolymorphismInformation(superClassMap, subClassMap);
 
 		if (copyPoly) {
 			copyPolymorphism();
