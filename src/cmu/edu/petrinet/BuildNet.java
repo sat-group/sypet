@@ -122,6 +122,8 @@ public class BuildNet {
 					Place p = f.getPlace();
 					List<String> subClasses = subDict.get(p.getId());
 					for (String s : subClasses){
+						if (!petrinet.containsPlace(s))
+							continue;
 						String newPolyTransitionName = newTransitionName+"(" + s + ")";
 						assert (!petrinet.containsTransition(newPolyTransitionName));
 						newTransition = petrinet.createTransition(newPolyTransitionName);

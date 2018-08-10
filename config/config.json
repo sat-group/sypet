@@ -11,7 +11,8 @@
     [ "java.awt.GridLayout" , "java.awt.LayoutManager" ],
     [ "javax.swing.border.EmptyBorder", "javax.swing.border.Border" ],
     [ "javax.swing.ImageIcon", "javax.swing.Icon" ],
-    [ "javax.swing.JPasswordField", "javax.swing.JTextField" ]
+    [ "javax.swing.JPasswordField", "javax.swing.JTextField" ],
+    [ "javax.swing.JLabel" , "java.awt.Component" ]
     ],
   "noSideEffects": [
   ],
