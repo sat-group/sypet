@@ -82,6 +82,7 @@ public class CodeFormer {
         //solver.setTimeout(1000000);
         //Setup
         //Add method input
+        
         for (String input : inputTypes){
             returnedValTypes.addEntry(input,retNumber);
             retNumber += 1;
@@ -217,7 +218,11 @@ public class CodeFormer {
     }
 
     private String formCode(List<Integer> satResult){
-        //FormCode
+    	
+    	// FIXME: check what is causing this bug
+    	String error = "";
+    	
+    	//FormCode
         StringBuilder builder = new StringBuilder();
         int varCount = 0;
         int slotCount = 0;
@@ -243,6 +248,7 @@ public class CodeFormer {
         builder.append(") throws Throwable{\n");
 
         for (MethodSignature sig : sigs){
+        	
             if (!sig.getRetType().toString().equals("void")){
                 builder.append(sig.getRetType().toString().replace('$','.'));
                 builder.append(" ");
@@ -261,6 +267,8 @@ public class CodeFormer {
             }
 
             else{
+            	if (slotCount >= satResult.size())
+                	return error;
                 int id = satResult.get(slotCount);
                 slotCount ++;
                 int returnedValue = calculateReturnedValue(id);
@@ -271,6 +279,8 @@ public class CodeFormer {
             builder.append(sig.getName().replace('$','.'));
             builder.append("(");
             for (int i = 0; i < sig.getArgTypes().size() ; i++){
+            	if (slotCount >= satResult.size())
+                	return error;
                 int id = satResult.get(slotCount);
                 slotCount ++;
                 int returnedValue = calculateReturnedValue(id);
@@ -286,7 +296,9 @@ public class CodeFormer {
         }
         if (retType != null ){
             builder.append("return ");
-
+            
+            if (slotCount >= satResult.size())
+            	return error;
             int id = satResult.get(slotCount);
             slotCount ++;
             int returnedValue = calculateReturnedValue(id);

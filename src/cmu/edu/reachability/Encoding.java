@@ -56,7 +56,7 @@ public interface Encoding {
 	
 	public void setState(Set<Pair<Place, Integer>> state, int timestep);
 	
-	public void setAtLeastK(List<Pair<String, Integer>> atLeastK);
+	public void setHints(List<String> atLeastK);
 	
 	public void createConstraints();
 	

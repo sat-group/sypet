@@ -13,7 +13,7 @@ public class UIExample {
 			    Arrays.asList("java.time"));
 		ArrayList<String> libs = new ArrayList<String>(
 				Arrays.asList("./lib/rt8.jar"));
-		UISyPet sypet = new UISyPet(packages, libs);
+		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<String>());
 		String methodName = "refactor";
 		ArrayList<String> paramNames = new ArrayList<String>(
 				Arrays.asList("sypet_arg0","sypet_arg1","sypet_arg2"));

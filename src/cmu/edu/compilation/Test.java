@@ -66,9 +66,19 @@ public class Test {
         builder.append(code);
         // test cases need to be static for compilation to succeed
         if (!testCode.contains("public static"))
-        	builder.append(testCode.replace("public", "public static"));
-        else
-        	builder.append(testCode);
+        	testCode = testCode.replace("public", "public static");
+        
+        String [] tokens = testCode.split(" ");
+        for (int l = 0; l < tokens.length; l++) {
+        	if (tokens[l].equals("static")) {
+        		String name = tokens[l+2];
+        		if (!name.equals("test()"))
+        			testCode = testCode.replace(name, "test()");
+        		break;
+        	}
+        }
+        
+        builder.append(testCode);
         builder.append("}\n");
         return builder.toString();
     }

@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import cmu.edu.parser.JsonParser;
@@ -70,7 +71,10 @@ public class SyPet {
 
 		List<String> packages = jsonInput.packages;
 		List<String> libs = jsonInput.libs;
-		UISyPet sypet = new UISyPet(packages, libs);
+		List<String> hints = new ArrayList<>();
+		if (jsonInput.hints != null)
+			hints = jsonInput.hints;
+		UISyPet sypet = new UISyPet(packages, libs, hints);
 		String methodName = jsonInput.methodName;
 		List<String> paramNames = jsonInput.paramNames;
 		List<String> srcTypes = jsonInput.srcTypes;

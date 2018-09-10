@@ -66,15 +66,15 @@ public class SequentialEncoding implements Encoding {
 
 		createVariables();
 		createConstraints();
-		//System.out.println("#constraints = " + solver.getNbConstraints());
+		// System.out.println("#constraints = " + solver.getNbConstraints());
 	}
-	
+
 	public void setAtLeastK(List<Pair<String, Integer>> atLeastK) {
 		for (Pair<String, Integer> p : atLeastK) {
 			atLeastK(p.getRight(), p.getLeft());
 		}
 	}
-	
+
 	public void atMostK(int k) {
 		for (Transition tr : pnet.getTransitions()) {
 			VecInt constraint = new VecInt();
@@ -87,17 +87,55 @@ public class SequentialEncoding implements Encoding {
 			solver.addConstraint(constraint, ConstraintType.LTE, k);
 		}
 	}
-	
-	public void facts(String transition) {
-		
+
+	public void setHints(List<String> hints) {
+
+		if (solver.loc_variables.isEmpty())
+			return;
+
+		// System.out.println("#variables = " + solver.getNbVariables());
+		for (String s : hints) {
+			
+			VecInt aux = new VecInt();
+			
+			for (Transition tr : pnet.getTransitions()) {
+
+				if (tr.getId().contains(s)) {
+
+					if (solver.loc_variables.isEmpty())
+						return;
+					int v = solver.loc_variables.last();
+					solver.loc_variables.pop();
+					aux.push(v);
+					
+					VecInt constraint = new VecInt();
+					constraint.push(-v);
+					
+					for (int t = 0; t < loc; t++) {
+						//System.out.println("tr = " + tr);
+						// create a variable with <place in the petri-net, timestamp, value>
+						Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+						Variable var = transition2variable.get(pair);
+						constraint.push(var.getId());
+
+						VecInt c = new VecInt();
+						c.push(-var.getId());
+						c.push(v);
+						solver.addClause(c);
+					}
+					solver.addClause(constraint);
+				}
+			}
+			solver.addClause(aux);
+		}
 	}
-	
+
 	public void atLeastK(int k, String transition) {
-		
+
 		// TODO: support multiple methods with the same name with auxiliary variables
 		for (Transition tr : pnet.getTransitions()) {
-			
-			if (tr.getId().equals(transition)){
+
+			if (tr.getId().equals(transition)) {
 				VecInt constraint = new VecInt();
 				for (int t = 0; t < loc; t++) {
 					// create a variable with <place in the petri-net, timestamp, value>
@@ -106,12 +144,11 @@ public class SequentialEncoding implements Encoding {
 					constraint.push(var.getId());
 				}
 				solver.addClause(constraint);
-				//solver.addConstraint(constraint, ConstraintType.GTE, k);
+				// solver.addConstraint(constraint, ConstraintType.GTE, k);
 				break;
 			}
 		}
 	}
-
 
 	// Exactly one transition f is fired at each time step t
 	private void sequentialTransitions() {
@@ -128,10 +165,10 @@ public class SequentialEncoding implements Encoding {
 
 			// add constraints to the solver
 			// exactly one transition is going to be fired
-			solver.addConstraint(constraint, ConstraintType.EQ, 1); 
+			solver.addConstraint(constraint, ConstraintType.EQ, 1);
 		}
-		
-		// = , <=, >=  RHS
+
+		// = , <=, >= RHS
 	}
 
 	private void postConditionsTransitions() {
@@ -163,38 +200,37 @@ public class SequentialEncoding implements Encoding {
 
 				for (Place p : places_to_be_changed.keySet()) {
 					for (int w = 0; w <= p.getMaxToken(); w++) {
-						
+
 						int diff = places_to_be_changed.get(p);
 						// void always remains the same
 						if (p.getId().equals("void"))
 							diff = 0;
-						
-						if (w + places_to_be_changed.get(p) < 0
-								|| w + places_to_be_changed.get(p) > p.getMaxToken())
+
+						if (w + places_to_be_changed.get(p) < 0 || w + places_to_be_changed.get(p) > p.getMaxToken())
 							continue;
 
-						Triple<Place, Integer, Integer> placeBefore = new ImmutableTriple<Place, Integer, Integer>(
-								p, t, w);
+						Triple<Place, Integer, Integer> placeBefore = new ImmutableTriple<Place, Integer, Integer>(p, t,
+								w);
 						Triple<Place, Integer, Integer> placeAfter = new ImmutableTriple<Place, Integer, Integer>(p,
 								t + 1, w + diff);
-						
+
 						Variable previousState = place2variable.get(placeBefore);
 						Variable nextState = place2variable.get(placeAfter);
 						VecInt state = new VecInt(
 								new int[] { -fireTr.getId(), -previousState.getId(), nextState.getId() });
 						solver.addClause(state);
-						
+
 						// f AND a => b
 						// clause: ~f OR ~a OR B
 						// a OR b => a + b >= 1
 						// ~a = (1-a)+(1-b)+c >= 1 => -a -b +c >= -1
 						// a AND b => c
-						
+
 						// \sum t1 t2 t3 = s
 						// t1 + t2 + t3 + s_1 = 0
 						// t1 + t2 + t3 - s_2 = 0
 						// t1 + t2 + t3 - s_3 = 0
-						
+
 					}
 				}
 			}
@@ -324,11 +360,13 @@ public class SequentialEncoding implements Encoding {
 	@Override
 	public void createVariables() {
 		assert (pnet != null);
-		
+
 		// Place -> Nodes (Types)
 		// e.g. MyPoint(line#, #tokens)
-		// e.g. LOC = 1; MaxTokens = 2; MyPoint(0,0), MyPoint(0,1), MyPoint(0,2), MyPoint(1,0), MyPoint(1,1), MyPoint(1,2)
-		// MyPoint(0,b1,c), MyPoint(0,b2,c) ; LOC=2, MyPoint(0,b1,0),MyPoint(0,b1,1),MyPoint(0,b1,2) ...
+		// e.g. LOC = 1; MaxTokens = 2; MyPoint(0,0), MyPoint(0,1), MyPoint(0,2),
+		// MyPoint(1,0), MyPoint(1,1), MyPoint(1,2)
+		// MyPoint(0,b1,c), MyPoint(0,b2,c) ; LOC=2,
+		// MyPoint(0,b1,0),MyPoint(0,b1,1),MyPoint(0,b1,2) ...
 
 		for (Place p : pnet.getPlaces()) {
 			for (int t = 0; t <= loc; t++) {
@@ -363,6 +401,14 @@ public class SequentialEncoding implements Encoding {
 
 	@Override
 	public void createConstraints() {
+
+		// for (Transition tr : pnet.getTransitions()) {
+		// if (tr.getId().contains("java.net.Socket"))
+		// System.out.println("tr = " + tr);
+		// }
+
+		// atLeastK(1, "java.net.Socket(Constructor)(java.lang.String int
+		// )java.net.Socket");
 
 		// All variables must be used in some constraint
 		// These dummy constraints would not be necessary if the above invariant

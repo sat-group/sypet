@@ -66,6 +66,10 @@ public class BuildNet {
 	static private List<String> noSideEffects = new ArrayList<>();
 
 	public BuildNet(List<String> noSideEffects) {
+		petrinet = new PetriNet("net");
+		dict = new HashMap<String, MethodSignature>();
+		superDict = new HashMap<>();
+		subDict = new HashMap<>();
 		this.noSideEffects = noSideEffects;
 	}
 
@@ -215,11 +219,13 @@ public class BuildNet {
 	}
 
 	private static void addPlace(String placeID) {
+		//placeID = placeID.replace("$", ".");
 		try {
 			petrinet.getPlace(placeID);
 		} catch (NoSuchNodeException e) {
 			petrinet.createPlace(placeID);
 			petrinet.createTransition(placeID + "Clone");
+			//petrinet.getPlace(placeID).setMaxToken(2);
 			petrinet.createFlow(placeID, placeID + "Clone", 1);
 			petrinet.createFlow(placeID + "Clone", placeID, 2);
 		}
@@ -299,7 +305,7 @@ public class BuildNet {
 		String className = methodSig.getHostClass().getName();
 		String transitionName;
 		List<Type> args = methodSig.getArgTypes();
-
+		
 		if (isConstructor) {
 			transitionName = methodname + "(Constructor)" + "(";
 			for (Type t : args) {
@@ -307,7 +313,9 @@ public class BuildNet {
 			}
 			transitionName += ")";
 			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			// FIXME: fix this potential bug later; triggered in javax.mail
+			if (!petrinet.containsTransition(transitionName))
+				petrinet.createTransition(transitionName);
 		} else if (isStatic) {
 			transitionName = "(static)" + className + "." + methodname + "(";
 			for (Type t : args) {
@@ -315,7 +323,9 @@ public class BuildNet {
 			}
 			transitionName += ")";
 			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			// FIXME: fix this potential bug later; triggered in javax.mail
+			if (!petrinet.containsTransition(transitionName))
+				petrinet.createTransition(transitionName);
 		} else { // The method is not static, so it has an extra argument
 			transitionName = className + "." + methodname + "(";
 			transitionName += className + " ";
@@ -324,10 +334,13 @@ public class BuildNet {
 			}
 			transitionName += ")";
 			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			// FIXME: fix this potential bug later; triggered in javax.mail
+			if (!petrinet.containsTransition(transitionName)) {
+				petrinet.createTransition(transitionName);
 
-			addPlace(className);
-			addFlow(className, transitionName, 1);
+				addPlace(className);
+				addFlow(className, transitionName, 1);
+			}
 		}
 		dict.put(transitionName, methodSig); // add signature into map
 

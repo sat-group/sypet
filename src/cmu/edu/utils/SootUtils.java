@@ -66,11 +66,14 @@ public class SootUtils {
 			options.append(" -process-dir " + lib);
 		}
 
-		options.append(" -cp " + cp.toString());
-
-		if (!Options.v().parse(options.toString().split(" ")))
+		if (!libs.isEmpty())
+			options.append(" -cp " + cp.toString());
+		
+		
+		if (!Options.v().parse(options.toString().split(" "))) {
 			throw new CompilationDeathException(CompilationDeathException.COMPILATION_ABORTED,
-					"Option parse error");
+					"Option parse error "  + options.toString());
+		}
 
 		Scene.v().loadBasicClasses();
 		Scene.v().loadNecessaryClasses();

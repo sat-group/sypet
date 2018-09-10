@@ -63,6 +63,10 @@ public class JarParser {
 		SootUtils.initSoot(libs);
 	}
 	
+	public JarParser(List<String> libs, List<String> soot) {
+		pkgs = new ArrayList<String>();
+		SootUtils.initSoot(soot);
+	}
 	
 	/**
 	 * Parse a list of given jar files, and produce a list of method signatures.
@@ -89,12 +93,12 @@ public class JarParser {
 							}
 						}
 						for (String bl : blacklist) {
-							if (method.getName().endsWith(bl)) {
+							if (method.getName().contains(bl)) {
 								sat = false;
 								break;
 							}
 						}
-						if (method.getParameterTypes().size() > 4)
+						if (method.getParameterTypes().size() > 5)
 							sat = false;
 						if (sat)
 							sigs.add(getMethodSignature(method));
@@ -131,7 +135,6 @@ public class JarParser {
 		Map<String, Set<String>> result = new HashMap<>();
 		for (SootClass cl : Scene.v().getClasses()) {
 			if (cl.getName().startsWith(pkg)) {
-				System.out.println("name = " + cl.getName());
 				result.put(cl.getName(), getSuperClassesOfClass(acceptableSuperClasses, cl));
 				break;
 			}

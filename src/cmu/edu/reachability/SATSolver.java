@@ -60,7 +60,7 @@ public class SATSolver {
 	public HashMap<Integer,Variable> id2variable = new HashMap<>();
 	
 	private int nbVariables = 0;
-	private VecInt loc_variables;
+	public VecInt loc_variables;
 	
 	public SATSolver(){
 		solver = SolverFactory.newDefault();
@@ -80,7 +80,7 @@ public class SATSolver {
 	}
 	
 	public void setNbVariables(int vars){
-		/*
+		
 		 // version for additional variables
 		for (int i = vars+1; i <= vars+100; i++)
 			loc_variables.push(i);
@@ -96,7 +96,7 @@ public class SATSolver {
 				assert(false);
 			}
 		}
-		*/
+		
 		nbVariables = vars;
 		solver.newVar(nbVariables);
 	}

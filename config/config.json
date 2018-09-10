@@ -12,12 +12,18 @@
     [ "javax.swing.border.EmptyBorder", "javax.swing.border.Border" ],
     [ "javax.swing.ImageIcon", "javax.swing.Icon" ],
     [ "javax.swing.JPasswordField", "javax.swing.JTextField" ],
-    [ "javax.swing.JLabel" , "java.awt.Component" ]
-    ],
+    [ "javax.swing.JLabel" , "java.awt.Component" ],
+    [ "java.time.LocalDateTime", "java.time.temporal.Temporal"],
+    [ "java.time.LocalDateTime", "java.time.temporal.Temporal"],
+    [ "javax.mail.internet.InternetAddress", "javax.mail.Address"],
+    [ "org.simplejavamail.mailer.MailerBuilder.MailerRegularBuilder", "org.simplejavamail.mailer.MailerBuilder"],
+    [ "org.simplejavamail.email.EmailPopulatingBuilder", "org.simplejavamail.mailer.EmailBuilder"]
+  ],
   "noSideEffects": [
   ],
   "blacklist": [
     "hashCode",
-    "toString"
+    "toString",
+    "readUTF"
     ]
 }

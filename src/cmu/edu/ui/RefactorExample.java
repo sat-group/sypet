@@ -17,7 +17,7 @@ public class RefactorExample {
 
 		ArrayList<String> packages = new ArrayList<String>(Arrays.asList("java.time"));
 		ArrayList<String> libs = new ArrayList<String>(Arrays.asList("./lib/rt8.jar"));
-		UISyPet sypet = new UISyPet(packages, libs);
+		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<String>());
 		String methodName = "refactor";
 		ArrayList<String> paramNames = new ArrayList<String>(Arrays.asList("sypet_arg0", "sypet_arg1", "sypet_arg2", "sypet_arg3", "sypet_arg4"));
 //		
@@ -61,16 +61,16 @@ public class RefactorExample {
 		if (Integer.valueOf(args[0]) >= 2){
 			System.out.println("c Fixing method= \"ofPattern\"");
 			System.out.println("c Fixing method= \"parse\"");
-			sypet.addAtLeastK("(static)java.time.format.DateTimeFormatter.ofPattern(java.lang.String )java.time.format.DateTimeFormatter",1);
-			sypet.addAtLeastK("(static)java.time.LocalDate.parse(java.lang.CharSequence java.time.format.DateTimeFormatter )java.time.LocalDatePoly:(java.lang.String java.time.format.DateTimeFormatter )", 1);
+			//sypet.addAtLeastK("(static)java.time.format.DateTimeFormatter.ofPattern(java.lang.String )java.time.format.DateTimeFormatter",1);
+			//sypet.addAtLeastK("(static)java.time.LocalDate.parse(java.lang.CharSequence java.time.format.DateTimeFormatter )java.time.LocalDatePoly:(java.lang.String java.time.format.DateTimeFormatter )", 1);
 		}
 		if (Integer.valueOf(args[0]) >= 3){
 			System.out.println("c Fixing method= \"format\"");
-			sypet.addAtLeastK("java.time.LocalDate.format(java.time.LocalDate java.time.format.DateTimeFormatter )java.lang.String", 1);	
+			//sypet.addAtLeastK("java.time.LocalDate.format(java.time.LocalDate java.time.format.DateTimeFormatter )java.lang.String", 1);	
 		}
 		if (Integer.valueOf(args[0]) >= 4){
 			System.out.println("c Fixing method= \"plusDays\"");
-			sypet.addAtLeastK("java.time.LocalDate.plusDays(java.time.LocalDate long )java.time.LocalDate", 1);
+			//sypet.addAtLeastK("java.time.LocalDate.plusDays(java.time.LocalDate long )java.time.LocalDate", 1);
 		}
 		
 //		sypet.addAtLeastK("(static)java.time.format.DateTimeFormatter.ofPattern(java.lang.String )java.time.format.DateTimeFormatter",1);
