@@ -35,6 +35,13 @@
         "Concat",
         "Substr"
     ],
+    "strconst":[
+      "updated on "
+    ],
+    "intconst":[
+        0,
+        16
+    ],    
     "text": "Concat(\"updated on \", Substr(x0, 0, 16))",
     "size": 2
 }

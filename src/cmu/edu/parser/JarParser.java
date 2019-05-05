@@ -84,6 +84,7 @@ public class JarParser {
 				SootClass clazz = Scene.v().getSootClass(cl);
 				List<SootMethod> methods = clazz.getMethods();
 				for (SootMethod method : methods) {
+					System.out.println("method = " + method.getName());
 					if (method.isPublic()) {
 						boolean sat = false;
 						for (String pkg : pkgs) {
@@ -94,6 +95,40 @@ public class JarParser {
 						}
 						for (String bl : blacklist) {
 							if (method.getName().contains(bl)) {
+								sat = false;
+								break;
+							}
+						}
+						if (method.getParameterTypes().size() > 5)
+							sat = false;
+						if (sat)
+							sigs.add(getMethodSignature(method));
+					}
+				}
+			}
+		}
+		return sigs;
+	}
+	
+	public List<MethodSignature> parseJarEqual(List<String> libs, List<String> pkgss, List<String> blacklist) {
+		pkgs = pkgss;
+		List<MethodSignature> sigs = new LinkedList<>();
+		for (String jarPath : libs) {
+			List<String> cls = SourceLocator.v().getClassesUnder(jarPath);
+			for (String cl : cls) {
+				SootClass clazz = Scene.v().getSootClass(cl);
+				List<SootMethod> methods = clazz.getMethods();
+				for (SootMethod method : methods) {
+					if (method.isPublic()) {
+						boolean sat = false;
+						for (String pkg : pkgs) {
+							if (clazz.getName().startsWith(pkg)) {
+								sat = true;
+								break;
+							}
+						}
+						for (String bl : blacklist) {
+							if (method.getName().equals(bl)) {
 								sat = false;
 								break;
 							}

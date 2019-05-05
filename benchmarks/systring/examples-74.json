@@ -37,6 +37,13 @@
         "Index",
         "Substr"
     ],
+    "strconst":[
+      " "
+    ],
+    "intconst":[
+        0,
+        1
+    ],    
     "text": "Concat(Substr(x0, 0, 1), Substr(x0, Add(Index(x0, \" \", 0), 1), 1), 1)",
     "size": 5
 }

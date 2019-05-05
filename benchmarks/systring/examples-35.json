@@ -35,6 +35,11 @@
         "Length",
         "Substr"
     ],
+    "strconst":[
+    ],
+    "intconst":[
+        10
+    ],    
     "text": "Substr(x0, 10, Length(x0))",
     "size": 2
 }

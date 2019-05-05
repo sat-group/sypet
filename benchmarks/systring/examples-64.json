@@ -36,6 +36,12 @@
         "Length",
         "Substr"
     ],
+    "strconst":[
+      "#"
+    ],
+    "intconst":[
+        0
+    ],    
     "text": "Substr(x0, Index(x0, \"#\", 0), Length(x0))",
     "size": 3
 }

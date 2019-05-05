@@ -55,6 +55,11 @@
         "Sub",
         "Substr"
     ],
+    "strconst":[
+    ],
+    "intconst":[
+        0
+    ],    
     "text": "Concat(Substr(x0, 0, Sub(x1, Length(x2))), x2)",
     "size": 4
 }

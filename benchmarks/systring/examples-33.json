@@ -35,6 +35,13 @@
         "Index",
         "Substr"
     ],
+    "strconst":[
+      " "
+    ],
+    "intconst":[
+        0,
+        5
+    ],    
     "text": "Substr(x0, 5, Index(x0, \" \", 0))",
     "size": 2
 }

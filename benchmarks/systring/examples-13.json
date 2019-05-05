@@ -34,6 +34,12 @@
     "functions": [
         "Substr"
     ],
+    "strconst":[
+    ],
+    "intconst":[
+        10,
+        15
+    ],    
     "text": "Substr(x0, 10, 15)",
     "size": 1
 }

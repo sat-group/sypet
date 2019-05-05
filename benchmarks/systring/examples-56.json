@@ -36,6 +36,13 @@
         "Sub",
         "Substr"
     ],
+    "strconst":[
+      "("
+    ],
+    "intconst":[
+        0,
+        1
+    ],    
     "text": "Substr(x0, 0, Sub(Index(x0, \"(\", 0), 1))",
     "size": 3
 }

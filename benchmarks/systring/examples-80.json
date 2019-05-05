@@ -37,6 +37,12 @@
         "Sub",
         "Substr"
     ],
+    "strconst":[
+      "@"
+    ],
+    "intconst":[
+        0
+    ],    
     "text": "Substr(x0, Index(x0, \"@\", 0), Sub(Length(x0), Index(x0, \"@\", 0)))",
     "size": 4
 }

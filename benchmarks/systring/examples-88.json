@@ -38,6 +38,14 @@
         "Sub",
         "Substr"
     ],
+    "strconst":[
+      "_"
+    ],
+    "intconst":[
+        0,
+        1,
+        6
+    ],
     "text": "Substr(x0, Add(Index(x0, \"_\", 0), 1), Sub(Length(x0), 6))",
     "size": 5
 }

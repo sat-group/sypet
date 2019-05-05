@@ -35,6 +35,13 @@
         "Index",
         "Substr"
     ],
+    "strconst":[
+      "/"
+    ],
+    "intconst":[
+        10,
+        50
+    ],    
     "text": "Substr(x0, Index(x0, \"/\", 10), 50)",
     "size": 2
 }

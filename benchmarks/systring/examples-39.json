@@ -35,6 +35,13 @@
         "Concat",
         "Substr"
     ],
+    "strconst":[
+      "Created on "
+    ],
+    "intconst":[
+        0,
+        16
+    ],    
     "text": "Concat(\"Created on \", Substr(x0, 0, 16))",
     "size": 2
 }

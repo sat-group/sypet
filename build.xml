@@ -43,7 +43,7 @@
 
      <target name="systring">
     <java classname="cmu.edu.ui.SyPetString"
-          maxmemory="16g"
+          maxmemory="32g"
           fork="true"
           failonerror="true">
         <arg line="${args}"/>

@@ -24,6 +24,13 @@
         "Index",
         "Substr"
     ],
+    "strconst":[
+      ")"
+    ],
+    "intconst":[
+        0,
+        1
+    ],    
     "size": 3,
     "text": "Substr(x0, 0, Add(Index(x0, \")\", 0), 1))"
 }

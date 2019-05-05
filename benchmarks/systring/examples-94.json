@@ -38,6 +38,14 @@
         "Sub",
         "Substr"
     ],
+    "strconst":[
+      "<",
+      ">"
+    ],
+    "intconst":[
+        0,
+        1
+    ],
     "text": "Substr(x0, Add(Index(x0, \"<\", 0), 1), Sub(Index(x0, \">\", 0), 1))",
     "size": 5
 }

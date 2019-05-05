@@ -35,6 +35,13 @@
         "Concat",
         "Substr"
     ],
+    "strconst":[
+      "..."
+    ],
+    "intconst":[
+        0,
+        70
+    ],    
     "text": "Concat(Substr(x0, 0, 70), \"...\")",
     "size": 2
 }

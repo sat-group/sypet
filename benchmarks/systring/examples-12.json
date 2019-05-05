@@ -43,6 +43,11 @@
     "functions": [
         "Substr"
     ],
+    "strconst":[
+    ],
+    "intconst":[
+        0
+    ],    
     "text": "Substr(x0, 0, x1)",
     "size": 1
 }
