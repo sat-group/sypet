@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="symonster" default="jar">
+<project name="sypet" default="jar">
     <dirname property="this.dir" file="${ant.file}"/>
     <property name="target.loc" location="${target}"/>
 
@@ -24,6 +24,25 @@
 
     <target name="sypet">
     <java classname="cmu.edu.ui.SyPet"
+          maxmemory="16g"
+          fork="true"
+          failonerror="true">
+        <arg line="${args}"/>
+        <jvmarg value="-ea"/>
+        <classpath>
+            <pathelement location="${this.dir}/sypet.jar"/>
+            <pathelement location="lib/sat4j-pb.jar"/>
+            <pathelement location="lib/soot-trunk.jar"/>
+            <pathelement location="lib/gson-2.8.5.jar"/>
+            <pathelement location="lib/commons-lang3-3.4.jar"/>
+            <pathelement location="lib/apt.jar"/>
+            <pathelement location="lib/point.jar"/>
+        </classpath>
+    </java>
+    </target>
+
+     <target name="systring">
+    <java classname="cmu.edu.ui.SyPetString"
           maxmemory="16g"
           fork="true"
           failonerror="true">

@@ -1,0 +1,41 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "take first nine"
+                }
+            ],
+            "output": {
+                "Left": "t nine"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "or all"
+                }
+            ],
+            "output": {
+                "Left": ""
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "but dont be greedy"
+                }
+            ],
+            "output": {
+                "Left": "be greedy"
+            }
+        }
+    ],
+    "functions": [
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Substr(x0, 9, Sub(Length(x0), 9))",
+    "size": 3
+}

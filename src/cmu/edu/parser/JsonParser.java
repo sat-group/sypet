@@ -73,6 +73,29 @@ public class JsonParser {
 		}
 		return null;
 	}
+	
+	/**
+	 * Parse a json file as symonster input.
+	 * 
+	 * @param path file path.
+	 * @return input obj.
+	 */
+	public static SyPetInputString parseJsonStringInput(String path) {
+		try (Reader reader = new InputStreamReader(new FileInputStream(new File(path)))) {
+			Gson gson = new GsonBuilder().create();
+			SyPetInputString p = gson.fromJson(reader, SyPetInputString.class);
+			if (p.lb == 0)
+				p.lb = 1;
+			if (p.ub == 0)
+				p.ub = 10;
+			return p;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * Parse a json file as symonster configuration settings.

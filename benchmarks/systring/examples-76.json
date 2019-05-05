@@ -1,0 +1,60 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "abcdef"
+                },
+                {
+                    "Right": 3
+                },
+                {
+                    "Left": "xyz"
+                }
+            ],
+            "output": {
+                "Left": "xyz"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "012345"
+                },
+                {
+                    "Right": 4
+                },
+                {
+                    "Left": "742"
+                }
+            ],
+            "output": {
+                "Left": "0742"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "abc132"
+                },
+                {
+                    "Right": 5
+                },
+                {
+                    "Left": "xyz"
+                }
+            ],
+            "output": {
+                "Left": "abxyz"
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Concat(Substr(x0, 0, Sub(x1, Length(x2))), x2)",
+    "size": 4
+}

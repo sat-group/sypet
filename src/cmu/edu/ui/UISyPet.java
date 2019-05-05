@@ -192,8 +192,9 @@ public class UISyPet {
 			e.printStackTrace();
 		}
 		signatureMap = BuildNet.dict;
-		// System.out.println("c #Transitions = " + net.getTransitions().size());
-		// System.out.println("c #Places = " + net.getPlaces().size());
+//		 System.out.println("c #Transitions = " + net.getTransitions().size());
+//		 System.out.println("c #Places = " + net.getPlaces().size());
+		
 	}
 
 	public void setSignature(String methodName, List<String> paramNames, List<String> srcTypes, String tgtType,
@@ -218,7 +219,7 @@ public class UISyPet {
 		int programs = 0;
 
 		while (!solution && loc <= max_loc) {
-			//System.out.println("loc = " + loc);
+			System.out.println("c LOC = " + loc);
 			// create a formula that has the same semantics as the petri-net
 			Encoding encoding = new SequentialEncoding(net, loc);
 			// set initial state and final state

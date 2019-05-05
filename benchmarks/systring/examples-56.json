@@ -1,0 +1,41 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "what are you doing? (sorry)"
+                }
+            ],
+            "output": {
+                "Left": "what are you doing?"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "did you want that? (hmm..)"
+                }
+            ],
+            "output": {
+                "Left": "did you want that?"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "maybe with add? (oh i see)"
+                }
+            ],
+            "output": {
+                "Left": "maybe with add?"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Substr(x0, 0, Sub(Index(x0, \"(\", 0), 1))",
+    "size": 3
+}

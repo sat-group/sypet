@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Quisque sollicitudin volutpat."
+                }
+            ],
+            "output": {
+                "Left": "Quisque sollicitudin..."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "In viverra in mi non turpis duis."
+                }
+            ],
+            "output": {
+                "Left": "In viverra in mi non..."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Sed vel massa vitae lectus cras amet."
+                }
+            ],
+            "output": {
+                "Left": "Sed vel massa vitae ..."
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "text": "Concat(Substr(x0, 0, 20), \"...\")",
+    "size": 2
+}

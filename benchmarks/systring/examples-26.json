@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Nullam elementum, nisi ut pharetra molestie, mauris nisl accumsan magna orci aliquam."
+                }
+            ],
+            "output": {
+                "Left": "Nullam elementum, nisi ut pharetra molestie, mauris nisl accumsan magna orci ali..."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Nulla scelerisque purus quis felis ullamcorper, eget euismod sapien nullam."
+                }
+            ],
+            "output": {
+                "Left": "Nulla scelerisque purus quis felis ullamcorper, eget euismod sapien nullam...."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Pellentesque habitant morbi tristique senectus id."
+                }
+            ],
+            "output": {
+                "Left": "Pellentesque habitant morbi tristique senectus id...."
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "text": "Concat(Substr(x0, 0, 80), \"...\")",
+    "size": 2
+}

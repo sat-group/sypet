@@ -1,0 +1,39 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "hello word"
+                }
+            ],
+            "output": {
+                "Left": "hello word"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "hi my name is"
+                }
+            ],
+            "output": {
+                "Left": "hi my name"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "how are you doing"
+                }
+            ],
+            "output": {
+                "Left": "how are yo"
+            }
+        }
+    ],
+    "functions": [
+        "Substr"
+    ],
+    "text": "Substr(x0, 0, 10)",
+    "size": 1
+}

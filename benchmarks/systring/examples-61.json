@@ -1,0 +1,41 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "?01-01-1999"
+                }
+            ],
+            "output": {
+                "Left": "01-01-1999"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "?table cell"
+                }
+            ],
+            "output": {
+                "Left": "table cell"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Xprobably this"
+                }
+            ],
+            "output": {
+                "Left": "probably this"
+            }
+        }
+    ],
+    "functions": [
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Substr(x0, 1, Sub(Length(x0), 1))",
+    "size": 3
+}

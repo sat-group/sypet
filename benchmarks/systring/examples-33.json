@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "A001 John Doe"
+                }
+            ],
+            "output": {
+                "Left": "John"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "B234 Jane Moe"
+                }
+            ],
+            "output": {
+                "Left": "Jane"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "C099 Not a standard"
+                }
+            ],
+            "output": {
+                "Left": "Not "
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "text": "Substr(x0, 5, Index(x0, \" \", 0))",
+    "size": 2
+}

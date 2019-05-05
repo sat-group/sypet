@@ -98,7 +98,7 @@ public class SATSolver {
 		}
 		
 		nbVariables = vars;
-		solver.newVar(nbVariables);
+		//solver.newVar(nbVariables);
 	}
 	
 	public int getNbVariables(){

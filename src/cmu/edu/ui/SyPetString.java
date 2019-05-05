@@ -41,17 +41,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cmu.edu.parser.JsonParser;
 import cmu.edu.parser.SyPetInput;
+import cmu.edu.parser.SyPetInputString;
 
 /**
  * This represents the main entry point to synthesis loop from SyPet.
  * 
  * @author Ruben Martins
  */
-public class SyPet {
+public class SyPetString {
 
 	public static void main(String[] args) throws IOException {
 
@@ -67,35 +69,55 @@ public class SyPet {
 			System.exit(0);
 		}
 
-		SyPetInput jsonInput = JsonParser.parseJsonInput(args[0]);
-
-		List<String> packages = jsonInput.packages;
-		List<String> libs = jsonInput.libs;
+		SyPetInputString jsonInput = JsonParser.parseJsonStringInput(args[0]);
+		
+		int nb_param = jsonInput.examples.get(0).inputs.size();
+			
+		List<String> packages = new ArrayList<String>(Arrays.asList("cmu.edu"));
+		List<String> libs = new ArrayList<String>(Arrays.asList("./lib/systring.jar"));
 		List<String> hints = new ArrayList<>();
-		if (jsonInput.hints != null)
-			hints = jsonInput.hints;
 		UISyPet sypet = new UISyPet(packages, libs, hints);
-		String methodName = jsonInput.methodName;
-		List<String> paramNames = jsonInput.paramNames;
-		List<String> srcTypes = jsonInput.srcTypes;
-		String tgtType = jsonInput.tgtType;
-
-		// check if test case file exists
-		if (!Files.exists(Paths.get(jsonInput.testPath))) {
-			System.out.println("File does not exist= " + args[0]);
-			System.exit(0);
+		String methodName = "synth";
+		List<String> paramNames = new ArrayList<>();
+		for (int i = 0; i < nb_param; i++) {
+			paramNames.add("sypet_arg" + i);
 		}
-
-		File file = new File(jsonInput.testPath);
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		StringBuilder fileContents = new StringBuilder();
-		String line = br.readLine();
-		while (line != null) {
-			fileContents.append(line);
-			line = br.readLine();
+		List<String> srcTypes = new ArrayList<>();
+		for (int i = 0; i < nb_param; i++) {
+			if (jsonInput.examples.get(0).inputs.get(i).Left == null)
+				srcTypes.add("int");
+			else
+				srcTypes.add("java.lang.String");
 		}
-		br.close();
-		String testCode = fileContents.toString();		
+		// all our examples have output string
+		String tgtType = "java.lang.String";
+
+		// create test case
+		String testCode = "public boolean test() throws Throwable {\n";
+		assert (nb_param == 1 || nb_param == 2);
+		for (int i = 0; i < jsonInput.examples.size(); i++) {
+			for (int j = 0; j < nb_param; j++) {
+				if (jsonInput.examples.get(i).inputs.get(j).Left == null)
+					testCode += "int i" + i + "_"+j+" = " + jsonInput.examples.get(i).inputs.get(j).Right + ";\n";
+				else
+					testCode += "java.lang.String i" + i + "_"+j+ " = \"" + jsonInput.examples.get(i).inputs.get(j).Left + "\";\n"; 
+			}
+			testCode += "java.lang.String o" + i + " = \"" + jsonInput.examples.get(i).output.Left + "\";\n";
+			if (nb_param == 1)
+				testCode += "java.lang.String r"+i+ " = synth(i"+i+"_"+0+");\n";
+			else
+				testCode += "java.lang.String r"+i+ " = synth(i"+i+"_"+0+",i"+i+"_"+1+"	);\n";
+		}
+		// FIXME: hardcoded for 3 examples
+		testCode += "return (r0.equals(o0) && r1.equals(o1) && r2.equals(o2));\n";
+		testCode += "}\n";
+		
+		System.out.println("Test = " + testCode);
+//		System.out.println("methodName = " + methodName);
+//		System.out.println("paramNames = " + paramNames);
+//		System.out.println("src = " + srcTypes);
+//		System.out.println("tgt = " + tgtType);
+		
 		sypet.setSignature(methodName, paramNames, srcTypes, tgtType, testCode);
 		String code = sypet.synthesize(jsonInput.lb, jsonInput.ub);
 		if (!code.equals(""))

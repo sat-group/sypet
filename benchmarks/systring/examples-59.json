@@ -1,0 +1,41 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "who cares about the last ones..."
+                }
+            ],
+            "output": {
+                "Left": "who cares about the last ones."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "just let them die!!!"
+                }
+            ],
+            "output": {
+                "Left": "just let them die!"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "oh god what have i become!!!"
+                }
+            ],
+            "output": {
+                "Left": "oh god what have i become!"
+            }
+        }
+    ],
+    "functions": [
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Substr(x0, 0, Sub(Length(x0), 2))",
+    "size": 3
+}

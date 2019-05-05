@@ -1,0 +1,41 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "take out the last 7 chars"
+                }
+            ],
+            "output": {
+                "Left": "7 chars"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "abcdefg"
+                }
+            ],
+            "output": {
+                "Left": "abcdefg"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "outsystems.com"
+                }
+            ],
+            "output": {
+                "Left": "ems.com"
+            }
+        }
+    ],
+    "functions": [
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Substr(x0, Sub(Length(x0), 7), 7)",
+    "size": 3
+}

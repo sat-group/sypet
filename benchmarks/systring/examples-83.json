@@ -1,0 +1,51 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "george"
+                },
+                {
+                    "Left": "conchichina xy"
+                }
+            ],
+            "output": {
+                "Left": "george At:conchichina"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "maebe"
+                },
+                {
+                    "Left": "terra de sao nunca a tarde ab"
+                }
+            ],
+            "output": {
+                "Left": "maebe At:terra de sao nunca a tarde"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "michael"
+                },
+                {
+                    "Left": "cacar gambozinos 12"
+                }
+            ],
+            "output": {
+                "Left": "michael At:cacar gambozinos"
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "text": "Concat(Concat(x0, \" At:\"), Substr(x1, 0, Sub(Length(x1), 3)))",
+    "size": 5
+}

@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Suspendisse libero felis, efficitur eget metus eget, ultrices volutpat."
+                }
+            ],
+            "output": {
+                "Left": "Suspendisse libero felis, efficitur eget metus eget, ultrices volutpat..."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Donec condimentum lacus ac elit molestie, vel cursus ante nullam."
+                }
+            ],
+            "output": {
+                "Left": "Donec condimentum lacus ac elit molestie, vel cursus ante nullam...."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Pellentesque eu tellus rutrum, mollis lacus eu, posuere massa. Duis varius nibh amet."
+                }
+            ],
+            "output": {
+                "Left": "Pellentesque eu tellus rutrum, mollis lacus eu, posuere massa. Duis va..."
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "text": "Concat(Substr(x0, 0, 70), \"...\")",
+    "size": 2
+}

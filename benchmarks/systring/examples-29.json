@@ -1,0 +1,40 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Sed scelerisque, tortor sit amet."
+                }
+            ],
+            "output": {
+                "Left": "Sed"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Vestibulum non commodo ex. Maecenas a est sagittis, dapibus nibh."
+                }
+            ],
+            "output": {
+                "Left": "Vestibulum"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Maecenas in."
+                }
+            ],
+            "output": {
+                "Left": "Maecenas"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "text": "Substr(x0, 0, Index(x0, \" \", 0))",
+    "size": 2
+}

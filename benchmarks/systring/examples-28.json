@@ -1,0 +1,49 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "hello"
+                },
+                {
+                    "Left": "world"
+                }
+            ],
+            "output": {
+                "Left": "hello-world"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "train it"
+                },
+                {
+                    "Left": "spot it"
+                }
+            ],
+            "output": {
+                "Left": "train-spot "
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "rain yeah"
+                },
+                {
+                    "Left": "fenix id"
+                }
+            ],
+            "output": {
+                "Left": "rain -fenix"
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "text": "Concat(Concat(Substr(x0, 0, 5), \"-\"), Substr(x1, 0, 5))",
+    "size": 4
+}

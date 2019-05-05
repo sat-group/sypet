@@ -1,0 +1,42 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "abc\\xyz"
+                }
+            ],
+            "output": {
+                "Left": "xyz"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "012asdf\\abcd"
+                }
+            ],
+            "output": {
+                "Left": "abcd"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "asdfa\\asdfas"
+                }
+            ],
+            "output": {
+                "Left": "asdfas"
+            }
+        }
+    ],
+    "functions": [
+        "Add",
+        "Index",
+        "Length",
+        "Substr"
+    ],
+    "text": "Substr(x0, Add(Index(x0, \"\\\", 0), 1), Length(x0))",
+    "size": 4
+}
