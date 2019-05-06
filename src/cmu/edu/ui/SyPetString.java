@@ -102,8 +102,8 @@ public class SyPetString {
     	constantsString.put("<", "getLeftAngle");
     	constantsString.put(">", "getRightAngle");
     	constantsString.put(":", "getColon");
-    	constantsString.put("Created on", "getCreatedOne");
-    	constantsString.put("update on", "getUpdatedOn");
+    	constantsString.put("Created on ", "getCreatedOne");
+    	constantsString.put("updated on ", "getUpdatedOn");
     	constantsString.put("\\\\", "getDoubleBackwardslash");
     	constantsString.put(" At:", "getAt");
     	
@@ -127,14 +127,20 @@ public class SyPetString {
 		}
 
 		SyPetInputString jsonInput = JsonParser.parseJsonStringInput(args[0]);
+		int option = 0;
+		if (args.length == 2) option = Integer.parseInt(args[1]);
+		// 0 - use small set of constants
+		// 1 - use a large set of constants
+		// 2 - constants provided by the user
+		
 		boolean constants = false;
-		if (args.length == 2) constants = true;		
+		if (option == 2) constants = true;		
 		
 		int nb_param = jsonInput.examples.get(0).inputs.size();
 			
 		List<String> packages = new ArrayList<>();
 		packages.add("cmu.edu");
-		if (!constants) packages.add("constants.cmu.edu");
+		if (option == 0) packages.add("constants.cmu.edu");
 		else packages.add("constants.extended.cmu.edu");
 		List<String> libs = new ArrayList<String>(Arrays.asList("./lib/systring.jar"));
 		List<String> hints = new ArrayList<>();
