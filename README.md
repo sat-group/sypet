@@ -57,13 +57,11 @@ make stop-dev   # Stop docker container
 
 ## Running SyPet
 
-Having built SyPet, you can the run it with Ant:
+Having built SyPet, you can then run it with Ant:
 
 ```
 ant sypet -Dargs=path/to/input/file
 ```
-
-For example:
 
 ### Docker
 
