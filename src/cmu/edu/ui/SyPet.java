@@ -1,4 +1,4 @@
-/**
+/*
  * BSD 3-Clause License
  *	
  *	
@@ -47,45 +47,59 @@ import cmu.edu.parser.JsonParser;
 import cmu.edu.parser.SyPetInput;
 
 /**
- * This represents the main entry point to synthesis loop from SyPet.
+ * This class represents the main entry point to the SyPet synthesis tool.
  * 
  * @author Ruben Martins
+ * @author rodamber
  */
 public class SyPet {
 
-	public static void main(String[] args) throws IOException {
+    // TODO Explain the JSON format in more detail.
 
+	/**
+	 * Starts the synthesis loop. It accepts the path to a JSON file with configuration options
+	 * and information about the program we want to synthesize.
+	 *
+	 * @param args a single element array whose element is the path string to the JSON file
+	 * @throws IOException
+	 *         if it fails to read the contents of the Java test case file.
+	 */
+	public static void main(String[] args) throws IOException {
+		// TODO Write here a small overview of how this methods works. The code should then be
+		//  simple to understand with minimal comments.
+
+		// We expect a single string argument representing the path to the JSON file.
 		if (args.length != 1) {
 			System.out.println("Error: wrong number of arguments= " + args.length);
 			System.out.println("Usage: ./sypet.sh <filename.json>");
+
+			// TODO Are we terminating successfully?
 			System.exit(0);
 		}
 
-		Path jsonFilePath = Paths.get(args[0]);
+		// TODO Extract args[0] to a variable, or just use this path variable (or both).
+		final Path jsonFilePath = Paths.get(args[0]);
+
 		if (!Files.exists(jsonFilePath)) {
 			System.out.println("File does not exist= " + args[0]);
+
+			// TODO Are we terminating successfully?
 			System.exit(0);
 		}
 
-		SyPetInput jsonInput = JsonParser.parseJsonInput(args[0]);
+		final SyPetInput jsonInput    = JsonParser.parseJsonInput(args[0]);
+		final Path       testCasePath = Paths.get(jsonInput.testPath);
 
-		List<String> packages = jsonInput.packages;
-		List<String> libs = jsonInput.libs;
-		List<String> hints = new ArrayList<>();
-		if (jsonInput.hints != null)
-			hints = jsonInput.hints;
-		UISyPet sypet = new UISyPet(packages, libs, hints);
-		String methodName = jsonInput.methodName;
-		List<String> paramNames = jsonInput.paramNames;
-		List<String> srcTypes = jsonInput.srcTypes;
-		String tgtType = jsonInput.tgtType;
-
-		// check if test case file exists
-		if (!Files.exists(Paths.get(jsonInput.testPath))) {
+		// TODO This could probably be moved up next to the rest of checks.
+		if (!Files.exists(testCasePath)) {
 			System.out.println("File does not exist= " + args[0]);
+
+			// TODO Are we terminating successfully?
 			System.exit(0);
 		}
 
+		// TODO Clean this mess.
+		// Read the contents of the Java test file.
 		File file = new File(jsonInput.testPath);
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		StringBuilder fileContents = new StringBuilder();
@@ -95,11 +109,24 @@ public class SyPet {
 			line = br.readLine();
 		}
 		br.close();
-		String testCode = fileContents.toString();		
-		sypet.setSignature(methodName, paramNames, srcTypes, tgtType, testCode);
-		String code = sypet.synthesize(jsonInput.lb, jsonInput.ub);
-		if (!code.equals(""))
-			System.out.println("c Synthesized code:\n" + code);
+		String testCode = fileContents.toString();
+
+		// TODO Use optional instead.
+		final List<String> hints = jsonInput.hints != null ? jsonInput.hints : new ArrayList<>();
+
+		// TODO Consider passing jsonInput as a parameter to UISyPet instead.
+		final UISyPet sypet = new UISyPet(jsonInput.packages, jsonInput.libs, hints);
+
+		// TODO Why is this done here and not at object construction time?
+		sypet.setSignature(jsonInput.methodName, jsonInput.paramNames, jsonInput.srcTypes,
+				jsonInput.tgtType, testCode);
+
+		final String program = sypet.synthesize(jsonInput.lb, jsonInput.ub);
+		// TODO Weird condition. This is probably a test for failure. Check if we can refactor this.
+		if (!program.equals("")) {
+			System.out.println("c Synthesized code:\n" + program);
+		}
+
 		System.exit(0);
 	}
 
