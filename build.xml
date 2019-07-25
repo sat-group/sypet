@@ -1,150 +1,207 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="sypet" default="jar">
-    <dirname property="this.dir" file="${ant.file}"/>
-    <property name="target.loc" location="${target}"/>
+<project name="sypet" default="build" basedir=".">
+  <dirname property="this.dir" file="${ant.file}"/>
 
-    <target name="init">
-        <mkdir dir="bin"/>
-    </target>
+  <property name="Project-Name" value="SyPet"/>
 
-    <target name="compile" depends="init"
-          description="compile the source code">
+  <!-- Directory containing the java source files -->
+  <property name="src.dir" location="src/main/java"/>
+  <!-- Directory containing the java test files -->
+  <property name="src.dir" location="src/test/java"/>
+  <!-- Directory containing the external libraries -->
+  <property name="lib.dir" location="lib"/>
+  <!-- Directory containing the build artifacts -->
+  <property name="build.dir" location="target"/>
+  <!-- Directory containing the javadocs of the source files -->
+  <property name="build.javadocs" value="${build.dir}/javadocs"/>
 
-    <javac target="1.8" source="1.8" srcdir="src" destdir="bin" debug="true">
-        <classpath>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-            <pathelement location="lib/point.jar"/>
-        </classpath>
+  <!-- Entry point of the program -->
+  <property name="main-class" value="cmu.edu.ui.SyPet"/>
+  <!-- Whether source should be compiled with debug information -->
+  <property name="debug.flag" value="true"/>
+  <!-- Memory limit of the program -->
+  <property name="max-memory" value="16g"/>
+
+  <path id="classpath">
+    <fileset dir="${lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <pathelement location="${build.dir}"/>
+  </path>
+
+  <target name="build"
+          description="--> compiles the source code">
+    <mkdir dir="${build.dir}"/>
+
+    <javac includeantruntime="false"
+           target="1.8"
+           source="1.8"
+           srcdir="${src.dir}"
+           destdir="${build.dir}"
+           debug="${debug.flag}"
+           classpathref="classpath">
     </javac>
-    </target>
+  </target>
 
-    <target name="sypet">
-    <java classname="cmu.edu.ui.SyPet"
-          maxmemory="16g"
+  <target name="run" depends="build">
+    <java classname="${main-class}"
+          maxmemory="${max-memory}"
           fork="true"
-          failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-            <pathelement location="lib/point.jar"/>
-        </classpath>
+          failonerror="true"
+          classpathref="classpath">
+      <arg line="${args}"/>
     </java>
-    </target>
+  </target>
 
-     <target name="systring">
+  <target name="debug" depends="build">
+    <java classname="${main-class}" 
+          maxmemory="${max-memory}"
+          fork="yes" 
+          failonerror="true"
+          classpathref="classpath">
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <jvmarg value="-Xdebug"/>
+      <jvmarg value="-Xnoagent"/>
+      <jvmarg value="-Djava.compiler=NONE"/>
+      <jvmarg value="-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y"/>
+    </java>
+  </target>
+
+  <target name="javadocs"
+          description="--> creates the API documentation">
+    <mkdir dir="${build.javadocs}"/>
+
+    <javadoc useexternalfile="yes"
+             destdir="${build.javadocs}"
+             failonerror="true"
+             author="true"
+             version="true"
+             locale="en"
+             windowtitle="${Project-Name} API"
+             doctitle="${Project-Name}"
+             maxmemory="1000M"
+             verbose="${javadoc.verbose}">
+
+      <packageset dir="${src.dir}"/>
+      <classpath refid="classpath"/>
+
+      <!-- <!-\- hide some meta information for javadoc -\-> -->
+      <!-- <tag name="todo" description="To do:" scope="all"/> -->
+      <!-- <tag name="ant.task" enabled="false" description="Task:" scope="types"/> -->
+      <!-- <tag name="ant.datatype" enabled="false" description="Data type:" scope="types"/> -->
+      <!-- <tag name="ant.attribute" enabled="false" description="Attribute:" scope="types"/> -->
+      <!-- <tag name="ant.attribute.group" enabled="false" description="Attribute group:" scope="types"/> -->
+      <!-- <tag name="ant.element" enabled="false" description="Nested element:" scope="types"/> -->
+      <!-- <group title="Apache Ant Core" packages="org.apache.tools.ant*"/> -->
+      <!-- <group title="Core Tasks" packages="org.apache.tools.ant.taskdefs*"/> -->
+      <!-- <group title="Core Types" packages="org.apache.tools.ant.types*"/> -->
+      <!-- <group title="Optional Tasks" packages="org.apache.tools.ant.taskdefs.optional*"/> -->
+      <!-- <group title="Optional Types" packages="org.apache.tools.ant.types.optional*"/> -->
+      <!-- <group title="Ant Utilities" packages="org.apache.tools.ant.util*"/> -->
+
+    </javadoc>
+  </target>
+
+  <target name="clean" 
+          description="--> cleans up build and dist directories">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+  </target>
+
+  <!-- =========================================================================================== -->
+
+  <target name="systring">
     <java classname="cmu.edu.ui.SyPetString"
           maxmemory="32g"
           fork="true"
           failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-            <pathelement location="lib/point.jar"/>
-        </classpath>
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="${this.dir}/sypet.jar"/>
+        <pathelement location="lib/sat4j-pb.jar"/>
+        <pathelement location="lib/soot-trunk.jar"/>
+        <pathelement location="lib/gson-2.8.5.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/apt.jar"/>
+        <pathelement location="lib/point.jar"/>
+      </classpath>
     </java>
-    </target>
+  </target>
 
-    <target name="server">
+  <target name="server">
     <java classname="cmu.edu.server.HttpServer"
           maxmemory="16g"
           fork="true"
           failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-            <pathelement location="lib/point.jar"/>
-        </classpath>
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="${this.dir}/sypet.jar"/>
+        <pathelement location="lib/sat4j-pb.jar"/>
+        <pathelement location="lib/soot-trunk.jar"/>
+        <pathelement location="lib/gson-2.8.5.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/apt.jar"/>
+        <pathelement location="lib/point.jar"/>
+      </classpath>
     </java>
-    </target>
+  </target>
 
-    <target name="example">
+  <target name="example">
     <java classname="cmu.edu.ui.UIExample"
           maxmemory="16g"
           fork="true"
           failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-            <pathelement location="lib/point.jar"/>
-        </classpath>
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="${this.dir}/sypet.jar"/>
+        <pathelement location="lib/sat4j-pb.jar"/>
+        <pathelement location="lib/soot-trunk.jar"/>
+        <pathelement location="lib/gson-2.8.5.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/apt.jar"/>
+        <pathelement location="lib/point.jar"/>
+      </classpath>
     </java>
-    </target>
+  </target>
 
-    <target name="cache">
+  <target name="cache">
     <java classname="cmu.edu.ui.Cache"
           maxmemory="16g"
           fork="true"
           failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-        </classpath>
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="${this.dir}/sypet.jar"/>
+        <pathelement location="lib/sat4j-pb.jar"/>
+        <pathelement location="lib/soot-trunk.jar"/>
+        <pathelement location="lib/gson-2.8.5.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/apt.jar"/>
+      </classpath>
     </java>
-    </target>
+  </target>
 
-    <target name="refactor">
+  <target name="refactor">
     <java classname="cmu.edu.ui.RefactorExample"
           maxmemory="32g"
           fork="true"
           failonerror="true">
-        <arg line="${args}"/>
-        <jvmarg value="-ea"/>
-        <classpath>
-            <pathelement location="${this.dir}/sypet.jar"/>
-            <pathelement location="lib/sat4j-pb.jar"/>
-            <pathelement location="lib/soot-trunk.jar"/>
-            <pathelement location="lib/gson-2.8.5.jar"/>
-            <pathelement location="lib/commons-lang3-3.4.jar"/>
-            <pathelement location="lib/apt.jar"/>
-        </classpath>
+      <arg line="${args}"/>
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="${this.dir}/sypet.jar"/>
+        <pathelement location="lib/sat4j-pb.jar"/>
+        <pathelement location="lib/soot-trunk.jar"/>
+        <pathelement location="lib/gson-2.8.5.jar"/>
+        <pathelement location="lib/commons-lang3-3.4.jar"/>
+        <pathelement location="lib/apt.jar"/>
+      </classpath>
     </java>
-    </target>
+  </target>
 
-
-
-
-    <target name="jar" depends="compile"
-          description="generate the distribution" >
-        <jar jarfile="sypet.jar" basedir="bin"/>
-    </target>
-
-    <target name="clean"
-          description="clean up" >
-        <delete dir="bin"/>
-        <delete file="sypet.jar"/>
-    </target>
 </project>
