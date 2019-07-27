@@ -7,11 +7,11 @@ CMD ["/bin/bash"]
 FROM dev AS build
 WORKDIR /app
 COPY . .
-RUN ant jar
+RUN ant build
 
 # Run SyPet as a docker app.
 FROM frekele/java:jdk8u172 AS app
 WORKDIR /app
-COPY --from=build /app/sypet.jar ./
+COPY --from=build /app/target ./target
 COPY --from=build /app/lib ./lib
-ENTRYPOINT ["java", "-cp", "sypet.jar:lib/sat4j-pb.jar:lib/apt.jar:lib/commons-lang3-3.4.jar:lib/gson-2.8.5.jar:lib/point.jar:lib/soot-trunk.jar:lib/systring.jar", "cmu.edu.ui.SyPet"]
+ENTRYPOINT ["java", "-cp", "target:lib/sat4j-pb.jar:lib/apt.jar:lib/commons-lang3-3.4.jar:lib/gson-2.8.5.jar:lib/point.jar:lib/soot-trunk.jar:lib/systring.jar", "cmu.edu.ui.SyPet"]
