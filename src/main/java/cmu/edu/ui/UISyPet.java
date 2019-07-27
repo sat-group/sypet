@@ -1,5 +1,17 @@
 package cmu.edu.ui;
 
+import cmu.edu.codeformer.CodeFormer;
+import cmu.edu.compilation.Test;
+import cmu.edu.parser.JarParser;
+import cmu.edu.parser.JsonParser;
+import cmu.edu.parser.MethodSignature;
+import cmu.edu.parser.SyPetConfig;
+import cmu.edu.petrinet.BuildNet;
+import cmu.edu.reachability.Encoding;
+import cmu.edu.reachability.EncodingUtil;
+import cmu.edu.reachability.SequentialEncoding;
+import cmu.edu.reachability.Variable;
+import com.google.gson.stream.JsonReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,32 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.sat4j.specs.TimeoutException;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-
-import cmu.edu.codeformer.CodeFormer;
-import cmu.edu.compilation.Test;
-import cmu.edu.parser.CacheMethodSignature;
-import cmu.edu.parser.JarParser;
-import cmu.edu.parser.JsonParser;
-import cmu.edu.parser.MethodSignature;
-import cmu.edu.parser.SyPetConfig;
-import cmu.edu.parser.SyPetInput;
-import cmu.edu.petrinet.BuildNet;
-import cmu.edu.reachability.Encoding;
-import cmu.edu.reachability.EncodingUtil;
-import cmu.edu.reachability.SequentialEncoding;
-import cmu.edu.reachability.Variable;
 import uniol.apt.adt.pn.PetriNet;
-import uniol.apt.adt.pn.Place;
-import uniol.apt.adt.pn.Transition;
 
 /**
  * This represents the UI for SyPet to be called by other applications.
@@ -81,12 +70,19 @@ public class UISyPet {
 		List<List<String>> globalSuperClasses = new ArrayList<>();
 		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
 		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>(), new ArrayList<>());
+		SyPetConfig jsonConfig = new SyPetConfig.Builder()
+				.globalSuperClasses(globalSuperClasses)
+				.build();
 		
 		Path path = Paths.get(configPath);
 
-		if (Files.exists(path))
-			jsonConfig = JsonParser.parseJsonConfig(configPath);
+		if (Files.exists(path)) {
+			try {
+				jsonConfig = JsonParser.parseJsonConfig(path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		Set<String> localSuperClasses = new HashSet<>();
 		localSuperClasses.addAll(jsonConfig.localSuperClasses);
@@ -144,12 +140,19 @@ public class UISyPet {
 		List<List<String>> globalSuperClasses = new ArrayList<>();
 		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
 		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>(), new ArrayList<>());
+		SyPetConfig jsonConfig = new SyPetConfig.Builder()
+				.globalSuperClasses(globalSuperClasses)
+				.build();
 		
 		Path path = Paths.get(configPath);
 
-		if (Files.exists(path))
-			jsonConfig = JsonParser.parseJsonConfig(configPath);
+		if (Files.exists(path)) {
+			try {
+				jsonConfig = JsonParser.parseJsonConfig(path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		Set<String> localSuperClasses = new HashSet<>();
 		localSuperClasses.addAll(jsonConfig.localSuperClasses);
@@ -209,12 +212,20 @@ public class UISyPet {
 		List<List<String>> globalSuperClasses = new ArrayList<>();
 		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
 		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig(new ArrayList<>(), globalSuperClasses, new ArrayList<>(), new ArrayList<>());
-		
+		SyPetConfig jsonConfig = new SyPetConfig.Builder()
+				.globalSuperClasses(globalSuperClasses)
+				.build();
+
+
 		Path path = Paths.get(configPath);
 
-		if (Files.exists(path))
-			jsonConfig = JsonParser.parseJsonConfig(configPath);
+		if (Files.exists(path)) {
+			try {
+				jsonConfig = JsonParser.parseJsonConfig(path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		Set<String> localSuperClasses = new HashSet<>();
 		localSuperClasses.addAll(jsonConfig.localSuperClasses);

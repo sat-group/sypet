@@ -1,20 +1,19 @@
 package cmu.edu.ui;
 
+import cmu.edu.parser.JarParser;
+import cmu.edu.parser.JsonParser;
+import cmu.edu.parser.MethodSignature;
+import cmu.edu.parser.SyPetConfig;
+import com.google.gson.stream.JsonWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.gson.stream.JsonWriter;
-import cmu.edu.parser.JarParser;
-import cmu.edu.parser.JsonParser;
-import cmu.edu.parser.MethodSignature;
-import cmu.edu.parser.SyPetConfig;
 import soot.Type;
 
 public class Cache {
@@ -23,7 +22,12 @@ public class Cache {
 	private Map<String, Set<String>> superclassMap;
 
 	public Cache(List<String> packages, List<String> libs) {
-		SyPetConfig jsonConfig = JsonParser.parseJsonConfig("config/config.json");
+		SyPetConfig jsonConfig = null;
+		try {
+			jsonConfig = JsonParser.parseJsonConfig(Paths.get("config/config.json"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Set<String> acceptableSuperClasses = new HashSet<>();
 		acceptableSuperClasses.addAll(jsonConfig.localSuperClasses);
 
