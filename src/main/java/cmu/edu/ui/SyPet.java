@@ -100,10 +100,10 @@ public class SyPet {
    * @see SyPetInput
    */
   protected static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
-//		UISyPet sypet = new UISyPet(input, config);
-//		sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType, input.testBody);
-//		return sypet.synthesize();
-    return Optional.empty();
+    UISyPet sypet = new UISyPet(input, config);
+    sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
+        input.testBody);
+    return sypet.synthesize(input.lb, input.ub);
   }
 
   /**

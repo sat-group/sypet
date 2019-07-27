@@ -6,6 +6,7 @@ import cmu.edu.parser.JarParser;
 import cmu.edu.parser.JsonParser;
 import cmu.edu.parser.MethodSignature;
 import cmu.edu.parser.SyPetConfig;
+import cmu.edu.parser.SyPetInput;
 import cmu.edu.petrinet.BuildNet;
 import cmu.edu.reachability.Encoding;
 import cmu.edu.reachability.EncodingUtil;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.sat4j.specs.TimeoutException;
@@ -36,36 +38,84 @@ import uniol.apt.adt.pn.PetriNet;
  * @author Ruben Martins
  */
 public class UISyPet {
+	// TODO Use Collection instead of List.
 
-	private List<MethodSignature> sigs;
+	/**
+	 * TODO
+	 */
 	private Map<String, Set<String>> superclassMap;
+
+	/**
+	 * TODO
+	 */
 	private Map<String, Set<String>> subclassMap;
-	private List<String> packages;
+
+	/**
+	 * TODO
+	 */
 	private List<String> libs;
 
+	/**
+	 * TODO
+	 */
 	private PetriNet net;
+
+	/**
+	 * TODO
+	 */
+	private BuildNet buildNet;
+
+	/**
+	 * TODO
+	 */
 	private Map<String, MethodSignature> signatureMap;
 
+	/**
+	 * TODO
+	 */
 	private List<String> inputs;
+
+	/**
+	 * TODO
+	 */
 	private String retType;
+
+	/**
+	 * TODO
+	 */
 	private String testCode;
+
+	/**
+	 * TODO
+	 */
 	private String methodName;
+
+	/**
+	 * TODO
+	 */
 	private List<String> varNames;
+
+	/**
+	 * TODO
+	 */
 	private List<String> hints;
-	
-	private BuildNet buildNet;
-	
-	// TODO: refactor this code
+
+	/**
+	 * TODO
+	 */
+	private List<MethodSignature> sigs;
+
+	// TODO (Ruben) refactor this code
+	// TODO Figure out why this exists. It is only used by the server.
 	public UISyPet(List<String> packages, List<String> libs, List<String> soot, List<String> hints) {
-		
+
 		buildNet = null;
 		net = null;
 		sigs = null;
 		this.hints = hints;
-					
-		this.packages = packages;
+
 		this.libs = libs;
-		
+
 		String configPath = "./config/config.json";
 		List<List<String>> globalSuperClasses = new ArrayList<>();
 		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
@@ -73,7 +123,7 @@ public class UISyPet {
 		SyPetConfig jsonConfig = new SyPetConfig.Builder()
 				.globalSuperClasses(globalSuperClasses)
 				.build();
-		
+
 		Path path = Paths.get(configPath);
 
 		if (Files.exists(path)) {
@@ -83,21 +133,21 @@ public class UISyPet {
 				e.printStackTrace();
 			}
 		}
-		
+
 		Set<String> localSuperClasses = new HashSet<>();
 		localSuperClasses.addAll(jsonConfig.localSuperClasses);
-		
+
 		// suppress warnings from Soot
 		PrintStream origOutput = System.out;
 		PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
 		System.setOut(newOutput);
-		
+
 		JarParser parser = new JarParser(libs, soot);
 		this.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
 		this.superclassMap = JarParser.getSuperClasses(localSuperClasses);
 		for (List<String> poly : jsonConfig.globalSuperClasses) {
 			assert (poly.size() == 2);
-			
+
 			if (this.superclassMap.containsKey(poly.get(0))) {
 				this.superclassMap.get(poly.get(0)).add(poly.get(1));
 			} else {
@@ -105,7 +155,7 @@ public class UISyPet {
 				subclass.add(poly.get(1));
 				this.superclassMap.put(poly.get(0), subclass);
 			}
-			
+
 		}
 		this.subclassMap = new HashMap<>();
 		for (String key : superclassMap.keySet()) {
@@ -119,55 +169,37 @@ public class UISyPet {
 
 		System.setOut(origOutput);
 		buildNet = new BuildNet(jsonConfig.noSideEffects);
-		try {
-			net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
 		signatureMap = BuildNet.dict;
 		// System.out.println("c #Transitions = " + net.getTransitions().size());
 		// System.out.println("c #Places = " + net.getPlaces().size());
-		
+
 	}
 
-	public UISyPet(List<String> packages, List<String> libs, List<String> hints) {
-				
-		this.packages = packages;
+	public UISyPet(List<String> packages, List<String> libs, List<String> hints, SyPetConfig config) {
 		this.libs = libs;
 		this.hints = hints;
-		
-		String configPath = "./config/config.json";
-		List<List<String>> globalSuperClasses = new ArrayList<>();
-		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
-		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig.Builder()
-				.globalSuperClasses(globalSuperClasses)
-				.build();
-		
-		Path path = Paths.get(configPath);
 
-		if (Files.exists(path)) {
-			try {
-				jsonConfig = JsonParser.parseJsonConfig(path);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		Set<String> localSuperClasses = new HashSet<>();
-		localSuperClasses.addAll(jsonConfig.localSuperClasses);
-		
-		// suppress warnings from Soot
+		// TODO Explain why we need this.
+		// Suppress warnings from Soot.
 		PrintStream origOutput = System.out;
 		PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
 		System.setOut(newOutput);
-		
-		JarParser parser = new JarParser(libs);
-		this.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
+
+		final Set<String> localSuperClasses = new HashSet<>(config.localSuperClasses);
+		final JarParser parser = new JarParser(this.libs);
+
+		// TODO Figure out why sigs must be parsed before we get the super classes.
+		this.sigs = parser.parseJar(libs, packages, config.blacklist);
+
+		// TODO Explain
 		this.superclassMap = JarParser.getSuperClasses(localSuperClasses);
-		for (List<String> poly : jsonConfig.globalSuperClasses) {
+
+		// TODO Explain
+		for (List<String> poly : config.globalSuperClasses) {
+			// TODO If we only want arrays of size 2 we might be better using String[2], or a pair, or something else.
 			assert (poly.size() == 2);
-			
+
 			if (this.superclassMap.containsKey(poly.get(0))) {
 				this.superclassMap.get(poly.get(0)).add(poly.get(1));
 			} else {
@@ -175,8 +207,9 @@ public class UISyPet {
 				subclass.add(poly.get(1));
 				this.superclassMap.put(poly.get(0), subclass);
 			}
-			
 		}
+
+		// TODO Explain. It seems like we are "inverting" the map, so to speak.
 		this.subclassMap = new HashMap<>();
 		for (String key : superclassMap.keySet()) {
 			for (String value : superclassMap.get(key)) {
@@ -187,95 +220,25 @@ public class UISyPet {
 			}
 		}
 
+		// TODO Explain why we need this.
 		System.setOut(origOutput);
-		buildNet = new BuildNet(jsonConfig.noSideEffects);
-		try {
-			net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		signatureMap = BuildNet.dict;
+
+		// TODO Why do we need both the petrinet and the factory?
+		this.buildNet = new BuildNet(config.noSideEffects);
+		this.net = this.buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
+		this.signatureMap = BuildNet.dict;
+
+//		buildNet = new BuildNet(config.noSideEffects);
+//		net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
+//		signatureMap = BuildNet.dict;
+
 //		 System.out.println("c #Transitions = " + net.getTransitions().size());
 //		 System.out.println("c #Places = " + net.getPlaces().size());
-		
+
 	}
-	
 
-	//TODO: fix duplication of code
-	public UISyPet(List<String> packages, List<String> libs, List<String> hints, List<String> blacklist, boolean dummy) {
-				
-		this.packages = packages;
-		this.libs = libs;
-		this.hints = hints;
-		
-		String configPath = "./config/config.json";
-		List<List<String>> globalSuperClasses = new ArrayList<>();
-		ArrayList<String> poly1 = new ArrayList<String>(Arrays.asList("java.lang.CharSequence","java.lang.String"));
-		globalSuperClasses.add(poly1);
-		SyPetConfig jsonConfig = new SyPetConfig.Builder()
-				.globalSuperClasses(globalSuperClasses)
-				.build();
-
-
-		Path path = Paths.get(configPath);
-
-		if (Files.exists(path)) {
-			try {
-				jsonConfig = JsonParser.parseJsonConfig(path);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		Set<String> localSuperClasses = new HashSet<>();
-		localSuperClasses.addAll(jsonConfig.localSuperClasses);
-		
-		// suppress warnings from Soot
-		PrintStream origOutput = System.out;
-		PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
-		System.setOut(newOutput);
-		
-		JarParser parser = new JarParser(libs);
-		
-		List<String> black = new ArrayList<String>();
-		black.addAll(jsonConfig.blacklist);
-		black.addAll(blacklist);
-		
-		this.sigs = parser.parseJarEqual(libs, packages, blacklist);
-		this.superclassMap = JarParser.getSuperClasses(localSuperClasses);
-		for (List<String> poly : jsonConfig.globalSuperClasses) {
-			assert (poly.size() == 2);
-			
-			if (this.superclassMap.containsKey(poly.get(0))) {
-				this.superclassMap.get(poly.get(0)).add(poly.get(1));
-			} else {
-				Set<String> subclass = new HashSet<>();
-				subclass.add(poly.get(1));
-				this.superclassMap.put(poly.get(0), subclass);
-			}
-			
-		}
-		this.subclassMap = new HashMap<>();
-		for (String key : superclassMap.keySet()) {
-			for (String value : superclassMap.get(key)) {
-				if (!subclassMap.containsKey(value)) {
-					subclassMap.put(value, new HashSet<String>());
-				}
-				subclassMap.get(value).add(key);
-			}
-		}
-
-		System.setOut(origOutput);
-		buildNet = new BuildNet(jsonConfig.noSideEffects);
-		try {
-			net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		signatureMap = BuildNet.dict;
-		 System.out.println("c #Transitions = " + net.getTransitions().size());
-		 System.out.println("c #Places = " + net.getPlaces().size());
-		
+	public UISyPet(SyPetInput input, SyPetConfig config) {
+		this(input.packages, input.libs, input.hints, config);
 	}
 
 	public void setSignature(String methodName, List<String> paramNames, List<String> srcTypes, String tgtType,
@@ -289,8 +252,8 @@ public class UISyPet {
 
 		buildNet.setMaxTokens(srcTypes);
 	}
-	
-	public String synthesize(int min_loc, int max_loc) {
+
+	public Optional<String> synthesize(int min_loc, int max_loc) {
 
 		int loc = min_loc;
 		boolean solution = false;
@@ -363,8 +326,8 @@ public class UISyPet {
 		}
 		System.out.println("c #Programs explored = " + programs);
 		System.out.println("c #Paths explored = " + paths);
-		return synthesizedCode;
 
+		return Optional.of(synthesizedCode).filter(s -> !s.isEmpty());
 	}
 
 	public List<String> synthesizeAll(int max_loc) {

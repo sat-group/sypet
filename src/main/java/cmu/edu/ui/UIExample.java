@@ -1,9 +1,10 @@
 package cmu.edu.ui;
 
+import cmu.edu.parser.SyPetConfig;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 public class UIExample {
 	
@@ -13,7 +14,7 @@ public class UIExample {
 			    Arrays.asList("java.time"));
 		ArrayList<String> libs = new ArrayList<String>(
 				Arrays.asList("./lib/rt8.jar"));
-		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<String>());
+		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<>(), new SyPetConfig.Builder().build());
 		String methodName = "refactor";
 		ArrayList<String> paramNames = new ArrayList<String>(
 				Arrays.asList("sypet_arg0","sypet_arg1","sypet_arg2"));
@@ -39,8 +40,9 @@ public class UIExample {
 	    "}\n";
 		
 		sypet.setSignature(methodName, paramNames, srcTypes,tgtType, testCode);
-		String code = sypet.synthesize(1,3);
-		System.out.println("code = " + code);
+		Optional<String> code = sypet.synthesize(1,3);
+		System.out.println("code = " + (code.isPresent() ? code.get() : ""));
+
 		
 //		
 //		// Step 1. Create a list with the packages and libs

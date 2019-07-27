@@ -408,7 +408,7 @@ public class BuildNet {
 	}
 
 	public PetriNet build(List<MethodSignature> result, Map<String, Set<String>> superClassMap,
-			Map<String, Set<String>> subClassMap, List<String> inputs, boolean copyPoly) throws java.io.IOException {
+			Map<String, Set<String>> subClassMap, List<String> inputs, boolean copyPoly) {
 
 		for (MethodSignature k : result) {
 			addTransition(k);

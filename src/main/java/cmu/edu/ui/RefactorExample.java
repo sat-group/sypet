@@ -1,8 +1,10 @@
 package cmu.edu.ui;
 
+import cmu.edu.parser.SyPetConfig;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class RefactorExample {
 
@@ -17,7 +19,7 @@ public class RefactorExample {
 
 		ArrayList<String> packages = new ArrayList<String>(Arrays.asList("java.time"));
 		ArrayList<String> libs = new ArrayList<String>(Arrays.asList("./lib/rt8.jar"));
-		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<String>());
+		UISyPet sypet = new UISyPet(packages, libs, new ArrayList<>(), new SyPetConfig.Builder().build());
 		String methodName = "refactor";
 		ArrayList<String> paramNames = new ArrayList<String>(Arrays.asList("sypet_arg0", "sypet_arg1", "sypet_arg2", "sypet_arg3", "sypet_arg4"));
 //		
@@ -77,8 +79,8 @@ public class RefactorExample {
 //		sypet.addAtLeastK("(static)java.time.LocalDate.parse(java.lang.CharSequence java.time.format.DateTimeFormatter )java.time.LocalDatePoly:(java.lang.String java.time.format.DateTimeFormatter )", 1);
 //		sypet.addAtLeastK("java.time.LocalDate.plusDays(java.time.LocalDate long )java.time.LocalDate", 1);
 //		sypet.addAtLeastK("java.time.LocalDate.format(java.time.LocalDate java.time.format.DateTimeFormatter )java.lang.String", 1);
-		String code = sypet.synthesize(1,7);
-		System.out.println("code = " + code);
+		Optional<String> code = sypet.synthesize(1,7);
+		System.out.println("code = " + (code.isPresent() ? code.get() : ""));
 
 	}
 

@@ -1,18 +1,18 @@
 package cmu.edu.server;
 
+import cmu.edu.parser.SyPetInput;
+import cmu.edu.ui.UISyPet;
+import com.google.gson.Gson;
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
+import fi.iki.elonen.util.ServerRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
-import com.google.gson.Gson;
-
-import cmu.edu.parser.SyPetInput;
-import cmu.edu.ui.UISyPet;
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
-import fi.iki.elonen.util.ServerRunner;
 
 /**
  * A custom subclass of NanoHTTPD.
@@ -85,16 +85,16 @@ public class HttpServer extends NanoHTTPD {
 		if (jsonInput.ub != 0)
 			ub = jsonInput.ub;
 
-		String code = sypet.synthesize(lb, ub);
-		if (!code.equals("")) {
-			code = code.substring(code.indexOf("{"), code.indexOf("}"));
-			code = code.replace("{", "");
-			code = code.replace("}", "");
-			return code;
+		Optional<String> optCode = sypet.synthesize(lb, ub);
+		if (optCode.isPresent()) {
+		  final String code = optCode.get();
+			return code.substring(code.indexOf("{"), code.indexOf("}"))
+					.replace("{", "")
+					.replace("}", "");
+		} else {
+			// TODO: check if the test compiles with a empty method
+			return "// SyPet failure!\n";
 		}
-
-		// TODO: check if the test compiles with a empty method
-		return "// SyPet failure!\n";
 	}
 
 	@Override
