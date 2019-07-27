@@ -118,6 +118,8 @@ public final class SyPetInput {
     // set on a case-by-case basis using setters. A SyPetInput instance can be obtained by invoking
     // Builder::build.
 
+    // NOTE There are many required fields. Consider applying the Step Builder pattern instead.
+
     // Required fields.
     private final int id;
     private final String methodName;
