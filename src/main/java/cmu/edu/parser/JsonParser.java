@@ -32,14 +32,29 @@
  */
 package cmu.edu.parser;
 
+import static cmu.edu.parser.GsonUtils.getArrayList;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 // TODO There's no real need for this class. These methods could be made constructors of their
 //  correspondent return types.
@@ -66,14 +81,13 @@ public final class JsonParser {
 
     try (InputStream in = Files.newInputStream(file)) {
       final Reader reader = new InputStreamReader(in);
-      return new Gson().fromJson(reader, SyPetInput.class);
 
-      // TODO Add custom deserializer to avoid object construction with nulls.
-//			final Gson gson = new GsonBuilder()
-//					.registerTypeAdapter(SyPetInput.class, new SyPetInputDeserializer())
-//					.create();
-//
-//			return gson.fromJson(reader, SyPetInput.class);
+      // Use a custom deserializer to avoid object construction with null fields.
+      final Gson gson = new GsonBuilder()
+          .registerTypeAdapter(SyPetInput.class, new SyPetInputDeserializer())
+          .create();
+
+      return gson.fromJson(reader, SyPetInput.class);
     }
   }
 
@@ -90,7 +104,129 @@ public final class JsonParser {
 
     try (InputStream in = Files.newInputStream(file)) {
       final Reader reader = new InputStreamReader(in);
-      return new Gson().fromJson(reader, SyPetConfig.class);
+
+      // Use a custom deserializer to avoid object construction with null fields.
+      final Gson gson = new GsonBuilder()
+          .registerTypeAdapter(SyPetInput.class, new SyPetConfigDeserializer())
+          .create();
+
+      return gson.fromJson(reader, SyPetConfig.class);
     }
+  }
+}
+
+/**
+ * This class is used to deserialize SyPetInput from JSON.
+ *
+ * @see SyPetInput
+ */
+class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
+
+  public static final String ID = "id";
+  public static final String METHOD_NAME = "methodName";
+  public static final String PARAM_NAMES = "paramNames";
+  public static final String SRC_TYPES = "srcTypes";
+  public static final String TGT_TYPE = "tgtType";
+  public static final String PACKAGES = "packages";
+  public static final String LIBS = "libs";
+  public static final String TEST_PATH = "testPath";
+  public static final String LOC_LOWER_BOUND = "locLowerBound";
+  public static final String LOC_UPPER_BOUND = "locUpperBound";
+  public static final String HINTS = "hints";
+
+  @Override
+  public SyPetInput deserialize(JsonElement json, Type type, JsonDeserializationContext context)
+      throws JsonParseException {
+    final JsonObject jobj = json.getAsJsonObject();
+    final Gson gson = new Gson();
+
+    // TODO Rename benchmark files to have same fields as SyPetInput.
+    // TODO Use Collection instead of List.
+    final int id = jobj.get(ID).getAsInt();
+    final String methodName = jobj.get(METHOD_NAME).getAsString();
+    final List<String> paramNames = getArrayList(gson, jobj.getAsJsonArray(PARAM_NAMES), String[].class);
+    final List<String> paramTypes = getArrayList(gson, jobj.getAsJsonArray(SRC_TYPES), String[].class);
+    final String returnType = jobj.get(TGT_TYPE).getAsString();
+    final List<String> packages = getArrayList(gson, jobj.getAsJsonArray(PACKAGES), String[].class);
+    final List<String> libs = getArrayList(gson, jobj.getAsJsonArray(LIBS), String[].class);
+
+    final String testPath = jobj.get(TEST_PATH).getAsString();
+    final String testCode;
+    try {
+      testCode = new String(Files.readAllBytes(Paths.get(testPath)));
+    } catch (IOException e) {
+      throw new JsonParseException(e);
+    }
+
+    final SyPetInput.Builder builder = new SyPetInput.Builder(id, methodName, paramNames,
+        paramTypes, returnType, packages, libs, testCode);
+
+    if (jobj.has(LOC_LOWER_BOUND)) {
+      builder.locLowerBound(jobj.get(LOC_LOWER_BOUND).getAsInt());
+    }
+
+    if (jobj.has(LOC_UPPER_BOUND)) {
+      builder.locUpperBound(jobj.get(LOC_UPPER_BOUND).getAsInt());
+    }
+
+    if (jobj.has(HINTS)) {
+      builder.hints(getArrayList(gson, jobj.getAsJsonArray(HINTS), String[].class));
+    }
+
+    return builder.build();
+  }
+
+}
+
+/**
+ * This class is used to deserialize SyPetConfig from JSON.
+ *
+ * @see SyPetConfig
+ */
+class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
+
+  public static final String LOCAL_SUPER_CLASSES = "localSuperClasses";
+  public static final String BLACKLIST = "blacklist";
+  public static final String NO_SIDE_EFFECTS = "noSideEffects";
+  public static final String GLOBAL_SUPER_CLASSES = "globalSuperClasses";
+
+  @Override
+  public SyPetConfig deserialize(JsonElement json, Type type, JsonDeserializationContext context)
+      throws JsonParseException {
+    final JsonObject jobj = json.getAsJsonObject();
+    final Gson gson = new Gson();
+    final SyPetConfig.Builder configBuilder = new SyPetConfig.Builder();
+
+    if (jobj.has(LOCAL_SUPER_CLASSES)) {
+      configBuilder.localSuperClasses(
+          getArrayList(gson, jobj.getAsJsonArray(LOCAL_SUPER_CLASSES), String[].class));
+    }
+
+    if (jobj.has(BLACKLIST)) {
+      configBuilder.blacklist(
+          getArrayList(gson, jobj.getAsJsonArray(BLACKLIST), String[].class));
+    }
+
+    if (jobj.has(NO_SIDE_EFFECTS)) {
+      configBuilder.noSideEffects(
+          getArrayList(gson, jobj.getAsJsonArray(NO_SIDE_EFFECTS), String[].class));
+    }
+
+    if (jobj.has(GLOBAL_SUPER_CLASSES)) {
+      configBuilder.globalSuperClasses(
+          Arrays.stream(gson.fromJson(jobj, String[][].class))
+              .map(arr -> Arrays.asList(arr))
+              .collect(Collectors.toList()));
+    }
+
+    return configBuilder.build();
+  }
+}
+
+class GsonUtils {
+
+  public static <T> ArrayList<T> getArrayList(com.google.gson.Gson gson, JsonArray array,
+      Class<T[]> classOfT) {
+    return new ArrayList<>(Arrays.asList(gson.fromJson(array, classOfT)));
   }
 }
