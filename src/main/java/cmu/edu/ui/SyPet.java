@@ -45,7 +45,10 @@ import java.util.Optional;
 /**
  * This class represents the main entry point to the SyPet synthesis tool.
  */
-public class SyPet {
+public final class SyPet {
+
+  private SyPet() {
+  }
 
   // TODO Explain the JSON format in more detail.
 
