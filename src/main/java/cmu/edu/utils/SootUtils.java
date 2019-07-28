@@ -70,7 +70,6 @@ public class SootUtils {
           "Option parse error " + options.toString());
     }
 
-    Scene.v().loadBasicClasses();
     Scene.v().loadNecessaryClasses();
   }
 }
