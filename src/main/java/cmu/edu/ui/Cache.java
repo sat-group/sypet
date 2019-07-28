@@ -31,9 +31,9 @@ public class Cache {
 		Set<String> acceptableSuperClasses = new HashSet<>();
 		acceptableSuperClasses.addAll(jsonConfig.localSuperClasses);
 
-		JarParser parser = new JarParser(libs);
-		Cache.sigs = parser.parseJar(libs, packages, jsonConfig.blacklist);
-		this.superclassMap = JarParser.getSuperClasses(acceptableSuperClasses);
+		JarParser parser = new JarParser(libs, packages);
+		Cache.sigs = parser.parseJar(jsonConfig.blacklist);
+		this.superclassMap = parser.getSuperClasses(acceptableSuperClasses);
 	}
 
 	public void cacheMethods(String filename, String package_name) {
