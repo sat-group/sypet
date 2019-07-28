@@ -56,9 +56,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-// TODO There's no real need for this class. These methods could be made constructors of their
-//  correspondent return types.
-
 /**
  * Factory to parse SyPet-specific JSON files.
  */
