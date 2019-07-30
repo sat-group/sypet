@@ -72,6 +72,7 @@ public final class SyPetConfig {
   /**
    * TODO
    */
+  @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     // The Builder pattern. Refer to Effective Java, 3rd edition, Item 2, for an overview of this
     // pattern.

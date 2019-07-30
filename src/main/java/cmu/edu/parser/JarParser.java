@@ -50,12 +50,12 @@ public final class JarParser {
   /**
    * TODO
    */
-  private Collection<String> packages;
+  private final Collection<String> packages;
 
   /**
    * Physical addresses of the jar files, e.g., "lib/hamcrest-core-1.3.jar".
    */
-  private Collection<String> libs;
+  private final Collection<String> libs;
 
   /**
    * TODO

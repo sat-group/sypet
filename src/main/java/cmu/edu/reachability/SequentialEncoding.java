@@ -1,34 +1,34 @@
-/**
- * BSD 3-Clause License
- *	
- *	
- *	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
- *	All rights reserved.
- *	
- *	Redistribution and use in source and binary forms, with or without
- *	modification, are permitted provided that the following conditions are met:
- *	
- *	* Redistributions of source code must retain the above copyright notice, this
- *	  list of conditions and the following disclaimer.
- *	
- *	* Redistributions in binary form must reproduce the above copyright notice,
- *	  this list of conditions and the following disclaimer in the documentation
- *	  and/or other materials provided with the distribution.
- *	
- *	* Neither the name of the copyright holder nor the names of its
- *	  contributors may be used to endorse or promote products derived from
- *	  this software without specific prior written permission.
- *	
- *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+  BSD 3-Clause License
+
+
+ 	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
+ 	All rights reserved.
+
+ 	Redistribution and use in source and binary forms, with or without
+ 	modification, are permitted provided that the following conditions are met:
+
+ 	* Redistributions of source code must retain the above copyright notice, this
+ 	  list of conditions and the following disclaimer.
+
+ 	* Redistributions in binary form must reproduce the above copyright notice,
+ 	  this list of conditions and the following disclaimer in the documentation
+ 	  and/or other materials provided with the distribution.
+
+ 	* Neither the name of the copyright holder nor the names of its
+ 	  contributors may be used to endorse or promote products derived from
+ 	  this software without specific prior written permission.
+
+ 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ 	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ 	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ 	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ 	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ 	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ 	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ 	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package cmu.edu.reachability;
@@ -50,9 +50,9 @@ import uniol.apt.adt.pn.Transition;
 
 public class SequentialEncoding implements Encoding {
 
-	int loc = 1;
-	PetriNet pnet = null;
-	int nbVariables = 1;
+	private int loc = 1;
+	private PetriNet pnet = null;
+	private int nbVariables = 1;
 	int nbConstraints = 0;
 
 	public SequentialEncoding(PetriNet pnet, int loc) {
@@ -80,7 +80,7 @@ public class SequentialEncoding implements Encoding {
 			VecInt constraint = new VecInt();
 			for (int t = 0; t < loc; t++) {
 				// create a variable with <place in the petri-net, timestamp, value>
-				Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+				Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 				Variable var = transition2variable.get(pair);
 				constraint.push(var.getId());
 			}
@@ -114,7 +114,7 @@ public class SequentialEncoding implements Encoding {
 					for (int t = 0; t < loc; t++) {
 						//System.out.println("tr = " + tr);
 						// create a variable with <place in the petri-net, timestamp, value>
-						Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+						Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 						Variable var = transition2variable.get(pair);
 						constraint.push(var.getId());
 
@@ -130,7 +130,7 @@ public class SequentialEncoding implements Encoding {
 		}
 	}
 
-	public void atLeastK(int k, String transition) {
+	private void atLeastK(int k, String transition) {
 
 		// TODO: support multiple methods with the same name with auxiliary variables
 		for (Transition tr : pnet.getTransitions()) {
@@ -139,7 +139,7 @@ public class SequentialEncoding implements Encoding {
 				VecInt constraint = new VecInt();
 				for (int t = 0; t < loc; t++) {
 					// create a variable with <place in the petri-net, timestamp, value>
-					Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+					Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 					Variable var = transition2variable.get(pair);
 					constraint.push(var.getId());
 				}
@@ -158,7 +158,7 @@ public class SequentialEncoding implements Encoding {
 			// loop for each transition
 			VecInt constraint = new VecInt();
 			for (Transition tr : pnet.getTransitions()) {
-				Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+				Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 				Variable var = transition2variable.get(pair);
 				constraint.push(var.getId());
 			}
@@ -195,7 +195,7 @@ public class SequentialEncoding implements Encoding {
 						places_to_be_changed.put(p, places_to_be_changed.get(p) - f.getWeight());
 				}
 
-				Pair<Transition, Integer> transition = new ImmutablePair<Transition, Integer>(tr, t);
+				Pair<Transition, Integer> transition = new ImmutablePair<>(tr, t);
 				Variable fireTr = transition2variable.get(transition);
 
 				for (Place p : places_to_be_changed.keySet()) {
@@ -209,9 +209,9 @@ public class SequentialEncoding implements Encoding {
 						if (w + places_to_be_changed.get(p) < 0 || w + places_to_be_changed.get(p) > p.getMaxToken())
 							continue;
 
-						Triple<Place, Integer, Integer> placeBefore = new ImmutableTriple<Place, Integer, Integer>(p, t,
+						Triple<Place, Integer, Integer> placeBefore = new ImmutableTriple<>(p, t,
 								w);
-						Triple<Place, Integer, Integer> placeAfter = new ImmutableTriple<Place, Integer, Integer>(p,
+						Triple<Place, Integer, Integer> placeAfter = new ImmutableTriple<>(p,
 								t + 1, w + diff);
 
 						Variable previousState = place2variable.get(placeBefore);
@@ -242,20 +242,20 @@ public class SequentialEncoding implements Encoding {
 		for (int t = 0; t < loc; t++) {
 			// loop for each transition
 			for (Transition tr : pnet.getTransitions()) {
-				List<VecInt> preconditions = new ArrayList<VecInt>();
+				List<VecInt> preconditions = new ArrayList<>();
 				for (Flow f : tr.getPresetEdges()) {
 					VecInt pre = new VecInt();
 					Place p = f.getPlace();
 					int weight = f.getWeight();
 					for (int w = weight; w <= p.getMaxToken(); w++) {
-						Triple<Place, Integer, Integer> triple = new ImmutableTriple<Place, Integer, Integer>(p, t, w);
+						Triple<Place, Integer, Integer> triple = new ImmutableTriple<>(p, t, w);
 						Variable v = place2variable.get(triple);
 						pre.push(v.getId());
 					}
 					preconditions.add(pre);
 				}
 
-				Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+				Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 				Variable fireTr = transition2variable.get(pair);
 
 				// if f is fired then there are enough resources to fire it
@@ -269,7 +269,7 @@ public class SequentialEncoding implements Encoding {
 				for (Flow f : tr.getPostsetEdges()) {
 					Place p = f.getPlace();
 					int w1 = f.getWeight();
-					Triple<Place, Integer, Integer> triple = new ImmutableTriple<Place, Integer, Integer>(p, t,
+					Triple<Place, Integer, Integer> triple = new ImmutableTriple<>(p, t,
 							p.getMaxToken());
 					Variable v = place2variable.get(triple);
 					boolean ok = true;
@@ -307,7 +307,7 @@ public class SequentialEncoding implements Encoding {
 				VecInt amo = new VecInt();
 				// loop for each number of tokens
 				for (int w = 0; w <= p.getMaxToken(); w++) {
-					Triple<Place, Integer, Integer> triple = new ImmutableTriple<Place, Integer, Integer>(p, t, w);
+					Triple<Place, Integer, Integer> triple = new ImmutableTriple<>(p, t, w);
 					Variable v = place2variable.get(triple);
 					amo.push(v.getId());
 				}
@@ -324,18 +324,18 @@ public class SequentialEncoding implements Encoding {
 		for (int t = 0; t < loc; t++) {
 			// loop for each place
 			for (Place p : pnet.getPlaces()) {
-				Set<Transition> transitions = new HashSet<Transition>();
+				Set<Transition> transitions = new HashSet<>();
 				transitions.addAll(p.getPostset());
 				transitions.addAll(p.getPreset());
 				VecInt transitionsConstr = new VecInt();
 				for (Transition tr : transitions) {
-					Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+					Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 					transitionsConstr.push(transition2variable.get(pair).getId());
 				}
 
 				for (int w = 0; w <= p.getMaxToken(); w++) {
-					Triple<Place, Integer, Integer> current = new ImmutableTriple<Place, Integer, Integer>(p, t, w);
-					Triple<Place, Integer, Integer> next = new ImmutableTriple<Place, Integer, Integer>(p, t + 1, w);
+					Triple<Place, Integer, Integer> current = new ImmutableTriple<>(p, t, w);
+					Triple<Place, Integer, Integer> next = new ImmutableTriple<>(p, t + 1, w);
 
 					VecInt clause = new VecInt();
 					transitionsConstr.copyTo(clause);
@@ -372,7 +372,7 @@ public class SequentialEncoding implements Encoding {
 			for (int t = 0; t <= loc; t++) {
 				for (int v = 0; v <= p.getMaxToken(); v++) {
 					// create a variable with <place in the petri-net, timestamp, value>
-					Triple<Place, Integer, Integer> triple = new ImmutableTriple<Place, Integer, Integer>(p, t, v);
+					Triple<Place, Integer, Integer> triple = new ImmutableTriple<>(p, t, v);
 					Variable var = new Variable(nbVariables, p.getId(), Type.PLACE, t, v);
 					place2variable.put(triple, var);
 					// solver.id2variable.put(nbVariables, var);
@@ -385,7 +385,7 @@ public class SequentialEncoding implements Encoding {
 		for (Transition tr : pnet.getTransitions()) {
 			for (int t = 0; t < loc; t++) {
 				// create a variable with <transition in the petri-net,timestamp>
-				Pair<Transition, Integer> pair = new ImmutablePair<Transition, Integer>(tr, t);
+				Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
 				Variable var = new Variable(nbVariables, tr.getLabel(), Type.TRANSITION, t);
 				transition2variable.put(pair, var);
 				solver.id2variable.put(nbVariables, var);
@@ -437,9 +437,9 @@ public class SequentialEncoding implements Encoding {
 	@Override
 	public void setState(Set<Pair<Place, Integer>> state, int timestep) {
 
-		Set<Place> visited = new HashSet<Place>();
+		Set<Place> visited = new HashSet<>();
 		for (Pair<Place, Integer> p : state) {
-			Triple<Place, Integer, Integer> place = new ImmutableTriple<Place, Integer, Integer>(p.getLeft(), timestep,
+			Triple<Place, Integer, Integer> place = new ImmutableTriple<>(p.getLeft(), timestep,
 					p.getRight());
 			int v = place2variable.get(place).getId();
 			solver.setTrue(v);

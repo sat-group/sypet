@@ -40,11 +40,6 @@ public final class SyPetInput {
   // TODO Give better names to the fields.
 
   /**
-   * TODO Explain why is this needed.
-   */
-  public final int id;
-
-  /**
    * The name of the method we want to synthesize.
    */
   public final String methodName;
@@ -95,7 +90,6 @@ public final class SyPetInput {
   public final List<String> hints;
 
   private SyPetInput(Builder builder) {
-    this.id = builder.id;
     this.methodName = builder.methodName;
     this.paramNames = builder.paramNames;
     this.srcTypes = builder.paramTypes;
@@ -111,6 +105,7 @@ public final class SyPetInput {
   /**
    * TODO
    */
+  @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     // The Builder pattern. Refer to Effective Java, 3rd edition, Item 2, for an overview of this
     // pattern.
@@ -120,8 +115,6 @@ public final class SyPetInput {
 
     // NOTE There are many required fields. Consider applying the Step Builder pattern instead.
 
-    // Required fields.
-    private final int id;
     private final String methodName;
     private final List<String> paramNames;
     private final List<String> paramTypes;
@@ -141,7 +134,6 @@ public final class SyPetInput {
      * TODO
      */
     public Builder(
-        int id,
         String methodName,
         List<String> paramNames,
         List<String> paramTypes,
@@ -157,7 +149,7 @@ public final class SyPetInput {
       Objects.requireNonNull(libs);
       Objects.requireNonNull(testCode);
 
-      this.id = id;
+      // Required fields.
       this.methodName = methodName;
       this.paramNames = paramNames;
       this.paramTypes = paramTypes;

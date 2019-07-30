@@ -45,7 +45,7 @@ import java.util.Optional;
 /**
  * This class represents the main entry point to the SyPet synthesis tool.
  */
-public final class SyPet {
+final class SyPet {
 
   private SyPet() {
   }
@@ -57,7 +57,6 @@ public final class SyPet {
    * information about the program we want to synthesize.
    *
    * @param args a single element array whose element is the path string to the JSON file
-   * @throws IOException if it fails to read the contents of the Java test case file.
    */
   public static void main(String[] args) {
     // We expect a single string argument representing the path to the JSON file.
@@ -102,7 +101,7 @@ public final class SyPet {
    * @return optionally a program, if one can be synthesized
    * @see SyPetInput
    */
-  protected static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
+  private static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
     UISyPet sypet = new UISyPet(input, config);
     sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
         input.testBody);
@@ -116,7 +115,7 @@ public final class SyPet {
    * @param jsonInputFile the path to the JSON file
    * @return optionally a program, if one can be synthesized
    */
-  protected static Optional<String> synthesize(Path jsonInputFile, Path jsonConfigFile) {
+  private static Optional<String> synthesize(Path jsonInputFile, Path jsonConfigFile) {
     try {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);
@@ -130,7 +129,7 @@ public final class SyPet {
     System.err.println("Error: this line should not be reachable");
     System.exit(1);
 
-    return null;
+    return Optional.empty();
   }
 
 }

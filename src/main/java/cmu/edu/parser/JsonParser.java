@@ -119,17 +119,17 @@ public final class JsonParser {
  */
 class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
 
-  public static final String ID = "id";
-  public static final String METHOD_NAME = "methodName";
-  public static final String PARAM_NAMES = "paramNames";
-  public static final String SRC_TYPES = "srcTypes";
-  public static final String TGT_TYPE = "tgtType";
-  public static final String PACKAGES = "packages";
-  public static final String LIBS = "libs";
-  public static final String TEST_PATH = "testPath";
-  public static final String LOC_LOWER_BOUND = "locLowerBound";
-  public static final String LOC_UPPER_BOUND = "locUpperBound";
-  public static final String HINTS = "hints";
+  private static final String ID = "id";
+  private static final String METHOD_NAME = "methodName";
+  private static final String PARAM_NAMES = "paramNames";
+  private static final String SRC_TYPES = "srcTypes";
+  private static final String TGT_TYPE = "tgtType";
+  private static final String PACKAGES = "packages";
+  private static final String LIBS = "libs";
+  private static final String TEST_PATH = "testPath";
+  private static final String LOC_LOWER_BOUND = "locLowerBound";
+  private static final String LOC_UPPER_BOUND = "locUpperBound";
+  private static final String HINTS = "hints";
 
   @Override
   public SyPetInput deserialize(JsonElement json, Type type, JsonDeserializationContext context)
@@ -155,7 +155,7 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
       throw new JsonParseException(e);
     }
 
-    final SyPetInput.Builder builder = new SyPetInput.Builder(id, methodName, paramNames,
+    final SyPetInput.Builder builder = new SyPetInput.Builder(methodName, paramNames,
         paramTypes, returnType, packages, libs, testCode);
 
     if (jobj.has(LOC_LOWER_BOUND)) {
@@ -182,10 +182,10 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
  */
 class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
 
-  public static final String LOCAL_SUPER_CLASSES = "localSuperClasses";
-  public static final String BLACKLIST = "blacklist";
-  public static final String NO_SIDE_EFFECTS = "noSideEffects";
-  public static final String GLOBAL_SUPER_CLASSES = "globalSuperClasses";
+  private static final String LOCAL_SUPER_CLASSES = "localSuperClasses";
+  private static final String BLACKLIST = "blacklist";
+  private static final String NO_SIDE_EFFECTS = "noSideEffects";
+  private static final String GLOBAL_SUPER_CLASSES = "globalSuperClasses";
 
   @Override
   public SyPetConfig deserialize(JsonElement json, Type type, JsonDeserializationContext context)
@@ -212,7 +212,7 @@ class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
     if (jobj.has(GLOBAL_SUPER_CLASSES)) {
       configBuilder.globalSuperClasses(
           Arrays.stream(gson.fromJson(jobj, String[][].class))
-              .map(arr -> Arrays.asList(arr))
+              .map(Arrays::asList)
               .collect(Collectors.toList()));
     }
 

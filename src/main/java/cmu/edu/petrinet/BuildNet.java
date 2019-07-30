@@ -1,34 +1,34 @@
-/**
- * BSD 3-Clause License
- *
- *
- *	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
- *	All rights reserved.
- *
- *	Redistribution and use in source and binary forms, with or without
- *	modification, are permitted provided that the following conditions are met:
- *
- *	* Redistributions of source code must retain the above copyright notice, this
- *	  list of conditions and the following disclaimer.
- *
- *	* Redistributions in binary form must reproduce the above copyright notice,
- *	  this list of conditions and the following disclaimer in the documentation
- *	  and/or other materials provided with the distribution.
- *
- *	* Neither the name of the copyright holder nor the names of its
- *	  contributors may be used to endorse or promote products derived from
- *	  this software without specific prior written permission.
- *
- *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+  BSD 3-Clause License
+
+
+ 	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
+ 	All rights reserved.
+
+ 	Redistribution and use in source and binary forms, with or without
+ 	modification, are permitted provided that the following conditions are met:
+
+ 	* Redistributions of source code must retain the above copyright notice, this
+ 	  list of conditions and the following disclaimer.
+
+ 	* Redistributions in binary form must reproduce the above copyright notice,
+ 	  this list of conditions and the following disclaimer in the documentation
+ 	  and/or other materials provided with the distribution.
+
+ 	* Neither the name of the copyright holder nor the names of its
+ 	  contributors may be used to endorse or promote products derived from
+ 	  this software without specific prior written permission.
+
+ 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ 	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ 	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ 	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ 	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ 	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ 	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ 	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package cmu.edu.petrinet;
@@ -56,9 +56,9 @@ import uniol.apt.adt.pn.Transition;
  * @author Anlun Xu
  */
 public class BuildNet {
-	static public PetriNet petrinet = new PetriNet("net");
+	private static PetriNet petrinet = new PetriNet("net");
 	// A map from transition name to a method signature
-	static public Map<String, MethodSignature> dict = new HashMap<String, MethodSignature>();
+	static public Map<String, MethodSignature> dict = new HashMap<>();
 
 	static private Map<String, List<String>> superDict = new HashMap<>();
 	static private Map<String, List<String>> subDict = new HashMap<>();
@@ -67,10 +67,10 @@ public class BuildNet {
 
 	public BuildNet(List<String> noSideEffects) {
 		petrinet = new PetriNet("net");
-		dict = new HashMap<String, MethodSignature>();
+		dict = new HashMap<>();
 		superDict = new HashMap<>();
 		subDict = new HashMap<>();
-		this.noSideEffects = noSideEffects;
+		BuildNet.noSideEffects = noSideEffects;
 	}
 
 	private static void generatePolymophism(Transition t, int count, List<Place> inputs, Stack<Place> polyInputs) {
@@ -85,13 +85,13 @@ public class BuildNet {
 				return;
 			}
 
-			String newTransitionName = t.getId() + "Poly:(";
+			StringBuilder newTransitionName = new StringBuilder(t.getId() + "Poly:(");
 			for (Place p : polyInputs) {
-				newTransitionName += p.getId() + " ";
+				newTransitionName.append(p.getId()).append(" ");
 			}
-			newTransitionName += ")";
+			newTransitionName.append(")");
 
-			if (petrinet.containsTransition(newTransitionName)) {
+			if (petrinet.containsTransition(newTransitionName.toString())) {
 				return;
 			}
 
@@ -103,14 +103,15 @@ public class BuildNet {
 					polymorphicOutput = true;
 					break;
 				}
+				//noinspection ConstantConditions
 				if (polymorphicOutput)
 					break;
 			}
 
-			Transition newTransition = petrinet.createTransition(newTransitionName);
+			Transition newTransition = petrinet.createTransition(newTransitionName.toString());
 			for (Place p : polyInputs) {
 				// NOTE: why is the weight of the flow restricted to 1?
-				addFlow(p.getId(), newTransitionName, 1);
+				addFlow(p.getId(), newTransitionName.toString(), 1);
 			}
 
 			for (Flow f : t.getPostsetEdges()) {
@@ -118,7 +119,7 @@ public class BuildNet {
 				int w = f.getWeight();
 				petrinet.createFlow(newTransition, p, w);
 			}
-			dict.put(newTransitionName, dict.get(t.getId()));
+			dict.put(newTransitionName.toString(), dict.get(t.getId()));
 
 			if (polymorphicOutput){
 
@@ -149,7 +150,6 @@ public class BuildNet {
 				polyInputs.push(p);
 				generatePolymophism(t, count + 1, inputs, polyInputs);
 				polyInputs.pop();
-				return;
 			} else {
 				for (String subclass : subClasses) {
 					addPlace(subclass);
@@ -158,7 +158,6 @@ public class BuildNet {
 					generatePolymophism(t, count + 1, inputs, polyInputs);
 					polyInputs.pop();
 				}
-				return;
 			}
 		}
 	}
@@ -247,43 +246,44 @@ public class BuildNet {
 		boolean isStatic = methodSig.getIsStatic();
 		boolean isConstructor = methodSig.getIsConstructor();
 		String className = methodSig.getHostClass().getName();
-		String transitionName = "(Void)";
+		StringBuilder transitionName = new StringBuilder("(Void)");
 		List<Type> args = methodSig.getArgTypes();
 
 		if (isConstructor) {
-			transitionName += methodname + "(Constructor)" + "(";
+			transitionName.append(methodname).append("(Constructor)").append("(");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
+			petrinet.createTransition(transitionName.toString());
 		} else if (isStatic) {
-			transitionName += "(static)" + className + "." + methodname + "(";
+			transitionName.append("(static)").append(className).append(".").append(methodname)
+					.append("(");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
+			petrinet.createTransition(transitionName.toString());
 		} else { // The method is not static, so it has an extra argument
-			transitionName += className + "." + methodname + "(";
-			transitionName += className + " ";
+			transitionName.append(className).append(".").append(methodname).append("(");
+			transitionName.append(className).append(" ");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
-			petrinet.createTransition(transitionName);
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
+			petrinet.createTransition(transitionName.toString());
 
 			addPlace(className);
-			addFlow(className, transitionName, 1);
+			addFlow(className, transitionName.toString(), 1);
 		}
-		dict.put(transitionName, methodSig); // add signature into map
+		dict.put(transitionName.toString(), methodSig); // add signature into map
 
 		for (Type t : args) {
 			addPlace(t.toString());
-			addFlow(t.toString(), transitionName, 1);
+			addFlow(t.toString(), transitionName.toString(), 1);
 		}
 
 		// add place for the return type
@@ -291,10 +291,10 @@ public class BuildNet {
 		assert (retType.toString() == "void");
 		if (retType.toString() != "void") {
 			addPlace(retType.toString());
-			addFlow(transitionName, retType.toString(), 1);
+			addFlow(transitionName.toString(), retType.toString(), 1);
 		} else {
 			addPlace("void");
-			addFlow(transitionName, "void", 1);
+			addFlow(transitionName.toString(), "void", 1);
 		}
 	}
 
@@ -303,57 +303,57 @@ public class BuildNet {
 		boolean isStatic = methodSig.getIsStatic();
 		boolean isConstructor = methodSig.getIsConstructor();
 		String className = methodSig.getHostClass().getName();
-		String transitionName;
+		StringBuilder transitionName;
 		List<Type> args = methodSig.getArgTypes();
 		
 		if (isConstructor) {
-			transitionName = methodname + "(Constructor)" + "(";
+			transitionName = new StringBuilder(methodname + "(Constructor)" + "(");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
 			// FIXME: fix this potential bug later; triggered in javax.mail
-			if (!petrinet.containsTransition(transitionName))
-				petrinet.createTransition(transitionName);
+			if (!petrinet.containsTransition(transitionName.toString()))
+				petrinet.createTransition(transitionName.toString());
 		} else if (isStatic) {
-			transitionName = "(static)" + className + "." + methodname + "(";
+			transitionName = new StringBuilder("(static)" + className + "." + methodname + "(");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
 			// FIXME: fix this potential bug later; triggered in javax.mail
-			if (!petrinet.containsTransition(transitionName))
-				petrinet.createTransition(transitionName);
+			if (!petrinet.containsTransition(transitionName.toString()))
+				petrinet.createTransition(transitionName.toString());
 		} else { // The method is not static, so it has an extra argument
-			transitionName = className + "." + methodname + "(";
-			transitionName += className + " ";
+			transitionName = new StringBuilder(className + "." + methodname + "(");
+			transitionName.append(className).append(" ");
 			for (Type t : args) {
-				transitionName += t.toString() + " ";
+				transitionName.append(t.toString()).append(" ");
 			}
-			transitionName += ")";
-			transitionName += methodSig.getRetType();
+			transitionName.append(")");
+			transitionName.append(methodSig.getRetType());
 			// FIXME: fix this potential bug later; triggered in javax.mail
-			if (!petrinet.containsTransition(transitionName)) {
-				petrinet.createTransition(transitionName);
+			if (!petrinet.containsTransition(transitionName.toString())) {
+				petrinet.createTransition(transitionName.toString());
 
 				addPlace(className);
-				addFlow(className, transitionName, 1);
+				addFlow(className, transitionName.toString(), 1);
 			}
 		}
-		dict.put(transitionName, methodSig); // add signature into map
+		dict.put(transitionName.toString(), methodSig); // add signature into map
 
 		for (Type t : args) {
 			addPlace(t.toString());
-			addFlow(t.toString(), transitionName, 1);
+			addFlow(t.toString(), transitionName.toString(), 1);
 		}
 
 		// add place for the return type
 		Type retType = methodSig.getRetType();
 		if (retType.toString() != "void") {
 			addPlace(retType.toString());
-			addFlow(transitionName, retType.toString(), 1);
+			addFlow(transitionName.toString(), retType.toString(), 1);
 		} else {
 
 			if (noSideEffects.contains(className)) {
@@ -361,7 +361,7 @@ public class BuildNet {
 			}
 
 			addPlace(className);
-			addFlow(transitionName, className, 1);
+			addFlow(transitionName.toString(), className, 1);
 
 		}
 	}
@@ -389,7 +389,7 @@ public class BuildNet {
 		}
 
 		// Update the maxtoken for inputs
-		HashMap<Place, Integer> count = new HashMap<Place, Integer>();
+		HashMap<Place, Integer> count = new HashMap<>();
 		for (String input : inputs) {
 			Place p;
 			p = petrinet.getPlace(input);

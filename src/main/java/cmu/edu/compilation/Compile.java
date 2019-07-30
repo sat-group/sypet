@@ -1,34 +1,34 @@
-/**
- * BSD 3-Clause License
- *	
- *	
- *	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
- *	All rights reserved.
- *	
- *	Redistribution and use in source and binary forms, with or without
- *	modification, are permitted provided that the following conditions are met:
- *	
- *	* Redistributions of source code must retain the above copyright notice, this
- *	  list of conditions and the following disclaimer.
- *	
- *	* Redistributions in binary form must reproduce the above copyright notice,
- *	  this list of conditions and the following disclaimer in the documentation
- *	  and/or other materials provided with the distribution.
- *	
- *	* Neither the name of the copyright holder nor the names of its
- *	  contributors may be used to endorse or promote products derived from
- *	  this software without specific prior written permission.
- *	
- *	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- *	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- *	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- *	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- *	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- *	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*
+  BSD 3-Clause License
+
+
+ 	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
+ 	All rights reserved.
+
+ 	Redistribution and use in source and binary forms, with or without
+ 	modification, are permitted provided that the following conditions are met:
+
+ 	* Redistributions of source code must retain the above copyright notice, this
+ 	  list of conditions and the following disclaimer.
+
+ 	* Redistributions in binary form must reproduce the above copyright notice,
+ 	  this list of conditions and the following disclaimer in the documentation
+ 	  and/or other materials provided with the distribution.
+
+ 	* Neither the name of the copyright holder nor the names of its
+ 	  contributors may be used to endorse or promote products derived from
+ 	  this software without specific prior written permission.
+
+ 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ 	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ 	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ 	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ 	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ 	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ 	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ 	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package cmu.edu.compilation;
@@ -36,7 +36,6 @@ package cmu.edu.compilation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -52,7 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
@@ -69,16 +67,16 @@ import javax.tools.ToolProvider;
  * @author Ruben Martins
  * @author Yu Feng
  */
-public class Compile {
-	public static final boolean DISPLAY_ERROR = false;
-	public static String CLASSNAME;
-	protected static boolean mCompilationSuccess = true;
+class Compile {
+	private static final boolean DISPLAY_ERROR = false;
+	private static String CLASSNAME;
+	private static boolean mCompilationSuccess = true;
 	
 	Compile(String classname){
 		Compile.CLASSNAME = classname;
 	}
 	
-    public static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject>
+    static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject>
     {
         @Override
 		public void report(Diagnostic<? extends JavaFileObject> diagnostic)
@@ -98,7 +96,6 @@ public class Compile {
 			success = (boolean) method.invoke(null);
 		} catch (Exception e) {
 			if (DISPLAY_ERROR) e.printStackTrace();
-			success = false;
 		}
 		return success;
 	}
@@ -121,7 +118,7 @@ public class Compile {
 			SpecialClassLoader cl = new SpecialClassLoader(libs);
 			SpecialJavaFileManager fileManager = new SpecialJavaFileManager(sjfm, cl);
 
-			List<String> options = new ArrayList<String>();
+			List<String> options = new ArrayList<>();
 			options.add("-cp");
 			options.add(classpath);
 			List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(CLASSNAME, program));
@@ -148,7 +145,7 @@ public class Compile {
 }
 
 class MemorySource extends SimpleJavaFileObject {
-	private String src;
+	private final String src;
 	public MemorySource(String name, String src) {
 		super(URI.create("file:///" + name + ".java"), Kind.SOURCE);
 		this.src = src;
@@ -165,7 +162,7 @@ class MemorySource extends SimpleJavaFileObject {
 }
 
 class SpecialJavaFileManager extends ForwardingJavaFileManager {
-	private SpecialClassLoader xcl;
+	private final SpecialClassLoader xcl;
 
 	@SuppressWarnings("unchecked")
 	public SpecialJavaFileManager(StandardJavaFileManager sjfm, SpecialClassLoader xcl) {
@@ -173,7 +170,7 @@ class SpecialJavaFileManager extends ForwardingJavaFileManager {
 		this.xcl = xcl;
 	}
 
-	public JavaFileObject getJavaFileForOutput(Location location, String name, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
+	public JavaFileObject getJavaFileForOutput(Location location, String name, JavaFileObject.Kind kind, FileObject sibling) {
 		MemoryByteCode mbc = new MemoryByteCode(name);
 		xcl.addClass(name, mbc);
 		return mbc;
@@ -210,9 +207,9 @@ class MemoryByteCode extends SimpleJavaFileObject {
 }
 
 class SpecialClassLoader extends ClassLoader {
-	protected Map<String, MemoryByteCode> map = new HashMap<String, MemoryByteCode>();
-	protected List<String> libs;
-	protected URLClassLoader cl = null;
+	private final Map<String, MemoryByteCode> map = new HashMap<>();
+	private final List<String> libs;
+	private URLClassLoader cl = null;
 
 	public SpecialClassLoader(List<String> libs) {
 		this.libs = libs;
@@ -236,7 +233,7 @@ class SpecialClassLoader extends ClassLoader {
 		map.put(name, mbc);
 	}
 
-	protected URL[] getUrls(List<String> libs) {
+	private URL[] getUrls(List<String> libs) {
 		URL[] urls = new URL[libs.size()];
 		try {
 			for (int i = 0; i < libs.size(); ++i) {
