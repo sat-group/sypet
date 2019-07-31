@@ -56,16 +56,8 @@ make stop-dev   # Stop docker container
 
 ## Running SyPet
 
-Having built SyPet, you can then run it with:
-
 ```
-./gradlew run -args='path/to/input/file'
-```
-
-Example:
-
-```
-./gradlew run --args='benchmarks/geometry/10/benchmark10.json'
+./gradlew :sypet-cli:run --args='path/to/input/file'
 ```
 
 ### Docker

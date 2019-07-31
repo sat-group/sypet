@@ -8,3 +8,5 @@
  */
 
 rootProject.name = "sypet"
+
+include("sypet-api", "sypet-cli")

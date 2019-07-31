@@ -45,12 +45,12 @@ import java.util.Optional;
 /**
  * This class represents the SyPet command line interface.
  */
-final class SyPetCLI {
+public final class SyPetCLI {
 
   private SyPetCLI() {
   }
 
-  // TODO Explain the JSON format in more detail.
+  // TODO Explain the JSON format.
 
   /**
    * Starts the synthesis loop. It accepts the path to a JSON file with configuration options and
@@ -92,25 +92,10 @@ final class SyPetCLI {
     }
   }
 
-  /**
-   * Synthesize a program from a <code>SyPetInput</code> input object and a <code>SyPetConfig</code>
-   * configuration object.
-   *
-   * @param input the input object
-   * @param config the configuration object
-   * @return optionally a program, if one can be synthesized
-   * @see SyPetInput
-   */
-  private static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
-    SyPetAPI sypet = new SyPetAPI(input, config);
-    sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
-        input.testBody);
-    return sypet.synthesize(input.lb, input.ub);
-  }
 
   /**
    * Synthesize program from a JSON file with information about the program we want to synthesize,
-   * and from a JSON file with configuration options for SyPetCLI.
+   * and from a JSON file with configuration options.
    *
    * @param jsonInputFile the path to the JSON file
    * @return optionally a program, if one can be synthesized
@@ -119,7 +104,7 @@ final class SyPetCLI {
     try {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);
-      return SyPetCLI.synthesize(input, config);
+      return SyPetAPI.synthesize(input, config);
     } catch (IOException e) {
       System.err.println("Error while trying to read from " + jsonInputFile);
       e.printStackTrace();

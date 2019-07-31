@@ -174,7 +174,23 @@ public final class SyPetAPI {
     buildNet.setMaxTokens(srcTypes);
   }
 
-  public Optional<String> synthesize(int min_loc, int max_loc) {
+  /**
+   * Synthesize a program from a <code>SyPetInput</code> input object and a <code>SyPetConfig</code>
+   * configuration object.
+   *
+   * @param input the input object
+   * @param config the configuration object
+   * @return optionally a program, if one can be synthesized
+   * @see SyPetInput
+   */
+  public static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
+    SyPetAPI sypet = new SyPetAPI(input, config);
+    sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
+        input.testBody);
+    return sypet.synthesize(input.lb, input.ub);
+  }
+
+  private Optional<String> synthesize(int min_loc, int max_loc) {
 
     int loc = min_loc;
     boolean solution = false;

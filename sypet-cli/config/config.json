@@ -1,7 +1,7 @@
 {
   "localSuperClasses": [
     "java.awt.Shape"
-    ],
+  ],
   "globalSuperClasses": [
     [ "java.lang.String" , "java.lang.CharSequence" ],
     [ "javax.swing.JFrame" , "java.awt.Window" ],
@@ -25,5 +25,5 @@
     "hashCode",
     "toString",
     "readUTF"
-    ]
+  ]
 }
