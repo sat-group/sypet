@@ -31,7 +31,7 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.compilation;
+package edu.cmu.sypet.compilation;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -31,7 +31,7 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.parser;
+package edu.cmu.sypet.parser;
 
 import java.util.List;
 import soot.SootClass;

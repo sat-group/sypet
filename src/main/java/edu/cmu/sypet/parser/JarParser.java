@@ -28,9 +28,9 @@
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.parser;
+package edu.cmu.sypet.parser;
 
-import cmu.edu.utils.SootUtils;
+import edu.cmu.sypet.utils.SootUtils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +64,7 @@ public final class JarParser {
     this.libs = libs;
     this.packages = packages;
 
-    // TODO I strongly doubt this should be here. It would probably be better on UISyPet.
+    // TODO I strongly doubt this should be here. It would probably be better on SyPetAPI.
     SootUtils.initSoot(libs);
   }
 

@@ -31,9 +31,9 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.codeformer;
+package edu.cmu.sypet.codeformer;
 
-import cmu.edu.parser.MethodSignature;
+import edu.cmu.sypet.parser.MethodSignature;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;

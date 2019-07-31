@@ -16,7 +16,7 @@
   <property name="build.javadocs" value="${build.dir}/javadocs"/>
 
   <!-- Entry point of the program -->
-  <property name="main-class" value="cmu.edu.ui.SyPet"/>
+  <property name="main-class" value="edu.cmu.sypet.SyPetCLI"/>
   <!-- Whether source should be compiled with debug information -->
   <property name="debug.flag" value="true"/>
   <!-- Memory limit of the program -->

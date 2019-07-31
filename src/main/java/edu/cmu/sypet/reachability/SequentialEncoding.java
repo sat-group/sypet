@@ -31,8 +31,9 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.reachability;
+package edu.cmu.sypet.reachability;
 
+import edu.cmu.sypet.reachability.SATSolver.ConstraintType;
 import java.util.*;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -41,8 +42,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.sat4j.core.VecInt;
 
-import cmu.edu.reachability.SATSolver.ConstraintType;
-import cmu.edu.reachability.Variable.Type;
+import edu.cmu.sypet.reachability.Variable.Type;
 import uniol.apt.adt.pn.Flow;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.adt.pn.Place;

@@ -31,7 +31,7 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.reachability;
+package edu.cmu.sypet.reachability;
 
 /**
  * Variable representation for the constraint solver.

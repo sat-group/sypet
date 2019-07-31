@@ -31,7 +31,7 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.petrinet;
+package edu.cmu.sypet.petrinet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.Stack;
 import soot.Type;
 
-import cmu.edu.parser.MethodSignature;
+import edu.cmu.sypet.parser.MethodSignature;
 import uniol.apt.adt.exception.NoSuchEdgeException;
 import uniol.apt.adt.exception.NoSuchNodeException;
 import uniol.apt.adt.pn.Flow;

@@ -2,7 +2,7 @@
  * BSD 3-Clause License
  *
  *
- *	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
+ *	Copyright (c) 2018, SyPetCLI 2.0 - Ruben Martins, Yu Feng, Isil Dillig
  *	All rights reserved.
  *
  *	Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,11 @@
  *	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.ui;
+package edu.cmu.sypet;
 
-import cmu.edu.parser.JsonParser;
-import cmu.edu.parser.SyPetConfig;
-import cmu.edu.parser.SyPetInput;
+import edu.cmu.sypet.parser.JsonParser;
+import edu.cmu.sypet.parser.SyPetConfig;
+import edu.cmu.sypet.parser.SyPetInput;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,11 +43,11 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
- * This class represents the main entry point to the SyPet synthesis tool.
+ * This class represents the SyPet command line interface.
  */
-final class SyPet {
+final class SyPetCLI {
 
-  private SyPet() {
+  private SyPetCLI() {
   }
 
   // TODO Explain the JSON format in more detail.
@@ -81,7 +81,7 @@ final class SyPet {
       System.exit(1);
     }
 
-    final Optional<String> program = SyPet.synthesize(jsonInputFile, jsonConfigFile);
+    final Optional<String> program = SyPetCLI.synthesize(jsonInputFile, jsonConfigFile);
 
     if (program.isPresent()) {
       System.out.println("c Synthesized program:\n" + program.get());
@@ -102,7 +102,7 @@ final class SyPet {
    * @see SyPetInput
    */
   private static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
-    UISyPet sypet = new UISyPet(input, config);
+    SyPetAPI sypet = new SyPetAPI(input, config);
     sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
         input.testBody);
     return sypet.synthesize(input.lb, input.ub);
@@ -110,7 +110,7 @@ final class SyPet {
 
   /**
    * Synthesize program from a JSON file with information about the program we want to synthesize,
-   * and from a JSON file with configuration options for SyPet.
+   * and from a JSON file with configuration options for SyPetCLI.
    *
    * @param jsonInputFile the path to the JSON file
    * @return optionally a program, if one can be synthesized
@@ -119,7 +119,7 @@ final class SyPet {
     try {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);
-      return SyPet.synthesize(input, config);
+      return SyPetCLI.synthesize(input, config);
     } catch (IOException e) {
       System.err.println("Error while trying to read from " + jsonInputFile);
       e.printStackTrace();

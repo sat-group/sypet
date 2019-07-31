@@ -31,53 +31,34 @@
  	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package cmu.edu.compilation;
+package edu.cmu.sypet.codeformer;
 
-import java.util.List;
-
+import java.util.*;
 
 /**
- * Write code given the tests and classes.
- * 
- * @author Ruben Martins
- * @author Kaige Liu
+ * Stores variable names specifically for CodeFormer.
  */
-public class Test {
-    private static final String CLASSNAME = "Target";
+class VarTable {
+    private final Map<String,List<Integer>> table = new HashMap<>();
+    private final Map<Integer, String> lookupTable = new HashMap<>();
+
+    public void addEntry(String type, int var){
+        if (!table.containsKey(type)){
+            table.put(type, new ArrayList<>());
+        }
+        table.get(type).add(var);
+        lookupTable.put(var,type);
+    }
 
     /**
-     * run test class based on the synthesized code and test code.
-     * @param code synthesized code
-     * @param testCode test code with name "test"
-     * @return whether test pasted
+     * No defensive copy is made here.
      */
-    public static boolean runTest(String code, String testCode, List<String> libs) {
-        //Create file;
-        String classCode = writeCode(code,testCode);
-        Compile compile = new Compile(CLASSNAME);
-      return compile.runTest(classCode, libs);
+    public List<Integer> getEntries(String type){
+        if (table.containsKey(type)) return table.get(type);
+        else return new LinkedList<>();
     }
-    
-    private static String writeCode(String code,String testCode) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("public class "+CLASSNAME  +" {\n");
-        builder.append(code);
-        // test cases need to be static for compilation to succeed
-        if (!testCode.contains("public static"))
-        	testCode = testCode.replace("public", "public static");
-        
-        String [] tokens = testCode.split(" ");
-        for (int l = 0; l < tokens.length; l++) {
-        	if (tokens[l].equals("static")) {
-        		String name = tokens[l+2];
-        		if (!name.equals("test()"))
-        			testCode = testCode.replace(name, "test()");
-        		break;
-        	}
-        }
-        
-        builder.append(testCode);
-        builder.append("}\n");
-        return builder.toString();
+
+    public String getType(int val){
+        return lookupTable.get(val);
     }
 }

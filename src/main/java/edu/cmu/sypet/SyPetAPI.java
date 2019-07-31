@@ -1,16 +1,16 @@
-package cmu.edu.ui;
+package edu.cmu.sypet;
 
-import cmu.edu.codeformer.CodeFormer;
-import cmu.edu.compilation.Test;
-import cmu.edu.parser.JarParser;
-import cmu.edu.parser.MethodSignature;
-import cmu.edu.parser.SyPetConfig;
-import cmu.edu.parser.SyPetInput;
-import cmu.edu.petrinet.BuildNet;
-import cmu.edu.reachability.Encoding;
-import cmu.edu.reachability.EncodingUtil;
-import cmu.edu.reachability.SequentialEncoding;
-import cmu.edu.reachability.Variable;
+import edu.cmu.sypet.codeformer.CodeFormer;
+import edu.cmu.sypet.compilation.Test;
+import edu.cmu.sypet.parser.JarParser;
+import edu.cmu.sypet.parser.MethodSignature;
+import edu.cmu.sypet.parser.SyPetConfig;
+import edu.cmu.sypet.parser.SyPetInput;
+import edu.cmu.sypet.petrinet.BuildNet;
+import edu.cmu.sypet.reachability.Encoding;
+import edu.cmu.sypet.reachability.EncodingUtil;
+import edu.cmu.sypet.reachability.SequentialEncoding;
+import edu.cmu.sypet.reachability.Variable;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,12 +24,10 @@ import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
 /**
- * This represents the UI for SyPet to be called by other applications.
- *
- * @author Ruben Martins
+ * This class represents the SyPet library API.
  */
 @SuppressWarnings("WeakerAccess")
-public final class UISyPet {
+public final class SyPetAPI {
   // TODO Use Collection instead of List.
 
   /**
@@ -97,7 +95,7 @@ public final class UISyPet {
    */
   private List<MethodSignature> sigs;
 
-  public UISyPet(final List<String> packages, final List<String> libs, final List<String> hints,
+  public SyPetAPI(final List<String> packages, final List<String> libs, final List<String> hints,
       final SyPetConfig config) {
     this.libs = libs;
     this.hints = hints;
@@ -159,7 +157,7 @@ public final class UISyPet {
 
   }
 
-  public UISyPet(SyPetInput input, SyPetConfig config) {
+  public SyPetAPI(SyPetInput input, SyPetConfig config) {
     this(input.packages, input.libs, input.hints, config);
   }
 
