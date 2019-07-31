@@ -34,12 +34,11 @@ SyPet has been tested on Linux and Mac OS environments.
 Prerequisites for building SyPet:
 
 * Java 8 (More recent versions are not yet supported)
-* Ant (We are currently using version 1.10)
 
 ```
 git clone https://github.com/sat-group/sypet.git
 cd sypet
-ant clean jar
+./gradlew build
 ```
 
 ### Docker
@@ -57,10 +56,16 @@ make stop-dev   # Stop docker container
 
 ## Running SyPet
 
-Having built SyPet, you can then run it with Ant:
+Having built SyPet, you can then run it with:
 
 ```
-ant sypet -Dargs=path/to/input/file
+./gradlew run -args='path/to/input/file'
+```
+
+Example:
+
+```
+./gradlew run --args='benchmarks/geometry/10/benchmark10.json'
 ```
 
 ### Docker

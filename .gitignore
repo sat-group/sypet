@@ -1,9 +1,6 @@
 # BlueJ files
 *.ctxt
 
-# Build directory
-target
-
 # IntelliJ IDEA
 .idea
 
@@ -13,5 +10,8 @@ target
 # Mac OS
 .DS_Store
 
-# Package files
-*.jar
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
