@@ -35,10 +35,24 @@ Prerequisites for building SyPet:
 
 * Java 8 (More recent versions are not yet supported)
 
+You can build SyPet with gradle (you don't need it installed):
+
 ```
 git clone https://github.com/sat-group/sypet.git
 cd sypet
 ./gradlew build
+```
+
+You can get a jar of the application with:
+
+```
+./gradlew jar
+```
+
+And a uber/fat jar with all dependencies bundled in with:
+
+```
+./gradlew shadowJar
 ```
 
 ### Docker

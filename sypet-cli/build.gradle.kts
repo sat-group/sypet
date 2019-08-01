@@ -1,5 +1,7 @@
 plugins {
+    java
     application
+    id("com.github.johnrengelman.shadow")
 }
 
 dependencies {
@@ -8,4 +10,8 @@ dependencies {
 
 application {
     mainClassName = "edu.cmu.sypet.SyPetCLI"
+}
+
+shadow {
+    applicationDistribution
 }
