@@ -34,7 +34,7 @@ class Point2DSynthesisTests {
             .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
             .returnType(pointClass)
-            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .packages(new ArrayList<>(Arrays.asList(pointPackage, testPackage)))
             .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
             .testCode(
                 "public boolean test1() throws Throwable {\n"
@@ -43,8 +43,6 @@ class Point2DSynthesisTests {
                     + "    Point2D result = new Point2D(1, 7);\n"
                     + "    return result.equals(addPoints(point1, point2));\n"
                     + "  }")
-            .locLowerBound(7)
-            .locUpperBound(7)
             .build();
 
     testTemplate(task);
@@ -63,6 +61,7 @@ class Point2DSynthesisTests {
     //   }
   }
 
+  /** TODO */
   @Test
   void shouldSynthesizePointSetToSameX() {
     final SynthesisTask task =
@@ -71,7 +70,7 @@ class Point2DSynthesisTests {
             .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
             .returnType("void")
-            //        .returnType(pointClass)  // This works, but I really want void.
+            //                    .returnType(pointClass)  // This works, but I really want void.
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
             .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
             .testCode(
@@ -85,8 +84,6 @@ class Point2DSynthesisTests {
                         + "    return point1.equals(target);\n"
                         + "  }",
                     pointPackage))
-            .locLowerBound(2)
-            .locUpperBound(2)
             .build();
 
     testTemplate(task);
@@ -97,6 +94,7 @@ class Point2DSynthesisTests {
     //   }
   }
 
+  /** TODO */
   @Test
   void shouldSynthesizePointConvert() {
     final SynthesisTask task =
@@ -116,8 +114,6 @@ class Point2DSynthesisTests {
                         + "  return mp.equals(p);\n"
                         + "}",
                     pointPackage))
-            .locLowerBound(4)
-            .locUpperBound(4)
             .build();
 
     testTemplate(task);
@@ -131,6 +127,7 @@ class Point2DSynthesisTests {
     //   }
   }
 
+  /** TODO */
   @Test
   void shouldSynthesizePointFlip() {
     final SynthesisTask task =
@@ -151,8 +148,6 @@ class Point2DSynthesisTests {
                         + "    return point2.equals(target);\n"
                         + "  }",
                     pointPackage))
-            .locLowerBound(4)
-            .locUpperBound(4)
             .build();
 
     testTemplate(task);
@@ -166,6 +161,7 @@ class Point2DSynthesisTests {
     //   }
   }
 
+  /** TODO */
   @Test
   void shouldSynthesizeVectorFlip() {
     final SynthesisTask task =
@@ -186,14 +182,42 @@ class Point2DSynthesisTests {
                         + "    return point2.equals(target);\n"
                         + "  }",
                     vectorClass))
-            .locLowerBound(4)
-            .locUpperBound(4)
+            .localSuperClasses(Arrays.asList(new String[] {pointClass}))
             .build();
 
     testTemplate(task);
     // Solution: same as pointFlip
   }
 
+  /** TODO */
+  @Test
+  void shouldSynthesizePolymorphicVectorFlip() {
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("vectorFlip")
+            .paramNames(new ArrayList<>(Arrays.asList("p")))
+            .paramTypes(new ArrayList<>(Arrays.asList(vectorClass)))
+            .returnType(vectorClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "    %1$s.Vector2D point1 = new %1$s.Vector2D(0, 1);\n"
+                        + "    %1$s.Point2D point2 = vectorFlip(point1);\n"
+                        + "    %1$s.Point2D target = new %1$s.Vector2D(1, 0);\n"
+                        + "\n"
+                        + "    return point2.equals(target);\n"
+                        + "  }",
+                    pointPackage))
+            .localSuperClasses(Arrays.asList(new String[] {pointClass}))
+            .build();
+
+    testTemplate(task);
+    // Solution: same as pointFlip
+  }
+
+  /** TODO */
   @Test
   void shouldSynthesizePurePointTranslateX() {
     final String methodName = "pointTranslateX";
@@ -215,8 +239,6 @@ class Point2DSynthesisTests {
                         + "    return %4$s.equals(%5$s);\n"
                         + "  }",
                     pointClass, methodName, "point1", "point2", "target"))
-            .locLowerBound(4)
-            .locUpperBound(4)
             .build();
 
     testTemplate(task);
