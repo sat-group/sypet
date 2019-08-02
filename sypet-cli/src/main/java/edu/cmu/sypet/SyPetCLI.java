@@ -104,7 +104,24 @@ public final class SyPetCLI {
     try {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);
-      return SyPetAPI.synthesize(input, config);
+
+      final SynthesisTask task = ImmutableSynthesisTask.builder()
+          .methodName(input.methodName)
+          .paramNames(input.paramNames)
+          .paramTypes(input.srcTypes)
+          .returnType(input.tgtType)
+          .packages(input.packages)
+          .libs(input.libs)
+          .testCode(input.testBody)
+          .locLowerBound(input.lb)
+          .locUpperBound(input.ub)
+          .localSuperClasses(config.localSuperClasses)
+          .globalSuperClasses(config.globalSuperClasses)
+          .noSideEffects(config.noSideEffects)
+          .blacklist(config.blacklist)
+          .build();
+
+      return SyPetAPI.synthesize(task);
     } catch (IOException e) {
       System.err.println("Error while trying to read from " + jsonInputFile);
       e.printStackTrace();

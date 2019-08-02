@@ -4,8 +4,6 @@ import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.parser.JarParser;
 import edu.cmu.sypet.parser.MethodSignature;
-import edu.cmu.sypet.parser.SyPetConfig;
-import edu.cmu.sypet.parser.SyPetInput;
 import edu.cmu.sypet.petrinet.BuildNet;
 import edu.cmu.sypet.reachability.Encoding;
 import edu.cmu.sypet.reachability.EncodingUtil;
@@ -95,8 +93,11 @@ public final class SyPetAPI {
    */
   private List<MethodSignature> sigs;
 
-  public SyPetAPI(final List<String> packages, final List<String> libs, final List<String> hints,
-      final SyPetConfig config) {
+  public SyPetAPI(SynthesisTask synthesisTask) {
+    final List<String> packages = synthesisTask.packages();
+    final List<String> libs = synthesisTask.libs();
+    final List<String> hints = synthesisTask.hints();
+
     this.libs = libs;
     this.hints = hints;
 
@@ -106,17 +107,17 @@ public final class SyPetAPI {
     PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
     System.setOut(newOutput);
 
-    final Set<String> localSuperClasses = new HashSet<>(config.localSuperClasses);
+    final Set<String> localSuperClasses = new HashSet<>(synthesisTask.localSuperClasses());
     final JarParser parser = new JarParser(this.libs, packages);
 
     // TODO Figure out why sigs must be parsed before we get the super classes.
-    this.sigs = parser.parseJar(config.blacklist);
+    this.sigs = parser.parseJar(synthesisTask.blacklist());
 
     // TODO Explain
     this.superclassMap = parser.getSuperClasses(localSuperClasses);
 
     // TODO Explain
-    for (List<String> poly : config.globalSuperClasses) {
+    for (List<String> poly : synthesisTask.globalSuperClasses()) {
       // TODO If we only want arrays of size 2 we might be better using String[2], or a pair, or something else.
       assert (poly.size() == 2);
 
@@ -144,7 +145,7 @@ public final class SyPetAPI {
     System.setOut(origOutput);
 
     // TODO Why do we need both the petrinet and the factory?
-    this.buildNet = new BuildNet(config.noSideEffects);
+    this.buildNet = new BuildNet(synthesisTask.noSideEffects());
     this.net = this.buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
     this.signatureMap = BuildNet.dict;
 
@@ -155,10 +156,6 @@ public final class SyPetAPI {
 //		 System.out.println("c #Transitions = " + net.getTransitions().size());
 //		 System.out.println("c #Places = " + net.getPlaces().size());
 
-  }
-
-  public SyPetAPI(SyPetInput input, SyPetConfig config) {
-    this(input.packages, input.libs, input.hints, config);
   }
 
   public void setSignature(String methodName, List<String> paramNames, List<String> srcTypes,
@@ -175,19 +172,20 @@ public final class SyPetAPI {
   }
 
   /**
-   * Synthesize a program from a <code>SyPetInput</code> input object and a <code>SyPetConfig</code>
-   * configuration object.
+   * Synthesize a program from a <code>SynthesisTask</code>.
    *
-   * @param input the input object
-   * @param config the configuration object
+   * @param synthesisTask the parameters to the synthesis task
    * @return optionally a program, if one can be synthesized
-   * @see SyPetInput
+   * @see SynthesisTask
    */
-  public static Optional<String> synthesize(SyPetInput input, SyPetConfig config) {
-    SyPetAPI sypet = new SyPetAPI(input, config);
-    sypet.setSignature(input.methodName, input.paramNames, input.srcTypes, input.tgtType,
-        input.testBody);
-    return sypet.synthesize(input.lb, input.ub);
+  public static Optional<String> synthesize(SynthesisTask synthesisTask) {
+    final SyPetAPI sypet = new SyPetAPI(synthesisTask);
+
+    sypet.setSignature(
+        synthesisTask.methodName(), synthesisTask.paramNames(), synthesisTask.paramTypes(),
+        synthesisTask.returnType(), synthesisTask.testCode());
+
+    return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
 
   private Optional<String> synthesize(int min_loc, int max_loc) {

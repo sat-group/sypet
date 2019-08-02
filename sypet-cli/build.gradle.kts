@@ -6,6 +6,7 @@ plugins {
 
 dependencies {
     compile(project(":sypet-api"))
+    implementation("com.google.code.gson:gson:2.8.5")
 }
 
 application {
