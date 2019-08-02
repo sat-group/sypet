@@ -34,12 +34,14 @@ public abstract class SynthesisTask {
   /** The Java test code that the method we want to synthesize must satisfy. */
   public abstract String testCode();
 
+  // TODO False, this refers to the length of the path on the petri net.
   /** Lower bound on the number of lines of code of the method we want to synthesize. */
   @Value.Default
   public int locLowerBound() {
     return 1;
   }
 
+  // TODO False, this refers to the length of the path on the petri net.
   /** Upper bound on the number of lines of code of the method we want to synthesize. */
   @Value.Default
   public int locUpperBound() {
