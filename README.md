@@ -55,6 +55,12 @@ And a uber/fat jar with all dependencies bundled in with:
 ./gradlew shadowJar
 ```
 
+Run tests can be run with:
+
+```
+./gradlew test
+```
+
 ### Docker
 
 You can use docker to set up a development environment with the prerequisites
