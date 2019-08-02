@@ -56,13 +56,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Factory to parse SyPet-specific JSON files.
- */
+/** Factory to parse SyPet-specific JSON files. */
 public final class JsonParser {
 
-  private JsonParser() {
-  }
+  private JsonParser() {}
 
   /**
    * Parse input to SyPet from a JSON file.
@@ -80,9 +77,10 @@ public final class JsonParser {
       final Reader reader = new InputStreamReader(in);
 
       // Use a custom deserializer to avoid object construction with null fields.
-      final Gson gson = new GsonBuilder()
-          .registerTypeAdapter(SyPetInput.class, new SyPetInputDeserializer())
-          .create();
+      final Gson gson =
+          new GsonBuilder()
+              .registerTypeAdapter(SyPetInput.class, new SyPetInputDeserializer())
+              .create();
 
       return gson.fromJson(reader, SyPetInput.class);
     }
@@ -103,9 +101,10 @@ public final class JsonParser {
       final Reader reader = new InputStreamReader(in);
 
       // Use a custom deserializer to avoid object construction with null fields.
-      final Gson gson = new GsonBuilder()
-          .registerTypeAdapter(SyPetInput.class, new SyPetConfigDeserializer())
-          .create();
+      final Gson gson =
+          new GsonBuilder()
+              .registerTypeAdapter(SyPetInput.class, new SyPetConfigDeserializer())
+              .create();
 
       return gson.fromJson(reader, SyPetConfig.class);
     }
@@ -141,8 +140,10 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
     // TODO Use Collection instead of List.
     final int id = jobj.get(ID).getAsInt();
     final String methodName = jobj.get(METHOD_NAME).getAsString();
-    final List<String> paramNames = getArrayList(gson, jobj.getAsJsonArray(PARAM_NAMES), String[].class);
-    final List<String> paramTypes = getArrayList(gson, jobj.getAsJsonArray(SRC_TYPES), String[].class);
+    final List<String> paramNames =
+        getArrayList(gson, jobj.getAsJsonArray(PARAM_NAMES), String[].class);
+    final List<String> paramTypes =
+        getArrayList(gson, jobj.getAsJsonArray(SRC_TYPES), String[].class);
     final String returnType = jobj.get(TGT_TYPE).getAsString();
     final List<String> packages = getArrayList(gson, jobj.getAsJsonArray(PACKAGES), String[].class);
     final List<String> libs = getArrayList(gson, jobj.getAsJsonArray(LIBS), String[].class);
@@ -155,8 +156,9 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
       throw new JsonParseException(e);
     }
 
-    final SyPetInput.Builder builder = new SyPetInput.Builder(methodName, paramNames,
-        paramTypes, returnType, packages, libs, testCode);
+    final SyPetInput.Builder builder =
+        new SyPetInput.Builder(
+            methodName, paramNames, paramTypes, returnType, packages, libs, testCode);
 
     if (jobj.has(LOC_LOWER_BOUND)) {
       builder.locLowerBound(jobj.get(LOC_LOWER_BOUND).getAsInt());
@@ -172,7 +174,6 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
 
     return builder.build();
   }
-
 }
 
 /**
@@ -200,8 +201,7 @@ class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
     }
 
     if (jobj.has(BLACKLIST)) {
-      configBuilder.blacklist(
-          getArrayList(gson, jobj.getAsJsonArray(BLACKLIST), String[].class));
+      configBuilder.blacklist(getArrayList(gson, jobj.getAsJsonArray(BLACKLIST), String[].class));
     }
 
     if (jobj.has(NO_SIDE_EFFECTS)) {
@@ -222,8 +222,8 @@ class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
 
 class GsonUtils {
 
-  public static <T> ArrayList<T> getArrayList(com.google.gson.Gson gson, JsonArray array,
-      Class<T[]> classOfT) {
+  public static <T> ArrayList<T> getArrayList(
+      com.google.gson.Gson gson, JsonArray array, Class<T[]> classOfT) {
     return new ArrayList<>(Arrays.asList(gson.fromJson(array, classOfT)));
   }
 }

@@ -1,8 +1,6 @@
 package edu.cmu.sypet.test.point;
 
-/**
- * A copy of {@link Point2D}.
- */
+/** A copy of {@link Point2D}. */
 public class AnotherPoint2D {
 
   private double x;

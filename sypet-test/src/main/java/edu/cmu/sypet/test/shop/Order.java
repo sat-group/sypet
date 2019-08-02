@@ -63,10 +63,6 @@ public class Order {
 
   @Override
   public String toString() {
-    return "Order{" +
-        "products=" + products +
-        ", isDelivered=" + isDelivered +
-        '}';
+    return "Order{" + "products=" + products + ", isDelivered=" + isDelivered + '}';
   }
-
 }

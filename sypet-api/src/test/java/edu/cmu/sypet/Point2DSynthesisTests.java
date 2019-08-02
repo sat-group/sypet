@@ -28,22 +28,24 @@ class Point2DSynthesisTests {
   @Disabled // Takes too long or GC exceeds memory limit.
   @Test
   void shouldSynthesizeAddPoints() {
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName("addPoints")
-        .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
-        .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
-        .returnType(pointClass)
-        .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode("public boolean test1() throws Throwable {\n"
-            + "    Point2D point1 = new Point2D(2, 3);\n"
-            + "    Point2D point2 = new Point2D(-1, 4);\n"
-            + "    Point2D result = new Point2D(1, 7);\n"
-            + "    return result.equals(addPoints(point1, point2));\n"
-            + "  }")
-        .locLowerBound(7)
-        .locUpperBound(7)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("addPoints")
+            .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
+            .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
+            .returnType(pointClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                "public boolean test1() throws Throwable {\n"
+                    + "    Point2D point1 = new Point2D(2, 3);\n"
+                    + "    Point2D point2 = new Point2D(-1, 4);\n"
+                    + "    Point2D result = new Point2D(1, 7);\n"
+                    + "    return result.equals(addPoints(point1, point2));\n"
+                    + "  }")
+            .locLowerBound(7)
+            .locUpperBound(7)
+            .build();
 
     testTemplate(task);
     // Solution:
@@ -63,25 +65,29 @@ class Point2DSynthesisTests {
 
   @Test
   void shouldSynthesizePointSetToSameX() {
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName("setToSameX")
-        .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
-        .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
-        .returnType("void")
-//        .returnType(pointClass)  // This works, but I really want void.
-        .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode(String.format("public boolean test() throws Throwable {\n"
-            + "    %1$s.Point2D point1 = new %1$s.Point2D(2, 3);\n"
-            + "    %1$s.Point2D point2 = new %1$s.Point2D(-1, 4);\n"
-            + "    %1$s.Point2D target = new %1$s.Point2D(-1, 3);\n"
-            + "\n"
-            + "    setToSameX(point1, point2);\n"
-            + "    return point1.equals(target);\n"
-            + "  }", pointPackage))
-        .locLowerBound(2)
-        .locUpperBound(2)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("setToSameX")
+            .paramNames(new ArrayList<>(Arrays.asList("p", "q")))
+            .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
+            .returnType("void")
+            //        .returnType(pointClass)  // This works, but I really want void.
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "    %1$s.Point2D point1 = new %1$s.Point2D(2, 3);\n"
+                        + "    %1$s.Point2D point2 = new %1$s.Point2D(-1, 4);\n"
+                        + "    %1$s.Point2D target = new %1$s.Point2D(-1, 3);\n"
+                        + "\n"
+                        + "    setToSameX(point1, point2);\n"
+                        + "    return point1.equals(target);\n"
+                        + "  }",
+                    pointPackage))
+            .locLowerBound(2)
+            .locUpperBound(2)
+            .build();
 
     testTemplate(task);
     // Solution:
@@ -93,22 +99,26 @@ class Point2DSynthesisTests {
 
   @Test
   void shouldSynthesizePointConvert() {
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName("convert")
-        .paramNames(new ArrayList<>(Arrays.asList("p")))
-        .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
-        .returnType(anotherPointClass)
-        .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode(String.format("public boolean test() throws Throwable {\n"
-            + "  %1$s.Point2D mp = new %1$s.Point2D(0, 0);\n"
-            + "  %1$s.AnotherPoint2D p = convert(mp);\n"
-            + "\n"
-            + "  return mp.equals(p);\n"
-            + "}", pointPackage))
-        .locLowerBound(4)
-        .locUpperBound(4)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("convert")
+            .paramNames(new ArrayList<>(Arrays.asList("p")))
+            .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
+            .returnType(anotherPointClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "  %1$s.Point2D mp = new %1$s.Point2D(0, 0);\n"
+                        + "  %1$s.AnotherPoint2D p = convert(mp);\n"
+                        + "\n"
+                        + "  return mp.equals(p);\n"
+                        + "}",
+                    pointPackage))
+            .locLowerBound(4)
+            .locUpperBound(4)
+            .build();
 
     testTemplate(task);
     // Solution:
@@ -123,23 +133,27 @@ class Point2DSynthesisTests {
 
   @Test
   void shouldSynthesizePointFlip() {
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName("pointFlip")
-        .paramNames(new ArrayList<>(Arrays.asList("p")))
-        .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
-        .returnType(pointClass)
-        .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode(String.format("public boolean test() throws Throwable {\n"
-            + "    %1$s.Point2D point1 = new %1$s.Point2D(0, 1);\n"
-            + "    %1$s.Point2D point2 = pointFlip(point1);\n"
-            + "    %1$s.Point2D target = new %1$s.Point2D(1, 0);\n"
-            + "\n"
-            + "    return point2.equals(target);\n"
-            + "  }", pointPackage))
-        .locLowerBound(4)
-        .locUpperBound(4)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("pointFlip")
+            .paramNames(new ArrayList<>(Arrays.asList("p")))
+            .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
+            .returnType(pointClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "    %1$s.Point2D point1 = new %1$s.Point2D(0, 1);\n"
+                        + "    %1$s.Point2D point2 = pointFlip(point1);\n"
+                        + "    %1$s.Point2D target = new %1$s.Point2D(1, 0);\n"
+                        + "\n"
+                        + "    return point2.equals(target);\n"
+                        + "  }",
+                    pointPackage))
+            .locLowerBound(4)
+            .locUpperBound(4)
+            .build();
 
     testTemplate(task);
     // Solution:
@@ -154,23 +168,27 @@ class Point2DSynthesisTests {
 
   @Test
   void shouldSynthesizeVectorFlip() {
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName("vectorFlip")
-        .paramNames(new ArrayList<>(Arrays.asList("p")))
-        .paramTypes(new ArrayList<>(Arrays.asList(vectorClass)))
-        .returnType(vectorClass)
-        .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode(String.format("public boolean test() throws Throwable {\n"
-            + "    %1$s point1 = new %1$s(0, 1);\n"
-            + "    %1$s point2 = vectorFlip(point1);\n"
-            + "    %1$s target = new %1$s(1, 0);\n"
-            + "\n"
-            + "    return point2.equals(target);\n"
-            + "  }", vectorClass))
-        .locLowerBound(4)
-        .locUpperBound(4)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName("vectorFlip")
+            .paramNames(new ArrayList<>(Arrays.asList("p")))
+            .paramTypes(new ArrayList<>(Arrays.asList(vectorClass)))
+            .returnType(vectorClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "    %1$s point1 = new %1$s(0, 1);\n"
+                        + "    %1$s point2 = vectorFlip(point1);\n"
+                        + "    %1$s target = new %1$s(1, 0);\n"
+                        + "\n"
+                        + "    return point2.equals(target);\n"
+                        + "  }",
+                    vectorClass))
+            .locLowerBound(4)
+            .locUpperBound(4)
+            .build();
 
     testTemplate(task);
     // Solution: same as pointFlip
@@ -179,23 +197,27 @@ class Point2DSynthesisTests {
   @Test
   void shouldSynthesizePurePointTranslateX() {
     final String methodName = "pointTranslateX";
-    final SynthesisTask task = ImmutableSynthesisTask.builder()
-        .methodName(methodName)
-        .paramNames(new ArrayList<>(Arrays.asList("p", "x")))
-        .paramTypes(new ArrayList<>(Arrays.asList(pointClass, "double")))
-        .returnType(pointClass)
-        .packages(new ArrayList<>(Arrays.asList(pointPackage, testPackage)))
-        .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
-        .testCode(String.format("public boolean test() throws Throwable {\n"
-            + "    %1$s %3$s = new %1$s(1, 1);\n"
-            + "    %1$s %4$s = %2$s(%3$s, 2);\n"
-            + "    %1$s %5$s = new %1$s(3, 1);\n"
-            + "\n"
-            + "    return %4$s.equals(%5$s);\n"
-            + "  }", pointClass, methodName, "point1", "point2", "target"))
-        .locLowerBound(4)
-        .locUpperBound(4)
-        .build();
+    final SynthesisTask task =
+        ImmutableSynthesisTask.builder()
+            .methodName(methodName)
+            .paramNames(new ArrayList<>(Arrays.asList("p", "x")))
+            .paramTypes(new ArrayList<>(Arrays.asList(pointClass, "double")))
+            .returnType(pointClass)
+            .packages(new ArrayList<>(Arrays.asList(pointPackage, testPackage)))
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
+                String.format(
+                    "public boolean test() throws Throwable {\n"
+                        + "    %1$s %3$s = new %1$s(1, 1);\n"
+                        + "    %1$s %4$s = %2$s(%3$s, 2);\n"
+                        + "    %1$s %5$s = new %1$s(3, 1);\n"
+                        + "\n"
+                        + "    return %4$s.equals(%5$s);\n"
+                        + "  }",
+                    pointClass, methodName, "point1", "point2", "target"))
+            .locLowerBound(4)
+            .locUpperBound(4)
+            .build();
 
     testTemplate(task);
     // Solution:
@@ -209,4 +231,3 @@ class Point2DSynthesisTests {
     //   }
   }
 }
-

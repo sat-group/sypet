@@ -21,76 +21,48 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/**
- * This class represents the SyPet library API.
- */
+/** This class represents the SyPet library API. */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private Map<String, Set<String>> superclassMap;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private Map<String, Set<String>> subclassMap;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private List<String> libs;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private PetriNet net;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private BuildNet buildNet;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private Map<String, MethodSignature> signatureMap;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private List<String> inputs;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private String retType;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private String testCode;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private String methodName;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private List<String> varNames;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private List<String> hints;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private List<MethodSignature> sigs;
 
   public SyPetAPI(SynthesisTask synthesisTask) {
@@ -118,7 +90,8 @@ public final class SyPetAPI {
 
     // TODO Explain
     for (List<String> poly : synthesisTask.globalSuperClasses()) {
-      // TODO If we only want arrays of size 2 we might be better using String[2], or a pair, or something else.
+      // TODO If we only want arrays of size 2 we might be better using String[2], or a pair, or
+      // something else.
       assert (poly.size() == 2);
 
       if (this.superclassMap.containsKey(poly.get(0))) {
@@ -149,16 +122,19 @@ public final class SyPetAPI {
     this.net = this.buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
     this.signatureMap = BuildNet.dict;
 
-//		buildNet = new BuildNet(config.noSideEffects);
-//		net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
-//		signatureMap = BuildNet.dict;
+    //		buildNet = new BuildNet(config.noSideEffects);
+    //		net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
+    //		signatureMap = BuildNet.dict;
 
-//		 System.out.println("c #Transitions = " + net.getTransitions().size());
-//		 System.out.println("c #Places = " + net.getPlaces().size());
+    //		 System.out.println("c #Transitions = " + net.getTransitions().size());
+    //		 System.out.println("c #Places = " + net.getPlaces().size());
 
   }
 
-  public void setSignature(String methodName, List<String> paramNames, List<String> srcTypes,
+  public void setSignature(
+      String methodName,
+      List<String> paramNames,
+      List<String> srcTypes,
       String tgtType,
       String testCode) {
 
@@ -182,8 +158,11 @@ public final class SyPetAPI {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
 
     sypet.setSignature(
-        synthesisTask.methodName(), synthesisTask.paramNames(), synthesisTask.paramTypes(),
-        synthesisTask.returnType(), synthesisTask.testCode());
+        synthesisTask.methodName(),
+        synthesisTask.paramNames(),
+        synthesisTask.paramTypes(),
+        synthesisTask.returnType(),
+        synthesisTask.testCode());
 
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
@@ -224,9 +203,9 @@ public final class SyPetAPI {
         }
         // 5. Convert a path to a program
         boolean sat = true;
-        CodeFormer former = new CodeFormer(signatures, inputs, retType, varNames, methodName,
-            subclassMap,
-            superclassMap);
+        CodeFormer former =
+            new CodeFormer(
+                signatures, inputs, retType, varNames, methodName, subclassMap, superclassMap);
         while (sat) {
           try {
             code = former.solve();
@@ -245,9 +224,9 @@ public final class SyPetAPI {
             synthesizedCode = code;
             break;
           }
-
         }
-        // the current path did not result in a program that passes all test cases find the next path
+        // the current path did not result in a program that passes all test cases find the next
+        // path
         paths++;
         result = Encoding.solver.findPath(loc);
       }
@@ -292,9 +271,9 @@ public final class SyPetAPI {
         }
         // 5. Convert a path to a program
         boolean sat = true;
-        CodeFormer former = new CodeFormer(signatures, inputs, retType, varNames, methodName,
-            subclassMap,
-            superclassMap);
+        CodeFormer former =
+            new CodeFormer(
+                signatures, inputs, retType, varNames, methodName, subclassMap, superclassMap);
         while (sat) {
           try {
             code = former.solve();
@@ -321,5 +300,4 @@ public final class SyPetAPI {
     }
     return allCode;
   }
-
 }

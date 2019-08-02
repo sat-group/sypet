@@ -1,39 +1,40 @@
 /*
-  BSD 3-Clause License
+ BSD 3-Clause License
 
 
- 	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
- 	All rights reserved.
+	Copyright (c) 2018, SyPet 2.0 - Ruben Martins, Yu Feng, Isil Dillig
+	All rights reserved.
 
- 	Redistribution and use in source and binary forms, with or without
- 	modification, are permitted provided that the following conditions are met:
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are met:
 
- 	* Redistributions of source code must retain the above copyright notice, this
- 	  list of conditions and the following disclaimer.
+	* Redistributions of source code must retain the above copyright notice, this
+	  list of conditions and the following disclaimer.
 
- 	* Redistributions in binary form must reproduce the above copyright notice,
- 	  this list of conditions and the following disclaimer in the documentation
- 	  and/or other materials provided with the distribution.
+	* Redistributions in binary form must reproduce the above copyright notice,
+	  this list of conditions and the following disclaimer in the documentation
+	  and/or other materials provided with the distribution.
 
- 	* Neither the name of the copyright holder nor the names of its
- 	  contributors may be used to endorse or promote products derived from
- 	  this software without specific prior written permission.
+	* Neither the name of the copyright holder nor the names of its
+	  contributors may be used to endorse or promote products derived from
+	  this software without specific prior written permission.
 
- 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- 	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- 	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- 	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- 	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- 	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- 	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- 	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+	AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+	IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+	FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+	DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 package edu.cmu.sypet.codeformer;
 
 import edu.cmu.sypet.parser.MethodSignature;
+import java.util.*;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -42,289 +43,282 @@ import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 import soot.Type;
 
-import java.util.*;
-
 /**
- * Given a sequence of method calls, this class will produce a string containing the corresponding Java code.
+ * Given a sequence of method calls, this class will produce a string containing the corresponding
+ * Java code.
  */
 public class CodeFormer {
-    private final List<MethodSignature> sigs;
-    private int slotNumber = 0;
-    private int retNumber = 0;
-    private final VarTable slotTypes = new VarTable();
-    private final VarTable returnedValTypes = new VarTable();
-    private boolean unsat = false;
-    private final List<String> inputTypes;
-    private final String retType;
-    private final List<String> varNames;
-    private final String methodName;
-    private final Map<Integer,Integer> lastValueOfSlot = new HashMap<>();
-    private final Map<String,Set<String>> subclassMap;
-    private final Map<String,Set<String>> superclassMap;
-    private final ISolver solver = SolverFactory.newDefault();
+  private final List<MethodSignature> sigs;
+  private int slotNumber = 0;
+  private int retNumber = 0;
+  private final VarTable slotTypes = new VarTable();
+  private final VarTable returnedValTypes = new VarTable();
+  private boolean unsat = false;
+  private final List<String> inputTypes;
+  private final String retType;
+  private final List<String> varNames;
+  private final String methodName;
+  private final Map<Integer, Integer> lastValueOfSlot = new HashMap<>();
+  private final Map<String, Set<String>> subclassMap;
+  private final Map<String, Set<String>> superclassMap;
+  private final ISolver solver = SolverFactory.newDefault();
 
-    /**
-     *
-     * The initial setup for the class.
-     * @param sigs requires a sequence of signatures in the expected order.
-     * @param varNames parameter names of the method
-     * @param methodName method name of the method
-     */
-    public CodeFormer(List<MethodSignature> sigs, List<String> inputTypes, String retType, List<String> varNames,
-                      String methodName, Map<String, Set<String>> subclassMap, Map<String, Set<String>> superclassMap) {
-        this.sigs = sigs;
-        this.inputTypes = inputTypes;
-        this.retType = retType;
-        this.varNames = varNames;
-        this.methodName = methodName;
-        this.subclassMap = subclassMap;
-        this.superclassMap = superclassMap;
-        //solver.setTimeout(1000000);
-        //Setup
-        //Add method input
-        
-        for (String input : inputTypes){
-            returnedValTypes.addEntry(input,retNumber);
-            retNumber += 1;
-        }
+  /**
+   * The initial setup for the class.
+   *
+   * @param sigs requires a sequence of signatures in the expected order.
+   * @param varNames parameter names of the method
+   * @param methodName method name of the method
+   */
+  public CodeFormer(
+      List<MethodSignature> sigs,
+      List<String> inputTypes,
+      String retType,
+      List<String> varNames,
+      String methodName,
+      Map<String, Set<String>> subclassMap,
+      Map<String, Set<String>> superclassMap) {
+    this.sigs = sigs;
+    this.inputTypes = inputTypes;
+    this.retType = retType;
+    this.varNames = varNames;
+    this.methodName = methodName;
+    this.subclassMap = subclassMap;
+    this.superclassMap = superclassMap;
+    // solver.setTimeout(1000000);
+    // Setup
+    // Add method input
 
-        //Add slots and variables to the signatures table
-        for (MethodSignature sig : sigs){
-            if (sig.getIsConstructor()){
-
-            }
-            else if (!sig.getIsStatic()){
-                slotTypes.addEntry(sig.getHostClass().getType().toString(),slotNumber);
-                lastValueOfSlot.put(slotNumber,retNumber);
-                slotNumber += 1;
-            }
-            for (Type type : sig.getArgTypes()){
-                slotTypes.addEntry(type.toString(),slotNumber);
-                lastValueOfSlot.put(slotNumber,retNumber);
-                slotNumber += 1;
-            }
-
-            if (!sig.getRetType().toString().equals("void")){
-                returnedValTypes.addEntry(sig.getRetType().toString(),retNumber);
-                retNumber += 1;
-            }
-        }
-        //Add method return value
-        if (retType != null)
-        {
-            slotTypes.addEntry(retType,slotNumber);
-            lastValueOfSlot.put(slotNumber,retNumber);
-            slotNumber += 1;
-        }
-
-        //Setup constrains
-        addSingleVariableConstrains();
-        addAtLeastOneSlot();
+    for (String input : inputTypes) {
+      returnedValTypes.addEntry(input, retNumber);
+      retNumber += 1;
     }
 
-    /**
-     * Each call to solve will produce one extra solution.
-     * @return one solution to the programming (Java code)
-     * @throws TimeoutException Iff there is no solution available
-     */
-    public String solve() throws TimeoutException {
-        //Solve
-        int[] satResult;
-        try {
-            if (solver.isSatisfiable()){
-                satResult = solver.model();
-            }
-            else{
-                unsat = true;
-                throw new TimeoutException();
-            }
-        } catch (TimeoutException e) {
-            unsat = true;
-            throw new TimeoutException();
-        }
+    // Add slots and variables to the signatures table
+    for (MethodSignature sig : sigs) {
+      if (sig.getIsConstructor()) {
 
-        //A list only with filtered positive elements in the result.
-        List<Integer> satList = new ArrayList<>();
+      } else if (!sig.getIsStatic()) {
+        slotTypes.addEntry(sig.getHostClass().getType().toString(), slotNumber);
+        lastValueOfSlot.put(slotNumber, retNumber);
+        slotNumber += 1;
+      }
+      for (Type type : sig.getArgTypes()) {
+        slotTypes.addEntry(type.toString(), slotNumber);
+        lastValueOfSlot.put(slotNumber, retNumber);
+        slotNumber += 1;
+      }
 
-        //Block this version, and filter the result with only positive ones.
-        VecInt block = new VecInt();
-        for (Integer id : satResult){
-            block.push(-id);
-            if (id > 0) satList.add(id);
-        }
-        try {
-            solver.addClause(block);
-        } catch (ContradictionException e) {
-            unsat = true;
-        }
-
-        //formCode
-        return formCode(satList);
-
+      if (!sig.getRetType().toString().equals("void")) {
+        returnedValTypes.addEntry(sig.getRetType().toString(), retNumber);
+        retNumber += 1;
+      }
+    }
+    // Add method return value
+    if (retType != null) {
+      slotTypes.addEntry(retType, slotNumber);
+      lastValueOfSlot.put(slotNumber, retNumber);
+      slotNumber += 1;
     }
 
-    /**
-     *
-     * @return true iff the problem is no longer solvable.
-     */
-    public boolean isUnsat() {
-        return unsat;
+    // Setup constrains
+    addSingleVariableConstrains();
+    addAtLeastOneSlot();
+  }
+
+  /**
+   * Each call to solve will produce one extra solution.
+   *
+   * @return one solution to the programming (Java code)
+   * @throws TimeoutException Iff there is no solution available
+   */
+  public String solve() throws TimeoutException {
+    // Solve
+    int[] satResult;
+    try {
+      if (solver.isSatisfiable()) {
+        satResult = solver.model();
+      } else {
+        unsat = true;
+        throw new TimeoutException();
+      }
+    } catch (TimeoutException e) {
+      unsat = true;
+      throw new TimeoutException();
     }
 
+    // A list only with filtered positive elements in the result.
+    List<Integer> satList = new ArrayList<>();
 
-    //Each slot only has variable
-    private void addSingleVariableConstrains(){
-        for (int slotValue = 0; slotValue < slotNumber ; slotValue += 1) {
-            IVecInt vec = new VecInt();
-            IVecInt vec0 = new VecInt();
-            String slotType = slotTypes.getType(slotValue);
-            List<String> possibleSlotTypes = new LinkedList<>();
-            if (subclassMap.containsKey(slotType)) possibleSlotTypes.addAll(subclassMap.get(slotType));
-            possibleSlotTypes.add(slotType);
-            for (String curSlotType : possibleSlotTypes){
-                for (int returnedValue : returnedValTypes.getEntries(curSlotType)) {
-                    if (returnedValue < lastValueOfSlot.get(slotValue)) vec.push(calculateID(returnedValue,slotValue));
-                    else vec0.push(calculateID(returnedValue,slotValue));
-                }
-            }
-            try {
-                solver.addExactly(vec,1);
-                solver.addExactly(vec0,0);
-            } catch (ContradictionException e) {
-                unsat = true;
-            }
+    // Block this version, and filter the result with only positive ones.
+    VecInt block = new VecInt();
+    for (Integer id : satResult) {
+      block.push(-id);
+      if (id > 0) satList.add(id);
+    }
+    try {
+      solver.addClause(block);
+    } catch (ContradictionException e) {
+      unsat = true;
+    }
+
+    // formCode
+    return formCode(satList);
+  }
+
+  /** @return true iff the problem is no longer solvable. */
+  public boolean isUnsat() {
+    return unsat;
+  }
+
+  // Each slot only has variable
+  private void addSingleVariableConstrains() {
+    for (int slotValue = 0; slotValue < slotNumber; slotValue += 1) {
+      IVecInt vec = new VecInt();
+      IVecInt vec0 = new VecInt();
+      String slotType = slotTypes.getType(slotValue);
+      List<String> possibleSlotTypes = new LinkedList<>();
+      if (subclassMap.containsKey(slotType)) possibleSlotTypes.addAll(subclassMap.get(slotType));
+      possibleSlotTypes.add(slotType);
+      for (String curSlotType : possibleSlotTypes) {
+        for (int returnedValue : returnedValTypes.getEntries(curSlotType)) {
+          if (returnedValue < lastValueOfSlot.get(slotValue))
+            vec.push(calculateID(returnedValue, slotValue));
+          else vec0.push(calculateID(returnedValue, slotValue));
         }
+      }
+      try {
+        solver.addExactly(vec, 1);
+        solver.addExactly(vec0, 0);
+      } catch (ContradictionException e) {
+        unsat = true;
+      }
     }
+  }
 
-    //Each returned value used at least once
-    private void addAtLeastOneSlot(){
-        for (int returnedValue = 0; returnedValue < retNumber ; returnedValue += 1) {
-            IVecInt vec = new VecInt();
-            List<String> possibleSlotTypes = new LinkedList<>();
-            String returnedType = returnedValTypes.getType(returnedValue);
-            if (superclassMap.containsKey(returnedType)) possibleSlotTypes.addAll(superclassMap.get(returnedType));
-            possibleSlotTypes.add(returnedType);
-            for (String slotType : possibleSlotTypes){
-                for (int slotValue : slotTypes.getEntries(slotType)) {
-                    vec.push(calculateID(returnedValue,slotValue));
-                }
-            }
-            try {
-                solver.addAtLeast(vec,1);
-            } catch (ContradictionException e) {
-                unsat = true;
-            }
+  // Each returned value used at least once
+  private void addAtLeastOneSlot() {
+    for (int returnedValue = 0; returnedValue < retNumber; returnedValue += 1) {
+      IVecInt vec = new VecInt();
+      List<String> possibleSlotTypes = new LinkedList<>();
+      String returnedType = returnedValTypes.getType(returnedValue);
+      if (superclassMap.containsKey(returnedType))
+        possibleSlotTypes.addAll(superclassMap.get(returnedType));
+      possibleSlotTypes.add(returnedType);
+      for (String slotType : possibleSlotTypes) {
+        for (int slotValue : slotTypes.getEntries(slotType)) {
+          vec.push(calculateID(returnedValue, slotValue));
         }
+      }
+      try {
+        solver.addAtLeast(vec, 1);
+      } catch (ContradictionException e) {
+        unsat = true;
+      }
     }
+  }
 
-    private String formCode(List<Integer> satResult){
-    	
-    	// FIXME: check what is causing this bug
-    	String error = "";
-    	
-    	//FormCode
-        StringBuilder builder = new StringBuilder();
-        int varCount = 0;
-        int slotCount = 0;
+  private String formCode(List<Integer> satResult) {
 
-        //Add method signature
-        builder.append("public static ");
-        if (retType != null){
-            builder.append(retType);
-            builder.append(" ");
+    // FIXME: check what is causing this bug
+    String error = "";
+
+    // FormCode
+    StringBuilder builder = new StringBuilder();
+    int varCount = 0;
+    int slotCount = 0;
+
+    // Add method signature
+    builder.append("public static ");
+    if (retType != null) {
+      builder.append(retType);
+      builder.append(" ");
+    } else {
+      builder.append("void ");
+    }
+    builder.append(methodName);
+    builder.append("(");
+    for (int i = 0; i < inputTypes.size(); i++) {
+      builder.append(inputTypes.get(i));
+      builder.append(" ");
+      builder.append(convVarName(varCount));
+      varCount += 1;
+      if (i != inputTypes.size() - 1) builder.append(", ");
+    }
+    builder.append(") throws Throwable{\n");
+
+    for (MethodSignature sig : sigs) {
+
+      if (!sig.getRetType().toString().equals("void")) {
+        builder.append(sig.getRetType().toString().replace('$', '.'));
+        builder.append(" ");
+        builder.append(convVarName(varCount));
+        varCount += 1;
+        builder.append(" = ");
+      }
+
+      if (sig.getIsConstructor()) {
+        builder.append(" new ");
+      } else if (sig.getIsStatic()) {
+        String hostclstr = sig.getHostClass().toString();
+        builder.append(hostclstr.replace('$', '.'));
+        builder.append(".");
+      } else {
+        if (slotCount >= satResult.size()) return error;
+        int id = satResult.get(slotCount);
+        slotCount++;
+        int returnedValue = calculateReturnedValue(id);
+        builder.append(convVarName(returnedValue));
+        builder.append(".");
+      }
+
+      builder.append(sig.getName().replace('$', '.'));
+      builder.append("(");
+      for (int i = 0; i < sig.getArgTypes().size(); i++) {
+        if (slotCount >= satResult.size()) return error;
+        int id = satResult.get(slotCount);
+        slotCount++;
+        int returnedValue = calculateReturnedValue(id);
+        int slotValue = calculateSlotValue(id);
+        // assert (slotValue == slotCount);
+
+        builder.append(convVarName(returnedValue));
+        if (i != sig.getArgTypes().size() - 1) {
+          builder.append(",");
         }
-        else{
-            builder.append("void ");
-        }
-        builder.append(methodName);
-        builder.append("(");
-        for (int i = 0 ; i < inputTypes.size() ; i++){
-            builder.append(inputTypes.get(i));
-            builder.append(" ");
-            builder.append(convVarName(varCount));
-            varCount += 1;
-            if (i != inputTypes.size() - 1) builder.append(", ");
-        }
-        builder.append(") throws Throwable{\n");
-
-        for (MethodSignature sig : sigs){
-        	
-            if (!sig.getRetType().toString().equals("void")){
-                builder.append(sig.getRetType().toString().replace('$','.'));
-                builder.append(" ");
-                builder.append(convVarName(varCount));
-                varCount += 1;
-                builder.append(" = ");
-            }
-
-            if (sig.getIsConstructor()){
-                builder.append(" new ");
-            }
-            else if (sig.getIsStatic()){
-                String hostclstr = sig.getHostClass().toString();
-                builder.append(hostclstr.replace('$','.'));
-                builder.append(".");
-            }
-
-            else{
-            	if (slotCount >= satResult.size())
-                	return error;
-                int id = satResult.get(slotCount);
-                slotCount ++;
-                int returnedValue = calculateReturnedValue(id);
-                builder.append(convVarName(returnedValue));
-                builder.append(".");
-            }
-
-            builder.append(sig.getName().replace('$','.'));
-            builder.append("(");
-            for (int i = 0; i < sig.getArgTypes().size() ; i++){
-            	if (slotCount >= satResult.size())
-                	return error;
-                int id = satResult.get(slotCount);
-                slotCount ++;
-                int returnedValue = calculateReturnedValue(id);
-                int slotValue = calculateSlotValue(id);
-                //assert (slotValue == slotCount);
-
-                builder.append(convVarName(returnedValue));
-                if (i != sig.getArgTypes().size() - 1){
-                    builder.append(",");
-                }
-            }
-            builder.append(");\n");
-        }
-        if (retType != null ){
-            builder.append("return ");
-            
-            if (slotCount >= satResult.size())
-            	return error;
-            int id = satResult.get(slotCount);
-            slotCount ++;
-            int returnedValue = calculateReturnedValue(id);
-            int slotValue = calculateSlotValue(id);
-            //assert (slotValue == slotCount);
-            builder.append(convVarName(returnedValue));
-            builder.append(";\n");
-        }
-        builder.append("}");
-        return builder.toString().replace('$','.');
+      }
+      builder.append(");\n");
     }
+    if (retType != null) {
+      builder.append("return ");
 
+      if (slotCount >= satResult.size()) return error;
+      int id = satResult.get(slotCount);
+      slotCount++;
+      int returnedValue = calculateReturnedValue(id);
+      int slotValue = calculateSlotValue(id);
+      // assert (slotValue == slotCount);
+      builder.append(convVarName(returnedValue));
+      builder.append(";\n");
+    }
+    builder.append("}");
+    return builder.toString().replace('$', '.');
+  }
 
-    private int calculateID(int returnedValue,int slotValue){
-        return returnedValue + retNumber * slotValue + 1;
-    }
-    private int calculateReturnedValue(int id){
-        return (id-1)%retNumber;
-    }
-    private int calculateSlotValue(int id){
-        return (id-1)/retNumber;
-    }
+  private int calculateID(int returnedValue, int slotValue) {
+    return returnedValue + retNumber * slotValue + 1;
+  }
 
-    private String convVarName(int val){
-        if (val < varNames.size()) return varNames.get(val);
-        else return "var_"+(val - varNames.size());
-    }
+  private int calculateReturnedValue(int id) {
+    return (id - 1) % retNumber;
+  }
 
+  private int calculateSlotValue(int id) {
+    return (id - 1) / retNumber;
+  }
+
+  private String convVarName(int val) {
+    if (val < varNames.size()) return varNames.get(val);
+    else return "var_" + (val - varNames.size());
+  }
 }

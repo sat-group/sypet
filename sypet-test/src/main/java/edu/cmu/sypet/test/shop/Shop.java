@@ -59,9 +59,6 @@ public class Shop {
 
   @Override
   public String toString() {
-    return "Shop{" +
-        "name='" + name + '\'' +
-        ", customers=" + customers +
-        '}';
+    return "Shop{" + "name='" + name + '\'' + ", customers=" + customers + '}';
   }
 }

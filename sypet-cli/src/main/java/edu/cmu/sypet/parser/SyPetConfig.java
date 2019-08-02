@@ -37,29 +37,19 @@ import java.util.Objects;
 
 // TODO Use Collection instead of List.
 
-/**
- * This class represents the configuration options for SyPet.
- */
+/** This class represents the configuration options for SyPet. */
 public final class SyPetConfig {
 
-  /**
-   * TODO
-   */
+  /** TODO */
   public final List<String> localSuperClasses;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   public final List<List<String>> globalSuperClasses;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   public final List<String> blacklist; // TODO Rename this?
 
-  /**
-   * TODO
-   */
+  /** TODO */
   public final List<String> noSideEffects; // TODO Rename this?
 
   private SyPetConfig(Builder builder) {
@@ -69,9 +59,7 @@ public final class SyPetConfig {
     this.noSideEffects = builder.noSideEffects;
   }
 
-  /**
-   * TODO
-   */
+  /** TODO */
   @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     // The Builder pattern. Refer to Effective Java, 3rd edition, Item 2, for an overview of this
@@ -86,60 +74,45 @@ public final class SyPetConfig {
     private List<String> blacklist = new ArrayList<>();
     private List<String> noSideEffects = new ArrayList<>();
 
-    /**
-     * TODO
-     */
-    public Builder() {
-    }
+    /** TODO */
+    public Builder() {}
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder localSuperClasses(List<String> val) {
       this.localSuperClasses = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder globalSuperClasses(List<List<String>> val) {
       Objects.requireNonNull(val);
       this.globalSuperClasses = val;
 
       // TODO Explain this
-      final List<String> poly1 = new ArrayList<>(
-          Arrays.asList("java.lang.CharSequence", "java.lang.String"));
+      final List<String> poly1 =
+          new ArrayList<>(Arrays.asList("java.lang.CharSequence", "java.lang.String"));
       this.globalSuperClasses.add(poly1);
 
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder blacklist(List<String> val) {
       Objects.requireNonNull(val);
       this.blacklist = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder noSideEffects(List<String> val) {
       Objects.requireNonNull(val);
       this.noSideEffects = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public SyPetConfig build() {
       return new SyPetConfig(this);
     }
-
   }
-
 }

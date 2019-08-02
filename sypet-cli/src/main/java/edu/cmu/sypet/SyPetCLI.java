@@ -42,13 +42,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-/**
- * This class represents the SyPet command line interface.
- */
+/** This class represents the SyPet command line interface. */
 public final class SyPetCLI {
 
-  private SyPetCLI() {
-  }
+  private SyPetCLI() {}
 
   // TODO Explain the JSON format.
 
@@ -92,7 +89,6 @@ public final class SyPetCLI {
     }
   }
 
-
   /**
    * Synthesize program from a JSON file with information about the program we want to synthesize,
    * and from a JSON file with configuration options.
@@ -105,21 +101,22 @@ public final class SyPetCLI {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);
 
-      final SynthesisTask task = ImmutableSynthesisTask.builder()
-          .methodName(input.methodName)
-          .paramNames(input.paramNames)
-          .paramTypes(input.srcTypes)
-          .returnType(input.tgtType)
-          .packages(input.packages)
-          .libs(input.libs)
-          .testCode(input.testBody)
-          .locLowerBound(input.lb)
-          .locUpperBound(input.ub)
-          .localSuperClasses(config.localSuperClasses)
-          .globalSuperClasses(config.globalSuperClasses)
-          .noSideEffects(config.noSideEffects)
-          .blacklist(config.blacklist)
-          .build();
+      final SynthesisTask task =
+          ImmutableSynthesisTask.builder()
+              .methodName(input.methodName)
+              .paramNames(input.paramNames)
+              .paramTypes(input.srcTypes)
+              .returnType(input.tgtType)
+              .packages(input.packages)
+              .libs(input.libs)
+              .testCode(input.testBody)
+              .locLowerBound(input.lb)
+              .locUpperBound(input.ub)
+              .localSuperClasses(config.localSuperClasses)
+              .globalSuperClasses(config.globalSuperClasses)
+              .noSideEffects(config.noSideEffects)
+              .blacklist(config.blacklist)
+              .build();
 
       return SyPetAPI.synthesize(task);
     } catch (IOException e) {
@@ -133,5 +130,4 @@ public final class SyPetCLI {
 
     return Optional.empty();
   }
-
 }

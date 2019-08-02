@@ -33,35 +33,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * This class represents the input for SyPet.
- */
+/** This class represents the input for SyPet. */
 public final class SyPetInput {
   // TODO Give better names to the fields.
 
-  /**
-   * The name of the method we want to synthesize.
-   */
+  /** The name of the method we want to synthesize. */
   public final String methodName;
 
-  /**
-   * The names of the parameters of the method we want to synthesize.
-   */
+  /** The names of the parameters of the method we want to synthesize. */
   public final List<String> paramNames;
 
-  /**
-   * The types of the parameters of the method we want to synthesize.
-   */
+  /** The types of the parameters of the method we want to synthesize. */
   public final List<String> srcTypes;
 
-  /**
-   * The return type of the method we want to synthesize.
-   */
+  /** The return type of the method we want to synthesize. */
   public final String tgtType;
 
-  /**
-   * The names of the packages the synthesized program is allowed to import.
-   */
+  /** The names of the packages the synthesized program is allowed to import. */
   public final List<String> packages;
 
   /**
@@ -69,24 +57,16 @@ public final class SyPetInput {
    */
   public final List<String> libs;
 
-  /**
-   * The Java test code that the method we want to synthesize must satisfy.
-   */
+  /** The Java test code that the method we want to synthesize must satisfy. */
   public final String testBody;
 
-  /**
-   * Lower bound on the number of lines of code of the method we want to synthesize.
-   */
+  /** Lower bound on the number of lines of code of the method we want to synthesize. */
   public final int lb;
 
-  /**
-   * Upper bound on the number of lines of code of the method we want to synthesize.
-   */
+  /** Upper bound on the number of lines of code of the method we want to synthesize. */
   public final int ub;
 
-  /**
-   * TODO Explain this.
-   */
+  /** TODO Explain this. */
   public final List<String> hints;
 
   private SyPetInput(Builder builder) {
@@ -102,9 +82,7 @@ public final class SyPetInput {
     this.hints = builder.hints;
   }
 
-  /**
-   * TODO
-   */
+  /** TODO */
   @SuppressWarnings("UnusedReturnValue")
   public static class Builder {
     // The Builder pattern. Refer to Effective Java, 3rd edition, Item 2, for an overview of this
@@ -130,9 +108,7 @@ public final class SyPetInput {
 
     // TODO Check if testBody is valid
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder(
         String methodName,
         List<String> paramNames,
@@ -159,34 +135,26 @@ public final class SyPetInput {
       this.testCode = testCode;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder locLowerBound(int val) {
       this.locLowerBound = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder locUpperBound(int val) {
       this.locUpperBound = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public Builder hints(List<String> val) {
       Objects.requireNonNull(val);
       this.hints = val;
       return this;
     }
 
-    /**
-     * TODO
-     */
+    /** TODO */
     public SyPetInput build() {
       return new SyPetInput(this);
     }

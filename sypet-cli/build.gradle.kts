@@ -2,6 +2,7 @@ plugins {
     java
     application
     id("com.github.johnrengelman.shadow")
+    id("com.diffplug.gradle.spotless")
 }
 
 dependencies {
@@ -15,4 +16,10 @@ application {
 
 shadow {
     applicationDistribution
+}
+
+spotless {
+    java {
+        googleJavaFormat("1.7")
+    }
 }

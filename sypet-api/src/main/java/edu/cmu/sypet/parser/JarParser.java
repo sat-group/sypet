@@ -42,24 +42,16 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.SourceLocator;
 
-/**
- * This class is used to obtain method signatures from jar files.
- */
+/** This class is used to obtain method signatures from jar files. */
 public final class JarParser {
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private final Collection<String> packages;
 
-  /**
-   * Physical addresses of the jar files, e.g., "lib/hamcrest-core-1.3.jar".
-   */
+  /** Physical addresses of the jar files, e.g., "lib/hamcrest-core-1.3.jar". */
   private final Collection<String> libs;
 
-  /**
-   * TODO
-   */
+  /** TODO */
   public JarParser(List<String> libs, Collection<String> packages) {
     this.libs = libs;
     this.packages = packages;
@@ -68,9 +60,7 @@ public final class JarParser {
     SootUtils.initSoot(libs);
   }
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private static MethodSignature getMethodSignature(SootMethod method) {
     final SootClass clazz = method.getDeclaringClass();
 
@@ -96,11 +86,9 @@ public final class JarParser {
   }
 
   // TODO DRY this.
-  /**
-   * TODO
-   */
-  private static Set<String> getSuperClassesOfClass(Set<String> acceptableSuperClasses,
-      SootClass clazz) {
+  /** TODO */
+  private static Set<String> getSuperClassesOfClass(
+      Set<String> acceptableSuperClasses, SootClass clazz) {
     final Set<String> superClasses = new HashSet<>();
 
     if (clazz.hasSuperclass()) {
@@ -131,22 +119,23 @@ public final class JarParser {
    * A method that provides the super classes of all application classes.
    *
    * @param acceptableSuperClasses the set of classes that can be considered super classes. In order
-   * to reduce the unnecessary super classes (e.g. Object).
+   *     to reduce the unnecessary super classes (e.g. Object).
    * @return the map from each SootClass, to its corresponding set of super classes.
    */
   public Map<String, Set<String>> getSuperClasses(Set<String> acceptableSuperClasses) {
     // TODO Explain
     return Scene.v().getClasses().stream()
-        .filter(clazz -> this.packages.stream()
-            .anyMatch(pkg -> clazz.getName().startsWith(pkg)))
-        .collect(Collectors.toMap(SootClass::getName,
-            clazz -> getSuperClassesOfClass(acceptableSuperClasses, clazz)));
+        .filter(clazz -> this.packages.stream().anyMatch(pkg -> clazz.getName().startsWith(pkg)))
+        .collect(
+            Collectors.toMap(
+                SootClass::getName,
+                clazz -> getSuperClassesOfClass(acceptableSuperClasses, clazz)));
   }
 
   /**
    * TODO
    *
-   * Produce a list of method signatures from a list of jars.
+   * <p>Produce a list of method signatures from a list of jars.
    *
    * @return the list of method signatures contained in the given libraries
    */
@@ -156,15 +145,22 @@ public final class JarParser {
 
     // TODO Comment this
     return libs.stream()
-        .flatMap(jar -> SourceLocator.v().getClassesUnder(jar).stream()
-            .map(Scene.v()::getSootClass)
-            .filter(clazz -> this.packages.stream().anyMatch(clazz.getName()::startsWith))
-            .flatMap(clazz -> clazz.getMethods().stream()
-                .filter(SootMethod::isPublic)
-                .filter(method -> blacklist.stream().noneMatch(method.getName()::contains))
-                .filter(method -> method.getParameterCount() <= methodMaxNumberOfParameters)))
+        .flatMap(
+            jar ->
+                SourceLocator.v().getClassesUnder(jar).stream()
+                    .map(Scene.v()::getSootClass)
+                    .filter(clazz -> this.packages.stream().anyMatch(clazz.getName()::startsWith))
+                    .flatMap(
+                        clazz ->
+                            clazz.getMethods().stream()
+                                .filter(SootMethod::isPublic)
+                                .filter(
+                                    method ->
+                                        blacklist.stream().noneMatch(method.getName()::contains))
+                                .filter(
+                                    method ->
+                                        method.getParameterCount() <= methodMaxNumberOfParameters)))
         .map(JarParser::getMethodSignature)
         .collect(Collectors.toList());
   }
-
 }
