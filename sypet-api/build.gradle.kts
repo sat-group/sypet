@@ -13,8 +13,18 @@ dependencies {
     implementation(fileTree("lib"))
 
     // Use JUnit Jupiter API for testing.
-//    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
 
-    // Use JUnit Jupiter Engine for testing.
-//    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.2")
+    testImplementation(project(":sypet-test"))
+}
+
+tasks.test {
+    dependsOn("copyJar")
+    useJUnitPlatform()
+}
+
+tasks.register<Copy>("copyJar") {
+    from(file("../sypet-test/build/libs/sypet-test-$version.jar"))
+    into(file("src/test/resources"))
+    rename("(sypet-test)-$version(\\.jar)", "$1$2")
 }

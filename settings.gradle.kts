@@ -9,4 +9,4 @@
 
 rootProject.name = "sypet"
 
-include("sypet-api", "sypet-cli")
+include("sypet-api", "sypet-cli", "sypet-test")
