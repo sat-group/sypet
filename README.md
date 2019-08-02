@@ -1,4 +1,7 @@
+[![stability-experimental](https://img.shields.io/badge/stability-experimental-orange.svg)](https://github.com/emersion/stability-badges#experimental)
+
 # SyPet 2.0
+
 
 SyPet is a program synthesis tool for Java libraries that automatically constructs programs by composing APIs. SyPet 2.0 is a clean implementation of the synthesis algorithm described in the POPL paper: 
 
