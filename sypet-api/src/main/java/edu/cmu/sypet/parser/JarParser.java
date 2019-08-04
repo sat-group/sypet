@@ -68,8 +68,7 @@ public final class JarParser {
               .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
-          true,
-          method);
+          true);
     } else {
       return new MethodSignature(
           method.getName(),
@@ -78,13 +77,15 @@ public final class JarParser {
               .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
-          false,
-          method);
+          false);
     }
   }
 
   // TODO DRY this.
-  /** TODO */
+
+  /**
+   * TODO
+   */
   private static Set<String> getSuperClassesOfClass(
       Set<String> acceptableSuperClasses, SootClass clazz) {
     final Set<String> superClasses = new HashSet<>();

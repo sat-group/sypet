@@ -34,7 +34,6 @@
 package edu.cmu.sypet.parser;
 
 import java.util.List;
-import soot.SootMethod;
 
 /**
  * Data structure that describes a method signature, including 1. Method name 2. Return type 3. The
@@ -50,14 +49,12 @@ public final class MethodSignature {
   private final boolean isStatic;
   private final Type hostClass;
   private final boolean isConstructor;
-  private final SootMethod method;
 
   MethodSignature(
       String name,
       Type retType,
       List<Type> argTypes,
       boolean isStatic,
-      SootMethod method) {
       Type hostClass,
       boolean isConstructor) {
 
@@ -72,7 +69,6 @@ public final class MethodSignature {
     } else {
       this.name = name;
     }
-    this.method = method;
   }
 
   public String getName() {
@@ -99,10 +95,6 @@ public final class MethodSignature {
     return hostClass;
   }
 
-  public SootMethod getMethod() {
-    return method;
-  }
-
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder(retType + " " + hostClass + "." + name + "(");
@@ -119,18 +111,41 @@ public final class MethodSignature {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof MethodSignature)) return false;
-    MethodSignature sig = (MethodSignature) o;
-    return sig.name.equals(name)
-        && sig.hostClass.equals(hostClass)
-        && sig.retType.equals(retType)
-        && sig.isStatic == isStatic
-        && sig.argTypes.equals(argTypes)
-        && sig.isConstructor == isConstructor;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    MethodSignature that = (MethodSignature) o;
+
+    if (isStatic != that.isStatic) {
+      return false;
+    }
+    if (isConstructor != that.isConstructor) {
+      return false;
+    }
+    if (!name.equals(that.name)) {
+      return false;
+    }
+    if (!retType.equals(that.retType)) {
+      return false;
+    }
+    if (!argTypes.equals(that.argTypes)) {
+      return false;
+    }
+    return hostClass.equals(that.hostClass);
   }
 
   @Override
   public int hashCode() {
-    return method.hashCode();
+    int result = name.hashCode();
+    result = 31 * result + retType.hashCode();
+    result = 31 * result + argTypes.hashCode();
+    result = 31 * result + (isStatic ? 1 : 0);
+    result = 31 * result + hostClass.hashCode();
+    result = 31 * result + (isConstructor ? 1 : 0);
+    return result;
   }
 }
