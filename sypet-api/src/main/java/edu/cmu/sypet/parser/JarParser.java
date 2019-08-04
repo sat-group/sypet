@@ -111,17 +111,22 @@ public final class JarParser {
     return superClasses;
   }
 
+  // TODO If the {@code acceptableSuperClasses} parameter were null, then the method should get
+  //  every possible superclass.
   /**
    * A method that provides the super classes of all application classes.
    *
    * @param acceptableSuperClasses the set of classes that can be considered super classes. In order
    *     to reduce the unnecessary super classes (e.g. Object).
-   * @return the map from each SootClass, to its corresponding set of super classes.
+   * @return the map mapping each class name, to the subset of its super classes that is in {@code
+   *     acceptableSuperClasses}.
    */
   public Map<String, Set<String>> getSuperClasses(Set<String> acceptableSuperClasses) {
     // TODO Explain
     return Scene.v().getClasses().stream()
+        // Select classes that belong to one of the packages.
         .filter(clazz -> this.packages.stream().anyMatch(pkg -> clazz.getName().startsWith(pkg)))
+        // Collect them into a map mapping their names to the set of their superclasses.
         .collect(
             Collectors.toMap(
                 SootClass::getName,
