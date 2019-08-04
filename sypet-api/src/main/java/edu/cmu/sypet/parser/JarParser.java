@@ -64,7 +64,8 @@ public final class JarParser {
       return new MethodSignature(
           method.getName(),
           clazz,
-          method.getParameterTypes().stream().map(ImmutableSootType::of)
+          method.getParameterTypes().stream()
+              .map(ImmutableSootType::of)
               .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
@@ -73,7 +74,8 @@ public final class JarParser {
       return new MethodSignature(
           method.getName(),
           ImmutableSootType.of(method.getReturnType()),
-          method.getParameterTypes().stream().map(ImmutableSootType::of)
+          method.getParameterTypes().stream()
+              .map(ImmutableSootType::of)
               .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
@@ -83,9 +85,7 @@ public final class JarParser {
 
   // TODO DRY this.
 
-  /**
-   * TODO
-   */
+  /** TODO */
   private static Set<String> getSuperClassesOfClass(
       Set<String> acceptableSuperClasses, SootClass clazz) {
     final Set<String> superClasses = new HashSet<>();
@@ -116,6 +116,7 @@ public final class JarParser {
 
   // TODO If the {@code acceptableSuperClasses} parameter were null, then the method should get
   //  every possible superclass.
+
   /**
    * A method that provides the super classes of all application classes.
    *

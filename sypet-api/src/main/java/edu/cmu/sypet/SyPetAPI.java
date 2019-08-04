@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/**
- * This class represents the SyPet library API.
- */
+/** This class represents the SyPet library API. */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
@@ -52,8 +50,8 @@ public final class SyPetAPI {
     final List<MethodSignature> signatures = parser.parseJar(task.blacklist());
 
     BuildNet buildNet = new BuildNet(task.noSideEffects());
-    this.net = buildNet
-        .build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
+    this.net =
+        buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
     this.signatureMap = BuildNet.dict;
   }
 
@@ -74,18 +72,22 @@ public final class SyPetAPI {
     return relation.entrySet().stream()
         // Map each entry (class -> {superclass1, superclass2, ...}) to a map
         // { superclass1 -> {class}, superclass2 -> {class}, ... }.
-        .map(entry -> entry.getValue().stream()
-            .collect(Collectors.toMap(
-                Function.identity(),
-                x -> ImmutableSet.of(entry.getKey()))))
-        // Merge all maps in the stream by taking the union of their values whenever the keys are equal.
+        .map(
+            entry ->
+                entry.getValue().stream()
+                    .collect(
+                        Collectors.toMap(
+                            Function.identity(), x -> ImmutableSet.of(entry.getKey()))))
+        // Merge all maps in the stream by taking the union of their values whenever the keys are
+        // equal.
         // For example, if we have two maps
         // { superclass1 -> {class1}, superclass2 -> {class1}, ... } and
         // { superclass1 -> {class2}, superclass2 -> {class2}, ... }, then the resulting merge
         // would be  { superclass1 -> {class1, class2}, superclass2 -> {class1, class2}, ... }.
         .flatMap(m -> m.entrySet().stream())
-        .collect(Collectors.toMap(
-            Entry::getKey, Entry::getValue, (set1, set2) -> Sets.union(set1, set2)));
+        .collect(
+            Collectors.toMap(
+                Entry::getKey, Entry::getValue, (set1, set2) -> Sets.union(set1, set2)));
   }
 
   private Optional<String> synthesize(int min_loc, int max_loc) {
@@ -126,7 +128,11 @@ public final class SyPetAPI {
         boolean sat = true;
         CodeFormer former =
             new CodeFormer(
-                signatures, getParamTypes(), getReturnType(), getParamNames(), getMethodName(),
+                signatures,
+                getParamTypes(),
+                getReturnType(),
+                getParamNames(),
+                getMethodName(),
                 getSubclassMap(),
                 getSuperclassMap());
         while (sat) {
@@ -196,7 +202,11 @@ public final class SyPetAPI {
         boolean sat = true;
         CodeFormer former =
             new CodeFormer(
-                signatures, getParamTypes(), getReturnType(), getParamNames(), getMethodName(),
+                signatures,
+                getParamTypes(),
+                getReturnType(),
+                getParamNames(),
+                getMethodName(),
                 getSubclassMap(),
                 getSuperclassMap());
         while (sat) {
@@ -269,5 +279,4 @@ public final class SyPetAPI {
   public List<String> getHints() {
     return this.task.hints();
   }
-
 }
