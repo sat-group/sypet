@@ -10,6 +10,7 @@ import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
 import java.io.PrintStream;
+import edu.cmu.sypet.utils.SootUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ public final class SyPetAPI {
 
   /** TODO */
   private PetriNet net;
+    SootUtils.initSoot(getLibs());
 
   /** TODO */
   private BuildNet buildNet;

@@ -30,7 +30,6 @@
 
 package edu.cmu.sypet.parser;
 
-import edu.cmu.sypet.utils.SootUtils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -55,9 +54,6 @@ public final class JarParser {
   public JarParser(List<String> libs, Collection<String> packages) {
     this.libs = libs;
     this.packages = packages;
-
-    // TODO I strongly doubt this should be here. It would probably be better on SyPetAPI.
-    SootUtils.initSoot(libs);
   }
 
   /** TODO */
