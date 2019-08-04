@@ -69,11 +69,10 @@ import javax.tools.ToolProvider;
  */
 class Compile {
   private static final boolean DISPLAY_ERROR = false;
-  private static String CLASSNAME;
-  private static boolean mCompilationSuccess = true;
+  private static String CLASS_NAME;
 
   Compile(String classname) {
-    Compile.CLASSNAME = classname;
+    Compile.CLASS_NAME = classname;
   }
 
   static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject> {
@@ -96,10 +95,6 @@ class Compile {
     return success;
   }
 
-  public static boolean isCompilationSuccess() {
-    return mCompilationSuccess;
-  }
-
   @SuppressWarnings("rawtypes")
   private static Class compileClass(String program, List<String> libs) {
     if (DISPLAY_ERROR) System.out.println(program);
@@ -115,12 +110,12 @@ class Compile {
       List<String> options = new ArrayList<>();
       options.add("-cp");
       options.add(classpath);
-      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(CLASSNAME, program));
+      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(CLASS_NAME, program));
       Writer out = DISPLAY_ERROR ? new PrintWriter(System.err) : null;
       JavaCompiler.CompilationTask compile =
           javac.getTask(out, fileManager, c, options, null, compilationUnits);
-      mCompilationSuccess = compile.call();
-      if (mCompilationSuccess) return cl.findClass(CLASSNAME);
+      boolean mCompilationSuccess = compile.call();
+      if (mCompilationSuccess) return cl.findClass(CLASS_NAME);
     } catch (Exception e) {
       if (DISPLAY_ERROR) e.printStackTrace();
     }
