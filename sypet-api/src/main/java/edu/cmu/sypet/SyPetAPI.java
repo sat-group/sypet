@@ -1,5 +1,7 @@
 package edu.cmu.sypet;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.parser.JarParser;
@@ -9,144 +11,50 @@ import edu.cmu.sypet.reachability.Encoding;
 import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
-import java.io.PrintStream;
 import edu.cmu.sypet.utils.SootUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.io.output.ByteArrayOutputStream;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/** This class represents the SyPet library API. */
+/**
+ * This class represents the SyPet library API.
+ */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
 
-  /** TODO */
-  private Map<String, Set<String>> superclassMap;
+  private final SynthesisTask task;
 
-  /** TODO */
-  private Map<String, Set<String>> subclassMap;
+  private final Map<String, Set<String>> superclassMap;
+  private final Map<String, Set<String>> subclassMap;
+  private final PetriNet net;
+  private final Map<String, MethodSignature> signatureMap;
 
-  /** TODO */
-  private List<String> libs;
+  public SyPetAPI(final SynthesisTask task) {
+    this.task = task;
 
-  /** TODO */
-  private PetriNet net;
     SootUtils.initSoot(getLibs());
 
-  /** TODO */
-  private BuildNet buildNet;
+    final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
+    final JarParser parser = new JarParser(getLibs(), task.packages());
 
-  /** TODO */
-  private Map<String, MethodSignature> signatureMap;
-
-  /** TODO */
-  private List<String> inputs;
-
-  /** TODO */
-  private String retType;
-
-  /** TODO */
-  private String testCode;
-
-  /** TODO */
-  private String methodName;
-
-  /** TODO */
-  private List<String> varNames;
-
-  /** TODO */
-  private List<String> hints;
-
-  /** TODO */
-  private List<MethodSignature> sigs;
-
-  public SyPetAPI(SynthesisTask synthesisTask) {
-    final List<String> packages = synthesisTask.packages();
-    final List<String> libs = synthesisTask.libs();
-    final List<String> hints = synthesisTask.hints();
-
-    this.libs = libs;
-    this.hints = hints;
-
-    // TODO Explain why we need this.
-    // Suppress warnings from Soot.
-    PrintStream origOutput = System.out;
-    PrintStream newOutput = new PrintStream(new ByteArrayOutputStream());
-    System.setOut(newOutput);
-
-    final Set<String> localSuperClasses = new HashSet<>(synthesisTask.localSuperClasses());
-    final JarParser parser = new JarParser(this.libs, packages);
-
-    // TODO Figure out why sigs must be parsed before we get the super classes.
-    this.sigs = parser.parseJar(synthesisTask.blacklist());
-
-    // TODO Explain
     this.superclassMap = parser.getSuperClasses(localSuperClasses);
+    this.subclassMap = invertRelation(getSuperclassMap());
 
-    // TODO Explain
-    for (List<String> poly : synthesisTask.globalSuperClasses()) {
-      // TODO If we only want arrays of size 2 we might be better using String[2], or a pair, or
-      // something else.
-      assert (poly.size() == 2);
+    final List<MethodSignature> signatures = parser.parseJar(task.blacklist());
 
-      if (this.superclassMap.containsKey(poly.get(0))) {
-        this.superclassMap.get(poly.get(0)).add(poly.get(1));
-      } else {
-        Set<String> subclass = new HashSet<>();
-        subclass.add(poly.get(1));
-        this.superclassMap.put(poly.get(0), subclass);
-      }
-    }
-
-    // TODO Explain. It seems like we are "inverting" the map, so to speak.
-    this.subclassMap = new HashMap<>();
-    for (String key : superclassMap.keySet()) {
-      for (String value : superclassMap.get(key)) {
-        if (!subclassMap.containsKey(value)) {
-          subclassMap.put(value, new HashSet<>());
-        }
-        subclassMap.get(value).add(key);
-      }
-    }
-
-    // TODO Explain why we need this.
-    System.setOut(origOutput);
-
-    // TODO Why do we need both the petrinet and the factory?
-    this.buildNet = new BuildNet(synthesisTask.noSideEffects());
-    this.net = this.buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
+    BuildNet buildNet = new BuildNet(task.noSideEffects());
+    this.net = buildNet
+        .build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
     this.signatureMap = BuildNet.dict;
-
-    //		buildNet = new BuildNet(config.noSideEffects);
-    //		net = buildNet.build(sigs, superclassMap, subclassMap, new ArrayList<>(), true);
-    //		signatureMap = BuildNet.dict;
-
-    //		 System.out.println("c #Transitions = " + net.getTransitions().size());
-    //		 System.out.println("c #Places = " + net.getPlaces().size());
-
-  }
-
-  public void setSignature(
-      String methodName,
-      List<String> paramNames,
-      List<String> srcTypes,
-      String tgtType,
-      String testCode) {
-
-    this.inputs = srcTypes;
-    this.retType = tgtType;
-    this.testCode = testCode;
-    this.varNames = paramNames;
-    this.methodName = methodName;
-
-    buildNet.setMaxTokens(srcTypes);
   }
 
   /**
@@ -158,15 +66,26 @@ public final class SyPetAPI {
    */
   public static Optional<String> synthesize(SynthesisTask synthesisTask) {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
-
-    sypet.setSignature(
-        synthesisTask.methodName(),
-        synthesisTask.paramNames(),
-        synthesisTask.paramTypes(),
-        synthesisTask.returnType(),
-        synthesisTask.testCode());
-
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
+  }
+
+  private static <T> Map<T, Set<T>> invertRelation(Map<T, Set<T>> relation) {
+    // TODO Explain. It seems like we are "inverting" the map, so to speak.
+    return relation.entrySet().stream()
+        // Map each entry (class -> {superclass1, superclass2, ...}) to a map
+        // { superclass1 -> {class}, superclass2 -> {class}, ... }.
+        .map(entry -> entry.getValue().stream()
+            .collect(Collectors.toMap(
+                Function.identity(),
+                x -> ImmutableSet.of(entry.getKey()))))
+        // Merge all maps in the stream by taking the union of their values whenever the keys are equal.
+        // For example, if we have two maps
+        // { superclass1 -> {class1}, superclass2 -> {class1}, ... } and
+        // { superclass1 -> {class2}, superclass2 -> {class2}, ... }, then the resulting merge
+        // would be  { superclass1 -> {class1, class2}, superclass2 -> {class1, class2}, ... }.
+        .flatMap(m -> m.entrySet().stream())
+        .collect(Collectors.toMap(
+            Entry::getKey, Entry::getValue, (set1, set2) -> Sets.union(set1, set2)));
   }
 
   private Optional<String> synthesize(int min_loc, int max_loc) {
@@ -181,11 +100,11 @@ public final class SyPetAPI {
     while (!solution && loc <= max_loc) {
       System.out.println("c LOC = " + loc);
       // create a formula that has the same semantics as the petri-net
-      Encoding encoding = new SequentialEncoding(net, loc);
+      Encoding encoding = new SequentialEncoding(getNet(), loc);
       // set initial state and final state
-      encoding.setState(EncodingUtil.setInitialState(net, inputs), 0);
-      encoding.setState(EncodingUtil.setGoalState(net, retType), loc);
-      encoding.setHints(hints);
+      encoding.setState(EncodingUtil.setInitialState(getNet(), getParamTypes()), 0);
+      encoding.setState(EncodingUtil.setGoalState(getNet(), getReturnType()), loc);
+      encoding.setHints(getHints());
 
       // 4. Perform reachability analysis
 
@@ -198,7 +117,7 @@ public final class SyPetAPI {
         List<MethodSignature> signatures = new ArrayList<>();
         for (Variable s : result) {
           apis.add(s.getName());
-          MethodSignature sig = signatureMap.get(s.getName());
+          MethodSignature sig = getSignatureMap().get(s.getName());
           if (sig != null) { // check if s is a line of a code
             signatures.add(sig);
           }
@@ -207,7 +126,9 @@ public final class SyPetAPI {
         boolean sat = true;
         CodeFormer former =
             new CodeFormer(
-                signatures, inputs, retType, varNames, methodName, subclassMap, superclassMap);
+                signatures, getParamTypes(), getReturnType(), getParamNames(), getMethodName(),
+                getSubclassMap(),
+                getSuperclassMap());
         while (sat) {
           try {
             code = former.solve();
@@ -220,7 +141,7 @@ public final class SyPetAPI {
           boolean compre;
           // System.out.println("code = " + code);
           // System.out.println("testCode = " + testCode);
-          compre = Test.runTest(code, testCode, libs);
+          compre = Test.runTest(code, getTestCode(), getLibs());
           if (compre) {
             solution = true;
             synthesizedCode = code;
@@ -250,11 +171,11 @@ public final class SyPetAPI {
 
     while (loc <= max_loc) {
       // create a formula that has the same semantics as the petri-net
-      Encoding encoding = new SequentialEncoding(net, loc);
+      Encoding encoding = new SequentialEncoding(getNet(), loc);
       // set initial state and final state
-      encoding.setState(EncodingUtil.setInitialState(net, inputs), 0);
-      encoding.setState(EncodingUtil.setGoalState(net, retType), loc);
-      encoding.setHints(hints);
+      encoding.setState(EncodingUtil.setInitialState(getNet(), getParamTypes()), 0);
+      encoding.setState(EncodingUtil.setGoalState(getNet(), getReturnType()), loc);
+      encoding.setHints(getHints());
 
       // 4. Perform reachability analysis
 
@@ -266,7 +187,7 @@ public final class SyPetAPI {
         List<MethodSignature> signatures = new ArrayList<>();
         for (Variable s : result) {
           apis.add(s.getName());
-          MethodSignature sig = signatureMap.get(s.getName());
+          MethodSignature sig = getSignatureMap().get(s.getName());
           if (sig != null) { // check if s is a line of a code
             signatures.add(sig);
           }
@@ -275,7 +196,9 @@ public final class SyPetAPI {
         boolean sat = true;
         CodeFormer former =
             new CodeFormer(
-                signatures, inputs, retType, varNames, methodName, subclassMap, superclassMap);
+                signatures, getParamTypes(), getReturnType(), getParamNames(), getMethodName(),
+                getSubclassMap(),
+                getSuperclassMap());
         while (sat) {
           try {
             code = former.solve();
@@ -285,7 +208,7 @@ public final class SyPetAPI {
           sat = !former.isUnsat();
           // 6. Run the test cases
           boolean compre;
-          compre = Test.runTest(code, testCode, this.libs);
+          compre = Test.runTest(code, getTestCode(), this.getLibs());
 
           if (compre) {
             allCode.add(code);
@@ -302,4 +225,49 @@ public final class SyPetAPI {
     }
     return allCode;
   }
+
+  public Map<String, Set<String>> getSuperclassMap() {
+    return superclassMap;
+  }
+
+  public Map<String, Set<String>> getSubclassMap() {
+    return subclassMap;
+  }
+
+  public PetriNet getNet() {
+    return net;
+  }
+
+  public Map<String, MethodSignature> getSignatureMap() {
+    return signatureMap;
+  }
+
+  public String getMethodName() {
+    return this.task.methodName();
+  }
+
+  public List<String> getParamNames() {
+    return this.task.paramNames();
+  }
+
+  public List<String> getParamTypes() {
+    return this.task.paramTypes();
+  }
+
+  public String getReturnType() {
+    return this.task.returnType();
+  }
+
+  public List<String> getLibs() {
+    return this.task.libs();
+  }
+
+  public String getTestCode() {
+    return this.task.testCode();
+  }
+
+  public List<String> getHints() {
+    return this.task.hints();
+  }
+
 }
