@@ -15,3 +15,6 @@
 
 # Ignore Gradle build output directory
 build
+
+# Ignore sypet-api test resource artifacts from sypet-test
+sypet-api/src/test/resources/sypet-test.jar
