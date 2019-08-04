@@ -58,13 +58,14 @@ public final class JarParser {
 
   /** TODO */
   private static MethodSignature getMethodSignature(SootMethod method) {
-    final SootClass clazz = method.getDeclaringClass();
+    final Type clazz = ImmutableSootType.of(method.getDeclaringClass().getType());
 
     if (method.isConstructor()) {
       return new MethodSignature(
           method.getName(),
-          clazz.getType(),
-          method.getParameterTypes(),
+          clazz,
+          method.getParameterTypes().stream().map(ImmutableSootType::of)
+              .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
           true,
@@ -72,8 +73,9 @@ public final class JarParser {
     } else {
       return new MethodSignature(
           method.getName(),
-          method.getReturnType(),
-          method.getParameterTypes(),
+          ImmutableSootType.of(method.getReturnType()),
+          method.getParameterTypes().stream().map(ImmutableSootType::of)
+              .collect(Collectors.toList()),
           method.isStatic(),
           clazz,
           false,

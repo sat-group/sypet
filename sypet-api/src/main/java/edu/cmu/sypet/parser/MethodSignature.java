@@ -34,9 +34,7 @@
 package edu.cmu.sypet.parser;
 
 import java.util.List;
-import soot.SootClass;
 import soot.SootMethod;
-import soot.Type;
 
 /**
  * Data structure that describes a method signature, including 1. Method name 2. Return type 3. The
@@ -50,7 +48,7 @@ public final class MethodSignature {
   private final Type retType;
   private final List<Type> argTypes;
   private final boolean isStatic;
-  private final SootClass hostClass;
+  private final Type hostClass;
   private final boolean isConstructor;
   private final SootMethod method;
 
@@ -59,16 +57,18 @@ public final class MethodSignature {
       Type retType,
       List<Type> argTypes,
       boolean isStatic,
-      SootClass hostClass,
-      boolean isConstructor,
       SootMethod method) {
+      Type hostClass,
+      boolean isConstructor) {
+
     this.retType = retType;
     this.argTypes = argTypes;
     this.isStatic = isStatic;
     this.hostClass = hostClass;
     this.isConstructor = isConstructor;
+
     if (isConstructor) {
-      this.name = hostClass.getName();
+      this.name = hostClass.name();
     } else {
       this.name = name;
     }
@@ -95,7 +95,7 @@ public final class MethodSignature {
     return isConstructor;
   }
 
-  public SootClass getHostClass() {
+  public Type getDeclaringClass() {
     return hostClass;
   }
 

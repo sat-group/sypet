@@ -34,14 +34,19 @@
 package edu.cmu.sypet.codeformer;
 
 import edu.cmu.sypet.parser.MethodSignature;
-import java.util.*;
+import edu.cmu.sypet.parser.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
-import soot.Type;
 
 /**
  * Given a sequence of method calls, this class will produce a string containing the corresponding
@@ -99,7 +104,7 @@ public class CodeFormer {
       if (sig.getIsConstructor()) {
 
       } else if (!sig.getIsStatic()) {
-        slotTypes.addEntry(sig.getHostClass().getType().toString(), slotNumber);
+        slotTypes.addEntry(sig.getDeclaringClass().name(), slotNumber);
         lastValueOfSlot.put(slotNumber, retNumber);
         slotNumber += 1;
       }
@@ -260,7 +265,7 @@ public class CodeFormer {
       if (sig.getIsConstructor()) {
         builder.append(" new ");
       } else if (sig.getIsStatic()) {
-        String hostclstr = sig.getHostClass().toString();
+        String hostclstr = sig.getDeclaringClass().name();
         builder.append(hostclstr.replace('$', '.'));
         builder.append(".");
       } else {

@@ -34,13 +34,13 @@
 package edu.cmu.sypet.petrinet;
 
 import edu.cmu.sypet.parser.MethodSignature;
+import edu.cmu.sypet.parser.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import soot.Type;
 import uniol.apt.adt.exception.NoSuchEdgeException;
 import uniol.apt.adt.exception.NoSuchNodeException;
 import uniol.apt.adt.pn.Flow;
@@ -240,7 +240,7 @@ public class BuildNet {
     String methodname = methodSig.getName();
     boolean isStatic = methodSig.getIsStatic();
     boolean isConstructor = methodSig.getIsConstructor();
-    String className = methodSig.getHostClass().getName();
+    String className = methodSig.getDeclaringClass().name();
     StringBuilder transitionName = new StringBuilder("(Void)");
     List<Type> args = methodSig.getArgTypes();
 
@@ -301,7 +301,7 @@ public class BuildNet {
     String methodname = methodSig.getName();
     boolean isStatic = methodSig.getIsStatic();
     boolean isConstructor = methodSig.getIsConstructor();
-    String className = methodSig.getHostClass().getName();
+    String className = methodSig.getDeclaringClass().name();
     StringBuilder transitionName;
     List<Type> args = methodSig.getArgTypes();
 
