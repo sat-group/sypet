@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
-import edu.cmu.sypet.parser.JarParser;
 import edu.cmu.sypet.parser.MethodSignature;
+import edu.cmu.sypet.parser.SootTypeFinder;
+import edu.cmu.sypet.parser.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
 import edu.cmu.sypet.reachability.Encoding;
 import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
-import edu.cmu.sypet.utils.SootUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/** This class represents the SyPet library API. */
+/**
+ * This class represents the SyPet library API.
+ */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
@@ -39,15 +41,13 @@ public final class SyPetAPI {
   public SyPetAPI(final SynthesisTask task) {
     this.task = task;
 
-    SootUtils.initSoot(getLibs());
-
     final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
-    final JarParser parser = new JarParser(getLibs(), task.packages());
+    final TypeFinder parser = new SootTypeFinder(getLibs(), task.packages());
 
-    this.superclassMap = parser.getSuperClasses(localSuperClasses);
+    this.superclassMap = parser.getSuperClasses(localSuperClasses, task.packages());
     this.subclassMap = invertRelation(getSuperclassMap());
 
-    final List<MethodSignature> signatures = parser.parseJar(task.blacklist());
+    final List<MethodSignature> signatures = parser.getSignatures(task.blacklist());
 
     BuildNet buildNet = new BuildNet(task.noSideEffects());
     this.net =

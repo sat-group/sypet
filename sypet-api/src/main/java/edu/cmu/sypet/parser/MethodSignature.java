@@ -35,117 +35,22 @@ package edu.cmu.sypet.parser;
 
 import java.util.List;
 
-/**
- * Data structure that describes a method signature, including 1. Method name 2. Return type 3. The
- * list of argument types in order. 4. Whether the method is static. 5. The host class of the
- * method.
- *
- * @author Kaige Liu
- */
-public final class MethodSignature {
-  private final String name;
-  private final Type retType;
-  private final List<Type> argTypes;
-  private final boolean isStatic;
-  private final Type hostClass;
-  private final boolean isConstructor;
-
-  MethodSignature(
-      String name,
-      Type retType,
-      List<Type> argTypes,
-      boolean isStatic,
-      Type hostClass,
-      boolean isConstructor) {
-
-    this.retType = retType;
-    this.argTypes = argTypes;
-    this.isStatic = isStatic;
-    this.hostClass = hostClass;
-    this.isConstructor = isConstructor;
-
-    if (isConstructor) {
-      this.name = hostClass.name();
-    } else {
-      this.name = name;
-    }
+public interface MethodSignature {
+  enum AccessModifier {
+    PUBLIC, PROTECTED, PRIVATE
   }
 
-  public String getName() {
-    return name;
-  }
+  String name();
 
-  public Type getRetType() {
-    return retType;
-  }
+  Type returnType();
 
-  public List<Type> getArgTypes() {
-    return argTypes;
-  }
+  List<Type> parameterTypes();
 
-  public boolean getIsStatic() {
-    return isStatic;
-  }
+  boolean isStatic();
 
-  public boolean getIsConstructor() {
-    return isConstructor;
-  }
+  boolean isConstructor();
 
-  public Type getDeclaringClass() {
-    return hostClass;
-  }
+  Type declaringClass();
 
-  @Override
-  public String toString() {
-    StringBuilder result = new StringBuilder(retType + " " + hostClass + "." + name + "(");
-    if (isStatic) result.insert(0, "static ");
-    int i = 0;
-    for (Type t : argTypes) {
-      if (i != argTypes.size() - 1) result.append(t).append(", ");
-      else result.append(t);
-      i += 1;
-    }
-    result.append(")");
-    return result.toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    MethodSignature that = (MethodSignature) o;
-
-    if (isStatic != that.isStatic) {
-      return false;
-    }
-    if (isConstructor != that.isConstructor) {
-      return false;
-    }
-    if (!name.equals(that.name)) {
-      return false;
-    }
-    if (!retType.equals(that.retType)) {
-      return false;
-    }
-    if (!argTypes.equals(that.argTypes)) {
-      return false;
-    }
-    return hostClass.equals(that.hostClass);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = name.hashCode();
-    result = 31 * result + retType.hashCode();
-    result = 31 * result + argTypes.hashCode();
-    result = 31 * result + (isStatic ? 1 : 0);
-    result = 31 * result + hostClass.hashCode();
-    result = 31 * result + (isConstructor ? 1 : 0);
-    return result;
-  }
+  AccessModifier accessModifier();
 }

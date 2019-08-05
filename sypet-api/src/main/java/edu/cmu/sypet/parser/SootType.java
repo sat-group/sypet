@@ -7,7 +7,7 @@ import org.immutables.value.Value;
 public abstract class SootType implements Type {
 
   @Value.Parameter
-  public abstract soot.Type delegate_type();
+  protected abstract soot.Type delegate_type();
 
   @Override
   public String name() {

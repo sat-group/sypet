@@ -6,7 +6,7 @@ import org.immutables.value.Value;
 public abstract class JavaType implements Type {
 
   @Value.Parameter
-  public abstract java.lang.reflect.Type delegate_type();
+  protected abstract java.lang.reflect.Type delegate_type();
 
   @Override
   public String name() {

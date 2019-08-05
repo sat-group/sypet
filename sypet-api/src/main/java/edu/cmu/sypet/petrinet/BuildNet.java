@@ -237,12 +237,12 @@ public class BuildNet {
 
   // TODO: clean the code in this method
   private static void addVoidTransition(MethodSignature methodSig) {
-    String methodname = methodSig.getName();
-    boolean isStatic = methodSig.getIsStatic();
-    boolean isConstructor = methodSig.getIsConstructor();
-    String className = methodSig.getDeclaringClass().name();
+    String methodname = methodSig.name();
+    boolean isStatic = methodSig.isStatic();
+    boolean isConstructor = methodSig.isConstructor();
+    String className = methodSig.declaringClass().name();
     StringBuilder transitionName = new StringBuilder("(Void)");
-    List<Type> args = methodSig.getArgTypes();
+    List<Type> args = methodSig.parameterTypes();
 
     if (isConstructor) {
       transitionName.append(methodname).append("(Constructor)").append("(");
@@ -250,7 +250,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       petrinet.createTransition(transitionName.toString());
     } else if (isStatic) {
       transitionName
@@ -263,7 +263,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       petrinet.createTransition(transitionName.toString());
     } else { // The method is not static, so it has an extra argument
       transitionName.append(className).append(".").append(methodname).append("(");
@@ -272,7 +272,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       petrinet.createTransition(transitionName.toString());
 
       addPlace(className);
@@ -286,7 +286,7 @@ public class BuildNet {
     }
 
     // add place for the return type
-    Type retType = methodSig.getRetType();
+    Type retType = methodSig.returnType();
     assert (retType.toString() == "void");
     if (retType.toString() != "void") {
       addPlace(retType.toString());
@@ -298,12 +298,12 @@ public class BuildNet {
   }
 
   private static void addTransition(MethodSignature methodSig) {
-    String methodname = methodSig.getName();
-    boolean isStatic = methodSig.getIsStatic();
-    boolean isConstructor = methodSig.getIsConstructor();
-    String className = methodSig.getDeclaringClass().name();
+    String methodname = methodSig.name();
+    boolean isStatic = methodSig.isStatic();
+    boolean isConstructor = methodSig.isConstructor();
+    String className = methodSig.declaringClass().name();
     StringBuilder transitionName;
-    List<Type> args = methodSig.getArgTypes();
+    List<Type> args = methodSig.parameterTypes();
 
     if (isConstructor) {
       transitionName = new StringBuilder(methodname + "(Constructor)" + "(");
@@ -311,7 +311,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       // FIXME: fix this potential bug later; triggered in javax.mail
       if (!petrinet.containsTransition(transitionName.toString()))
         petrinet.createTransition(transitionName.toString());
@@ -321,7 +321,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       // FIXME: fix this potential bug later; triggered in javax.mail
       if (!petrinet.containsTransition(transitionName.toString()))
         petrinet.createTransition(transitionName.toString());
@@ -332,7 +332,7 @@ public class BuildNet {
         transitionName.append(t.toString()).append(" ");
       }
       transitionName.append(")");
-      transitionName.append(methodSig.getRetType());
+      transitionName.append(methodSig.returnType());
       // FIXME: fix this potential bug later; triggered in javax.mail
       if (!petrinet.containsTransition(transitionName.toString())) {
         petrinet.createTransition(transitionName.toString());
@@ -349,7 +349,7 @@ public class BuildNet {
     }
 
     // add place for the return type
-    Type retType = methodSig.getRetType();
+    Type retType = methodSig.returnType();
     if (retType.toString() != "void") {
       addPlace(retType.toString());
       addFlow(transitionName.toString(), retType.toString(), 1);

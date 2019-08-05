@@ -101,21 +101,21 @@ public class CodeFormer {
 
     // Add slots and variables to the signatures table
     for (MethodSignature sig : sigs) {
-      if (sig.getIsConstructor()) {
+      if (sig.isConstructor()) {
 
-      } else if (!sig.getIsStatic()) {
-        slotTypes.addEntry(sig.getDeclaringClass().name(), slotNumber);
+      } else if (!sig.isStatic()) {
+        slotTypes.addEntry(sig.declaringClass().name(), slotNumber);
         lastValueOfSlot.put(slotNumber, retNumber);
         slotNumber += 1;
       }
-      for (Type type : sig.getArgTypes()) {
+      for (Type type : sig.parameterTypes()) {
         slotTypes.addEntry(type.toString(), slotNumber);
         lastValueOfSlot.put(slotNumber, retNumber);
         slotNumber += 1;
       }
 
-      if (!sig.getRetType().toString().equals("void")) {
-        returnedValTypes.addEntry(sig.getRetType().toString(), retNumber);
+      if (!sig.returnType().toString().equals("void")) {
+        returnedValTypes.addEntry(sig.returnType().toString(), retNumber);
         retNumber += 1;
       }
     }
@@ -254,18 +254,18 @@ public class CodeFormer {
 
     for (MethodSignature sig : sigs) {
 
-      if (!sig.getRetType().toString().equals("void")) {
-        builder.append(sig.getRetType().toString().replace('$', '.'));
+      if (!sig.returnType().toString().equals("void")) {
+        builder.append(sig.returnType().toString().replace('$', '.'));
         builder.append(" ");
         builder.append(convVarName(varCount));
         varCount += 1;
         builder.append(" = ");
       }
 
-      if (sig.getIsConstructor()) {
+      if (sig.isConstructor()) {
         builder.append(" new ");
-      } else if (sig.getIsStatic()) {
-        String hostclstr = sig.getDeclaringClass().name();
+      } else if (sig.isStatic()) {
+        String hostclstr = sig.declaringClass().name();
         builder.append(hostclstr.replace('$', '.'));
         builder.append(".");
       } else {
@@ -277,9 +277,9 @@ public class CodeFormer {
         builder.append(".");
       }
 
-      builder.append(sig.getName().replace('$', '.'));
+      builder.append(sig.name().replace('$', '.'));
       builder.append("(");
-      for (int i = 0; i < sig.getArgTypes().size(); i++) {
+      for (int i = 0; i < sig.parameterTypes().size(); i++) {
         if (slotCount >= satResult.size()) return error;
         int id = satResult.get(slotCount);
         slotCount++;
@@ -288,7 +288,7 @@ public class CodeFormer {
         // assert (slotValue == slotCount);
 
         builder.append(convVarName(returnedValue));
-        if (i != sig.getArgTypes().size() - 1) {
+        if (i != sig.parameterTypes().size() - 1) {
           builder.append(",");
         }
       }
