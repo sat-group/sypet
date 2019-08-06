@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface TypeFinder {
+public interface TypeFinder extends AutoCloseable {
 
   // TODO Provide a better typed interface, instead of returning just strings
 

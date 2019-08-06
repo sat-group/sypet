@@ -117,4 +117,8 @@ public final class SootTypeFinder implements TypeFinder {
         .collect(Collectors.toList());
   }
 
+  @Override
+  public void close() throws Exception {
+    // Do nothing.
+  }
 }

@@ -38,16 +38,20 @@ public final class SyPetAPI {
   private final PetriNet net;
   private final Map<String, MethodSignature> signatureMap;
 
-  public SyPetAPI(final SynthesisTask task) {
+  public SyPetAPI(final SynthesisTask task) throws SyPetException {
     this.task = task;
 
-    final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
-    final TypeFinder parser = new SootTypeFinder(getLibs(), task.packages());
+    final List<MethodSignature> signatures;
+    try (final TypeFinder typeFinder = new SootTypeFinder(getLibs(), task.packages())) {
+      final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
 
-    this.superclassMap = parser.getSuperClasses(localSuperClasses, task.packages());
-    this.subclassMap = invertRelation(getSuperclassMap());
+      this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
+      this.subclassMap = invertRelation(getSuperclassMap());
 
-    final List<MethodSignature> signatures = parser.getSignatures(task.blacklist());
+      signatures = typeFinder.getSignatures(task.blacklist());
+    } catch (Exception e) {
+      throw new SyPetException(e);
+    }
 
     BuildNet buildNet = new BuildNet(task.noSideEffects());
     this.net =
@@ -62,7 +66,7 @@ public final class SyPetAPI {
    * @return optionally a program, if one can be synthesized
    * @see SynthesisTask
    */
-  public static Optional<String> synthesize(SynthesisTask synthesisTask) {
+  public static Optional<String> synthesize(SynthesisTask synthesisTask) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }

@@ -21,7 +21,13 @@ class Point2DSynthesisTests {
   private static final String vectorClass = pointPackage + ".Vector2D";
 
   void testTemplate(SynthesisTask task) {
-    final Optional<String> maybeCode = SyPetAPI.synthesize(task);
+    final Optional<String> maybeCode;
+    try {
+      maybeCode = SyPetAPI.synthesize(task);
+    } catch (SyPetException e) {
+      throw new RuntimeException(e);
+    }
+
     Assertions.assertTrue(maybeCode.isPresent());
   }
 
