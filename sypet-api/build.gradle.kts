@@ -11,6 +11,7 @@ dependencies {
     implementation("ca.mcgill.sable:soot:3.3.0")
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("com.google.guava:guava:28.0-jre")
+    implementation("io.github.classgraph:classgraph:4.8.43")
 
     compileOnly("org.immutables:value-annotations:2.7.1")
     annotationProcessor("org.immutables:value:2.7.1")

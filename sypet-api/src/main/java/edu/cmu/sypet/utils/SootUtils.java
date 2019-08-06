@@ -30,7 +30,7 @@
 
 package edu.cmu.sypet.utils;
 
-import java.util.List;
+import java.util.Collection;
 import soot.CompilationDeathException;
 import soot.Scene;
 import soot.options.Options;
@@ -43,7 +43,7 @@ public class SootUtils {
    *
    * @param libs represents the libraries used for analysis.
    */
-  public static void initSoot(List<String> libs) {
+  public static void initSoot(Collection<String> libs) {
 
     final StringBuilder options =
         new StringBuilder()

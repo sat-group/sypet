@@ -1,8 +1,8 @@
 package edu.cmu.sypet.java;
 
+import com.google.common.collect.ImmutableMultimap;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface TypeFinder extends AutoCloseable {
@@ -17,7 +17,7 @@ public interface TypeFinder extends AutoCloseable {
    * @return the map mapping each class name, to the subset of its super classes that is in {@code
    * acceptableSuperClasses}.
    */
-  Map<String, Set<String>> getSuperClasses(Set<String> acceptableSuperClasses,
+  ImmutableMultimap<String, String> getSuperClasses(Set<String> acceptableSuperClasses,
       Collection<String> packages);
 
   List<MethodSignature> getSignatures(List<String> blacklist);

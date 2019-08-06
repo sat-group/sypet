@@ -1,27 +1,22 @@
 package edu.cmu.sypet;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableMultimap;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
+import edu.cmu.sypet.java.ClassgraphTypeFinder;
 import edu.cmu.sypet.java.MethodSignature;
-import edu.cmu.sypet.java.SootTypeFinder;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
 import edu.cmu.sypet.reachability.Encoding;
 import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
-import edu.cmu.sypet.utils.Utils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
@@ -34,8 +29,8 @@ public final class SyPetAPI {
 
   private final SynthesisTask task;
 
-  private final Map<String, Set<String>> superclassMap;
-  private final Map<String, Set<String>> subclassMap;
+  private final ImmutableMultimap<String, String> superclassMap;
+  private final ImmutableMultimap<String, String> subclassMap;
   private final PetriNet net;
   private final Map<String, MethodSignature> signatureMap;
 
@@ -43,11 +38,12 @@ public final class SyPetAPI {
     this.task = task;
 
     final List<MethodSignature> signatures;
-    try (final TypeFinder typeFinder = new SootTypeFinder(getLibs(), task.packages())) {
+//    try (final TypeFinder typeFinder = new SootTypeFinder(getLibs(), task.packages())) {
+    try (final TypeFinder typeFinder = new ClassgraphTypeFinder(getLibs(), task.packages())) {
       final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
 
       this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
-      this.subclassMap = Utils.invertRelation(getSuperclassMap());
+      this.subclassMap = getSuperclassMap().inverse();
 
       signatures = typeFinder.getSignatures(task.blacklist());
     } catch (Exception e) {
@@ -218,11 +214,11 @@ public final class SyPetAPI {
     return allCode;
   }
 
-  public Map<String, Set<String>> getSuperclassMap() {
+  public ImmutableMultimap<String, String> getSuperclassMap() {
     return superclassMap;
   }
 
-  public Map<String, Set<String>> getSubclassMap() {
+  public ImmutableMultimap<String, String> getSubclassMap() {
     return subclassMap;
   }
 

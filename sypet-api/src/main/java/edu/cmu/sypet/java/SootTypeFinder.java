@@ -30,11 +30,11 @@
 
 package edu.cmu.sypet.java;
 
+import com.google.common.collect.ImmutableMultimap;
 import edu.cmu.sypet.utils.SootUtils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.immutables.value.Value;
@@ -50,9 +50,9 @@ public final class SootTypeFinder implements TypeFinder {
 
   private final Collection<String> packages;
 
-  private final List<String> libs;
+  private final Collection<String> libs;
 
-  public SootTypeFinder(List<String> libs, Collection<String> packages) {
+  public SootTypeFinder(Collection<String> libs, Collection<String> packages) {
     this.libs = libs;
     this.packages = packages;
 
@@ -88,16 +88,21 @@ public final class SootTypeFinder implements TypeFinder {
   }
 
   @Override
-  public Map<String, Set<String>> getSuperClasses(Set<String> acceptableSuperClasses,
+  public ImmutableMultimap<String, String> getSuperClasses(Set<String> acceptableSuperClasses,
       Collection<String> packages) {
-    return Scene.v().getClasses().stream()
-        // Select classes that belong to one of the packages.
+    // Select classes that belong to one of the packages.
+    Iterable<SootClass> filteredClasses = Scene.v().getClasses().stream()
         .filter(type -> packages.stream().anyMatch(pkg -> type.getName().startsWith(pkg)))
-        // Collect them into a map mapping their names to the set of their superclasses.
-        .collect(
-            Collectors.toMap(
-                SootClass::getName,
-                type -> getSuperClasses(acceptableSuperClasses, type)));
+        ::iterator;
+
+    final ImmutableMultimap.Builder<String, String> subClassMapBuilder =
+        new ImmutableMultimap.Builder<>();
+
+    for (SootClass type : filteredClasses) {
+      subClassMapBuilder.putAll(type.getName(), getSuperClasses(acceptableSuperClasses, type));
+    }
+
+    return subClassMapBuilder.build();
   }
 
   public List<MethodSignature> getSignatures(List<String> blacklist) {
@@ -124,47 +129,54 @@ public final class SootTypeFinder implements TypeFinder {
 @Value.Immutable
 abstract class SootMethodSignature implements MethodSignature {
 
-  @Value.Parameter
-  protected abstract soot.SootMethod delegate_method();
-
-  @Override
-  public String name() {
-    if (isConstructor()) {
-      return declaringClass().name();
-    }
-    return delegate_method().getName();
+  public static SootMethodSignature of(final SootMethod sootMethod) {
+    return ImmutableSootMethodSignature.builder()
+        .name(name(sootMethod))
+        .returnType(returnType(sootMethod))
+        .addAllParameterTypes(parameterTypes(sootMethod))
+        .isStatic(isStatic(sootMethod))
+        .isConstructor(isConstructor(sootMethod))
+        .declaringClass(declaringClass(sootMethod))
+        .build();
   }
 
-  @Override
-  public Type returnType() {
-    if (isConstructor()) {
-      return declaringClass();
+  private static String name(SootMethod sootMethod) {
+    if (sootMethod.isConstructor()) {
+      return sootMethod.getDeclaringClass().getName();
     }
-    return ImmutableSootType.of(delegate_method().getReturnType());
+    return sootMethod.getName();
   }
 
-  @Override
-  public List<Type> parameterTypes() {
-    return delegate_method().getParameterTypes().stream()
+  private static Type returnType(SootMethod sootMethod) {
+    if (sootMethod.isConstructor()) {
+      return declaringClass(sootMethod);
+    }
+    return ImmutableSootType.of(sootMethod.getReturnType());
+  }
+
+  private static List<Type> parameterTypes(SootMethod sootMethod) {
+    return sootMethod.getParameterTypes().stream()
         .map(ImmutableSootType::of)
         .collect(Collectors.toList());
   }
 
-  @Override
-  public boolean isStatic() {
-    return delegate_method().isStatic();
+  private static boolean isStatic(SootMethod sootMethod) {
+    return sootMethod.isStatic();
   }
 
-  @Override
-  public boolean isConstructor() {
-    return delegate_method().isConstructor();
+  private static boolean isConstructor(SootMethod sootMethod) {
+    return sootMethod.isConstructor();
   }
 
-  @Override
-  public Type declaringClass() {
-    return ImmutableSootType.of(delegate_method().getDeclaringClass().getType());
+  private static Type declaringClass(SootMethod sootMethod) {
+    return ImmutableSootType.of(sootMethod.getDeclaringClass().getType());
   }
 
+  // TODO XXX
+  @Override
+  public String toString() {
+    return name();
+  }
 }
 
 @Value.Immutable

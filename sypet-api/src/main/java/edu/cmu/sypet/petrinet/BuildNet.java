@@ -33,9 +33,11 @@
 
 package edu.cmu.sypet.petrinet;
 
+import com.google.common.collect.ImmutableMultimap;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,11 +193,11 @@ public class BuildNet {
   }
 
   private static void getPolymorphismInformation(
-      Map<String, Set<String>> superClassMap, Map<String, Set<String>> subClassMap) {
+      ImmutableMultimap<String, String> superClassMap, ImmutableMultimap<String, String> subClassMap) {
     for (String s : superClassMap.keySet()) {
       if (!petrinet.containsPlace(s)) continue;
 
-      Set<String> superClasses = superClassMap.get(s);
+      Collection<String> superClasses = superClassMap.get(s);
       if (superClasses.size() != 0) {
         List<String> superClassList = new ArrayList<>(superClasses);
         superDict.put(s, superClassList);
@@ -204,7 +206,7 @@ public class BuildNet {
     for (String s : subClassMap.keySet()) {
       if (!petrinet.containsPlace(s)) continue;
 
-      Set<String> subClasses = subClassMap.get(s);
+      Collection<String> subClasses = subClassMap.get(s);
       if (subClasses.size() != 0) {
         List<String> subClassList = new ArrayList<>(subClasses);
         subDict.put(s, subClassList);
@@ -405,8 +407,8 @@ public class BuildNet {
 
   public PetriNet build(
       List<MethodSignature> result,
-      Map<String, Set<String>> superClassMap,
-      Map<String, Set<String>> subClassMap,
+      ImmutableMultimap<String, String> superClassMap,
+      ImmutableMultimap<String, String> subClassMap,
       List<String> inputs,
       boolean copyPoly) {
 

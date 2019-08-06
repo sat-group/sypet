@@ -33,6 +33,7 @@
 
 package edu.cmu.sypet.codeformer;
 
+import com.google.common.collect.ImmutableMultimap;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
@@ -40,7 +41,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -64,16 +64,17 @@ public class CodeFormer {
   private final List<String> varNames;
   private final String methodName;
   private final Map<Integer, Integer> lastValueOfSlot = new HashMap<>();
-  private final Map<String, Set<String>> subclassMap;
-  private final Map<String, Set<String>> superclassMap;
+  private final ImmutableMultimap<String, String> subclassMap;
+  private final ImmutableMultimap<String, String> superclassMap;
   private final ISolver solver = SolverFactory.newDefault();
 
   /**
    * The initial setup for the class.
-   *
-   * @param sigs requires a sequence of signatures in the expected order.
+   *  @param sigs requires a sequence of signatures in the expected order.
    * @param varNames parameter names of the method
    * @param methodName method name of the method
+   * @param subclassMap
+   * @param superclassMap
    */
   public CodeFormer(
       List<MethodSignature> sigs,
@@ -81,8 +82,8 @@ public class CodeFormer {
       String retType,
       List<String> varNames,
       String methodName,
-      Map<String, Set<String>> subclassMap,
-      Map<String, Set<String>> superclassMap) {
+      ImmutableMultimap<String, String> subclassMap,
+      ImmutableMultimap<String, String> superclassMap) {
     this.sigs = sigs;
     this.inputTypes = inputTypes;
     this.retType = retType;
