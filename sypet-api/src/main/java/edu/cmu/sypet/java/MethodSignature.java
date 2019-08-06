@@ -36,10 +36,6 @@ package edu.cmu.sypet.java;
 import java.util.List;
 
 public interface MethodSignature {
-  enum AccessModifier {
-    PUBLIC, PROTECTED, PRIVATE
-  }
-
   String name();
 
   Type returnType();
@@ -51,6 +47,4 @@ public interface MethodSignature {
   boolean isConstructor();
 
   Type declaringClass();
-
-  AccessModifier accessModifier();
 }
