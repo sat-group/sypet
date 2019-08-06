@@ -33,8 +33,8 @@
 
 package edu.cmu.sypet.codeformer;
 
-import edu.cmu.sypet.parser.MethodSignature;
-import edu.cmu.sypet.parser.Type;
+import edu.cmu.sypet.java.MethodSignature;
+import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;

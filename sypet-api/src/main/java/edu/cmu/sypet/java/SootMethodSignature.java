@@ -1,4 +1,4 @@
-package edu.cmu.sypet.parser;
+package edu.cmu.sypet.java;
 
 import java.util.List;
 import java.util.stream.Collectors;

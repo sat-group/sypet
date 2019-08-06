@@ -33,9 +33,9 @@
 
 package edu.cmu.sypet;
 
-import edu.cmu.sypet.parser.JsonParser;
-import edu.cmu.sypet.parser.SyPetConfig;
-import edu.cmu.sypet.parser.SyPetInput;
+import edu.cmu.sypet.java.JsonParser;
+import edu.cmu.sypet.java.SyPetConfig;
+import edu.cmu.sypet.java.SyPetInput;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

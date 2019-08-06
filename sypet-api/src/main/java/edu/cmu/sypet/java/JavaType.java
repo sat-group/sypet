@@ -1,4 +1,4 @@
-package edu.cmu.sypet.parser;
+package edu.cmu.sypet.java;
 
 import org.immutables.value.Value;
 

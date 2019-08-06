@@ -28,7 +28,7 @@
  * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package edu.cmu.sypet.parser;
+package edu.cmu.sypet.java;
 
 import edu.cmu.sypet.utils.SootUtils;
 import java.util.Collection;

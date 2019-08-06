@@ -30,9 +30,9 @@
  *	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package edu.cmu.sypet.parser;
+package edu.cmu.sypet.java;
 
-import static edu.cmu.sypet.parser.GsonUtils.getArrayList;
+import static edu.cmu.sypet.java.GsonUtils.getArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,4 +1,4 @@
-package edu.cmu.sypet.parser;
+package edu.cmu.sypet.java;
 
 public interface Type {
   String name();
