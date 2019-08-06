@@ -1,6 +1,6 @@
 package edu.cmu.sypet;
 
-class SyPetException extends Exception {
+public class SyPetException extends Exception {
 
   public SyPetException() {
   }
