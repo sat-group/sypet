@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.immutables.value.Value;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -119,3 +120,68 @@ public final class SootTypeFinder implements TypeFinder {
     // Do nothing.
   }
 }
+
+@Value.Immutable
+abstract class SootMethodSignature implements MethodSignature {
+
+  @Value.Parameter
+  protected abstract soot.SootMethod delegate_method();
+
+  @Override
+  public String name() {
+    if (isConstructor()) {
+      return declaringClass().name();
+    }
+    return delegate_method().getName();
+  }
+
+  @Override
+  public Type returnType() {
+    if (isConstructor()) {
+      return declaringClass();
+    }
+    return ImmutableSootType.of(delegate_method().getReturnType());
+  }
+
+  @Override
+  public List<Type> parameterTypes() {
+    return delegate_method().getParameterTypes().stream()
+        .map(ImmutableSootType::of)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean isStatic() {
+    return delegate_method().isStatic();
+  }
+
+  @Override
+  public boolean isConstructor() {
+    return delegate_method().isConstructor();
+  }
+
+  @Override
+  public Type declaringClass() {
+    return ImmutableSootType.of(delegate_method().getDeclaringClass().getType());
+  }
+
+}
+
+@Value.Immutable
+abstract class SootType implements Type {
+
+  @Value.Parameter
+  protected abstract soot.Type delegate_type();
+
+  @Override
+  public String name() {
+    return delegate_type().toString();
+  }
+
+  // TODO XXX
+  @Override
+  public String toString() {
+    return name();
+  }
+}
+
