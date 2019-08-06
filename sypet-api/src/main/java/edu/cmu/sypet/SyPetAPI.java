@@ -12,6 +12,7 @@ import edu.cmu.sypet.reachability.Encoding;
 import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
+import edu.cmu.sypet.utils.Utils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,7 +47,7 @@ public final class SyPetAPI {
       final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
 
       this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
-      this.subclassMap = invertRelation(getSuperclassMap());
+      this.subclassMap = Utils.invertRelation(getSuperclassMap());
 
       signatures = typeFinder.getSignatures(task.blacklist());
     } catch (Exception e) {
@@ -69,29 +70,6 @@ public final class SyPetAPI {
   public static Optional<String> synthesize(SynthesisTask synthesisTask) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
-  }
-
-  private static <T> Map<T, Set<T>> invertRelation(Map<T, Set<T>> relation) {
-    // TODO Explain. It seems like we are "inverting" the map, so to speak.
-    return relation.entrySet().stream()
-        // Map each entry (class -> {superclass1, superclass2, ...}) to a map
-        // { superclass1 -> {class}, superclass2 -> {class}, ... }.
-        .map(
-            entry ->
-                entry.getValue().stream()
-                    .collect(
-                        Collectors.toMap(
-                            Function.identity(), x -> ImmutableSet.of(entry.getKey()))))
-        // Merge all maps in the stream by taking the union of their values whenever the keys are
-        // equal.
-        // For example, if we have two maps
-        // { superclass1 -> {class1}, superclass2 -> {class1}, ... } and
-        // { superclass1 -> {class2}, superclass2 -> {class2}, ... }, then the resulting merge
-        // would be  { superclass1 -> {class1, class2}, superclass2 -> {class1, class2}, ... }.
-        .flatMap(m -> m.entrySet().stream())
-        .collect(
-            Collectors.toMap(
-                Entry::getKey, Entry::getValue, (set1, set2) -> Sets.union(set1, set2)));
   }
 
   private Optional<String> synthesize(int min_loc, int max_loc) {
