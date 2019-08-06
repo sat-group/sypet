@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.SourceLocator;
 
 @Deprecated
 public final class SootTypeFinder implements TypeFinder {
@@ -101,18 +100,16 @@ public final class SootTypeFinder implements TypeFinder {
   }
 
   public List<MethodSignature> getSignatures(List<String> blacklist) {
-    return libs.stream()
-        .flatMap(jar -> SourceLocator.v().getClassesUnder(jar).stream()
-            .map(Scene.v()::getSootClass)
-            // Select classes defined in the packages we want to analyze.
-            .filter(clazz -> this.packages.stream().anyMatch(clazz.getName()::startsWith))
-            // Obtain from those classes all public methods that are not blacklisted and do not have
-            // too many parameters.
-            .flatMap(clazz -> clazz.getMethods().stream()
-                .filter(SootMethod::isPublic)
-                .filter(method -> blacklist.stream().noneMatch(method.getName()::contains))
-                .filter(method ->
-                    method.getParameterCount() <= methodMaxNumberOfParameters)))
+    return Scene.v().getClasses().stream()
+        // Select classes defined in the packages we want to analyze.
+        .filter(clazz -> this.packages.stream().anyMatch(clazz.getName()::startsWith))
+        // Obtain from those classes all public methods that are not blacklisted and do not have
+        // too many parameters.
+        .flatMap(clazz -> clazz.getMethods().stream()
+            .filter(SootMethod::isPublic)
+            .filter(method -> blacklist.stream().noneMatch(method.getName()::contains))
+            .filter(method ->
+                method.getParameterCount() <= methodMaxNumberOfParameters))
         .map(ImmutableSootMethodSignature::of)
         .collect(Collectors.toList());
   }
