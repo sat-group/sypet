@@ -38,7 +38,6 @@ public final class SyPetAPI {
     this.task = task;
 
     final List<MethodSignature> signatures;
-//    try (final TypeFinder typeFinder = new SootTypeFinder(getLibs(), task.packages())) {
     try (final TypeFinder typeFinder = new ClassgraphTypeFinder(getLibs(), task.packages())) {
       final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
 

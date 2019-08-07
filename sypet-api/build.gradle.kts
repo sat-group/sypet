@@ -8,7 +8,6 @@ dependencies {
     implementation(files("lib/sat4j-pb.jar"))
     implementation(fileTree("lib"))
 
-    implementation("ca.mcgill.sable:soot:3.3.0")
     implementation("org.apache.commons:commons-lang3:3.9")
     implementation("com.google.guava:guava:28.0-jre")
     implementation("io.github.classgraph:classgraph:4.8.43")
