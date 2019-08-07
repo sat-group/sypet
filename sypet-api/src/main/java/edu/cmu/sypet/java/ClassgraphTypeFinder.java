@@ -19,16 +19,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.immutables.value.Value;
 
-
 public class ClassgraphTypeFinder implements TypeFinder {
 
   private final ScanResult scanResult;
   private final Collection<String> packages;
 
-  public ClassgraphTypeFinder(
-      final Collection<String> jars,
-      final Collection<String> packages
-  ) throws MalformedURLException {
+  public ClassgraphTypeFinder(final Collection<String> jars, final Collection<String> packages)
+      throws MalformedURLException {
 
     final ImmutableCollection.Builder<URL> urlsBuilder = ImmutableList.builder();
     for (String jar : jars) {
@@ -37,34 +34,33 @@ public class ClassgraphTypeFinder implements TypeFinder {
 
     final URL[] urls = urlsBuilder.build().toArray(new URL[0]);
 
-    this.scanResult = new ClassGraph()
-//        .enableAllInfo()
-        .enableClassInfo()
-        .enableMethodInfo()
-        .whitelistPackages(packages.toArray(new String[0]))
-        .overrideClassLoaders(new URLClassLoader(urls))
-        .scan();
+    this.scanResult =
+        new ClassGraph()
+            //        .enableAllInfo()
+            .enableClassInfo()
+            .enableMethodInfo()
+            .whitelistPackages(packages.toArray(new String[0]))
+            .overrideClassLoaders(new URLClassLoader(urls))
+            .scan();
 
     this.packages = packages;
   }
 
   @Override
   public ImmutableMultimap<String, String> getSuperClasses(
-      Set<String> acceptableSuperClasses,
-      Collection<String> packages
-  ) {
-    final Iterable<ClassInfo> acceptableFilteredClasses = acceptableSuperClasses.stream()
-        .map(clazz -> this.scanResult.getClassInfo(clazz))
-        .filter(Objects::nonNull)
-        ::iterator;
+      Set<String> acceptableSuperClasses, Collection<String> packages) {
+    final Iterable<ClassInfo> acceptableFilteredClasses =
+        acceptableSuperClasses.stream()
+                .map(clazz -> this.scanResult.getClassInfo(clazz))
+                .filter(Objects::nonNull)
+            ::iterator;
 
     final ImmutableMultimap.Builder<String, String> subClassMapBuilder =
         new ImmutableMultimap.Builder<>();
 
     for (ClassInfo classInfo : acceptableFilteredClasses) {
-      Iterable<String> subClassNames = classInfo.getSubclasses().stream()
-          .map(ClassInfo::getName)
-          ::iterator;
+      Iterable<String> subClassNames =
+          classInfo.getSubclasses().stream().map(ClassInfo::getName)::iterator;
 
       subClassMapBuilder.putAll(classInfo.getName(), subClassNames);
     }
@@ -116,25 +112,20 @@ abstract class ClassgraphMethodSignature implements MethodSignature {
       return declaringClass(methodInfo);
     }
     return ImmutableClassgraphType.builder()
-        .name(methodInfo
-            .getTypeSignatureOrTypeDescriptor()
-            .getResultType()
-            .toString())
+        .name(methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toString())
         .build();
   }
 
   private static Type declaringClass(final MethodInfo methodInfo) {
-    return ImmutableClassgraphType.builder()
-        .name(methodInfo.getClassInfo().getName())
-        .build();
+    return ImmutableClassgraphType.builder().name(methodInfo.getClassInfo().getName()).build();
   }
 
   private static List<Type> parameterTypes(final MethodInfo methodInfo) {
     return Arrays.stream(methodInfo.getParameterInfo())
         .map(MethodParameterInfo::getTypeSignatureOrTypeDescriptor)
-        .map(typeSignature -> ImmutableClassgraphType.builder()
-            .name(typeSignature.toString())
-            .build())
+        .map(
+            typeSignature ->
+                ImmutableClassgraphType.builder().name(typeSignature.toString()).build())
         .collect(Collectors.toList());
   }
 
@@ -158,4 +149,3 @@ abstract class ClassgraphType implements Type {
     return name();
   }
 }
-

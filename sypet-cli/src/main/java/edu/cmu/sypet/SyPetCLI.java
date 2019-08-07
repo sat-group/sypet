@@ -22,7 +22,7 @@ public final class SyPetCLI {
    *
    * @param args a single element array whose element is the path string to the JSON file
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws SyPetException {
     // We expect a single string argument representing the path to the JSON file.
     if (args.length != 1) {
       System.err.println("Error: wrong number of arguments: " + args.length);
@@ -63,7 +63,8 @@ public final class SyPetCLI {
    * @param jsonInputFile the path to the JSON file
    * @return optionally a program, if one can be synthesized
    */
-  private static Optional<String> synthesize(Path jsonInputFile, Path jsonConfigFile) {
+  private static Optional<String> synthesize(Path jsonInputFile, Path jsonConfigFile)
+      throws SyPetException {
     try {
       final SyPetInput input = JsonParser.parseJsonInput(jsonInputFile);
       final SyPetConfig config = JsonParser.parseJsonConfig(jsonConfigFile);

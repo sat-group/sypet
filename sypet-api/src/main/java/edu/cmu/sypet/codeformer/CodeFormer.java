@@ -37,7 +37,8 @@ public class CodeFormer {
 
   /**
    * The initial setup for the class.
-   *  @param sigs requires a sequence of signatures in the expected order.
+   *
+   * @param sigs requires a sequence of signatures in the expected order.
    * @param varNames parameter names of the method
    * @param methodName method name of the method
    * @param subclassMap

@@ -2,8 +2,7 @@ package edu.cmu.sypet;
 
 public class SyPetException extends Exception {
 
-  public SyPetException() {
-  }
+  public SyPetException() {}
 
   public SyPetException(String message) {
     super(message);
@@ -17,8 +16,8 @@ public class SyPetException extends Exception {
     super(cause);
   }
 
-  public SyPetException(String message, Throwable cause, boolean enableSuppression,
-      boolean writableStackTrace) {
+  public SyPetException(
+      String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 }

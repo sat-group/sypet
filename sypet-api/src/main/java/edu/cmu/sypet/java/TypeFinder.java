@@ -13,12 +13,12 @@ public interface TypeFinder extends AutoCloseable {
    * A method that provides the super classes of all application classes.
    *
    * @param acceptableSuperClasses the set of classes that can be considered super classes. In order
-   * to reduce the unnecessary super classes (e.g. Object).
+   *     to reduce the unnecessary super classes (e.g. Object).
    * @return the map mapping each class name, to the subset of its super classes that is in {@code
-   * acceptableSuperClasses}.
+   *     acceptableSuperClasses}.
    */
-  ImmutableMultimap<String, String> getSuperClasses(Set<String> acceptableSuperClasses,
-      Collection<String> packages);
+  ImmutableMultimap<String, String> getSuperClasses(
+      Set<String> acceptableSuperClasses, Collection<String> packages);
 
   List<MethodSignature> getSignatures(List<String> blacklist);
 }

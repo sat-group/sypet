@@ -160,7 +160,8 @@ public class BuildNet {
   }
 
   private static void getPolymorphismInformation(
-      ImmutableMultimap<String, String> superClassMap, ImmutableMultimap<String, String> subClassMap) {
+      ImmutableMultimap<String, String> superClassMap,
+      ImmutableMultimap<String, String> subClassMap) {
     for (String s : superClassMap.keySet()) {
       if (!petrinet.containsPlace(s)) continue;
 

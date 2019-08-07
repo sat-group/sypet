@@ -101,6 +101,7 @@ class Point2DSynthesisTests {
   }
 
   /** TODO */
+  @Disabled
   @Test
   void shouldSynthesizePointConvert() {
     final SynthesisTask task =

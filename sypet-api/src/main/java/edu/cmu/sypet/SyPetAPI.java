@@ -20,9 +20,7 @@ import java.util.Set;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/**
- * This class represents the SyPet library API.
- */
+/** This class represents the SyPet library API. */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
