@@ -22,9 +22,9 @@ public interface Encoding {
 
   SATSolver solver = new SATSolver();
 
-  void setState(Set<Pair<Place, Integer>> state, int timestep);
+  void setState(final Set<Pair<Place, Integer>> state, final int timestep);
 
-  void setHints(ImmutableSet<Method> atLeastK);
+  void setHints(final ImmutableSet<Method> atLeastK);
 
   void createConstraints();
 

@@ -24,8 +24,10 @@ public class ClassgraphTypeFinder implements TypeFinder {
   private final ScanResult scanResult;
   private final Collection<Package> packages;
 
-  public ClassgraphTypeFinder(final Collection<Jar> jars, final Collection<Package> packages)
-      throws MalformedURLException {
+  public ClassgraphTypeFinder(
+      final Collection<Jar> jars,
+      final Collection<Package> packages
+  ) throws MalformedURLException {
 
     final ImmutableCollection.Builder<URL> urlsBuilder = ImmutableList.builder();
     for (Jar jar : jars) {
@@ -110,7 +112,7 @@ abstract class ClassgraphMethodSignature implements MethodSignature {
         .build();
   }
 
-  private static String name(MethodInfo methodInfo) {
+  private static String name(final MethodInfo methodInfo) {
     if (methodInfo.isConstructor()) {
       return declaringClass(methodInfo).name();
     }

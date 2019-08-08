@@ -55,14 +55,14 @@ public final class SyPetAPI {
       throw new SyPetException(e);
     }
 
-    BuildNet buildNet = new BuildNet(task.noSideEffects());
+    final BuildNet buildNet = new BuildNet(task.noSideEffects());
     this.net = buildNet.build(
         signatures,
         getSuperclassMap(),
         getSubclassMap(),
         new ArrayList<>(),
         true);
-    this.signatureMap = ImmutableMap.copyOf(BuildNet.dict);
+    this.signatureMap = ImmutableMap.copyOf(buildNet.dict);
   }
 
   /**
@@ -72,12 +72,12 @@ public final class SyPetAPI {
    * @return optionally a program, if one can be synthesized
    * @see SynthesisTask
    */
-  public static Optional<String> synthesize(SynthesisTask synthesisTask) throws SyPetException {
+  public static Optional<String> synthesize(final SynthesisTask synthesisTask) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
 
-  private Optional<String> synthesize(int min_loc, int max_loc) {
+  private Optional<String> synthesize(final int min_loc, final int max_loc) {
 
     int loc = min_loc;
     boolean solution = false;
@@ -152,7 +152,7 @@ public final class SyPetAPI {
     return Optional.of(synthesizedCode).filter(s -> !s.isEmpty());
   }
 
-  public List<String> synthesizeAll(int max_loc) {
+  public List<String> synthesizeAll(final int max_loc) {
     ArrayList<String> allCode = new ArrayList<>();
 
     int loc = 1;

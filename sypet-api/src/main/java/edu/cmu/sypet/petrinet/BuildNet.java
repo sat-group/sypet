@@ -27,25 +27,29 @@ import uniol.apt.adt.pn.Transition;
  * @author Anlun Xu
  */
 public class BuildNet {
-  private static PetriNet petrinet = new PetriNet("net");
+  private final PetriNet petrinet;
   // A map from transition name to a method signature
-  public static Map<String, MethodSignature> dict = new HashMap<>();
+  public final Map<String, MethodSignature> dict;
 
-  private static Map<Type, List<Type>> superDict = new HashMap<>();
-  private static Map<Type, List<Type>> subDict = new HashMap<>();
+  private final Map<Type, List<Type>> superDict;
+  private final Map<Type, List<Type>> subDict;
 
-  private static ImmutableSet<Method> noSideEffects;
+  private final ImmutableSet<Method> noSideEffects;
 
   public BuildNet(final ImmutableSet<Method> noSideEffects) {
-    petrinet = new PetriNet("net");
-    dict = new HashMap<>();
-    superDict = new HashMap<>();
-    subDict = new HashMap<>();
-    BuildNet.noSideEffects = noSideEffects;
+    this.petrinet = new PetriNet("net");
+    this.dict = new HashMap<>();
+    this.superDict = new HashMap<>();
+    this.subDict = new HashMap<>();
+    this.noSideEffects = noSideEffects;
   }
 
-  private static void generatePolymophism(
-      Transition t, int count, List<Place> inputs, Stack<Place> polyInputs) {
+  private void generatePolymophism(
+      final Transition t,
+      final int count,
+      final List<Place> inputs,
+      final Stack<Place> polyInputs
+  ) {
     if (inputs.size() == count) {
       boolean skip = true;
       for (int i = 0; i < inputs.size(); i++) {
@@ -145,7 +149,7 @@ public class BuildNet {
     }
   }
 
-  private static void copyPolymorphism() {
+  private void copyPolymorphism() {
     // Handles polymorphism by creating copies for each method that
     // has superclass as input type
     for (Transition t : petrinet.getTransitions()) {
@@ -163,7 +167,7 @@ public class BuildNet {
 
   // This method handles polymorphism by creating methods that transforms each
   // subclass into its super class
-  private static void normalPolymorphism() {
+  private void normalPolymorphism() {
     for (final Type subClass : superDict.keySet()) {
       addPlace(subClass.name());
 
@@ -179,9 +183,9 @@ public class BuildNet {
     }
   }
 
-  private static void getPolymorphismInformation(
-      ImmutableMultimap<Type, Type> superClassMap,
-      ImmutableMultimap<Type, Type> subClassMap) {
+  private void getPolymorphismInformation(
+      final ImmutableMultimap<Type, Type> superClassMap,
+      final ImmutableMultimap<Type, Type> subClassMap) {
     for (final Type superclass : superClassMap.keySet()) {
 
       if (!petrinet.containsPlace(superclass.name())) {
@@ -210,7 +214,7 @@ public class BuildNet {
     }
   }
 
-  private static void addPlace(String placeID) {
+  private void addPlace(final String placeID) {
     // placeID = placeID.replace("$", ".");
     try {
       petrinet.getPlace(placeID);
@@ -223,7 +227,7 @@ public class BuildNet {
     }
   }
 
-  private static void addFlow(String ID1, String ID2, int weight) {
+  private void addFlow(final String ID1, final String ID2, final int weight) {
     Flow f;
     try {
       f = petrinet.getFlow(ID1, ID2);
@@ -234,7 +238,7 @@ public class BuildNet {
   }
 
   // TODO: clean the code in this method
-  private static void addVoidTransition(MethodSignature methodSig) {
+  private void addVoidTransition(final MethodSignature methodSig) {
     String methodname = methodSig.name();
     boolean isStatic = methodSig.isStatic();
     boolean isConstructor = methodSig.isConstructor();
@@ -295,7 +299,7 @@ public class BuildNet {
     }
   }
 
-  private static void addTransition(MethodSignature methodSig) {
+  private void addTransition(final MethodSignature methodSig) {
     String methodname = methodSig.name();
     boolean isStatic = methodSig.isStatic();
     boolean isConstructor = methodSig.isConstructor();
@@ -362,7 +366,7 @@ public class BuildNet {
     }
   }
 
-  public void setMaxTokens(List<String> inputs) {
+  public void setMaxTokens(final List<String> inputs) {
     Map<String, Integer> maxTokenMap = new HashMap<>();
     for (Place p : petrinet.getPlaces()) {
       maxTokenMap.put(p.getId(), 1);
@@ -402,11 +406,12 @@ public class BuildNet {
   }
 
   public PetriNet build(
-      ImmutableCollection<MethodSignature> result,
-      ImmutableMultimap<Type, Type> superClassMap,
-      ImmutableMultimap<Type, Type> subClassMap,
-      List<String> inputs,
-      boolean copyPoly) {
+      final ImmutableCollection<MethodSignature> result,
+      final ImmutableMultimap<Type, Type> superClassMap,
+      final ImmutableMultimap<Type, Type> subClassMap,
+      final List<String> inputs,
+      final boolean copyPoly
+  ) {
 
     for (MethodSignature k : result) {
       addTransition(k);

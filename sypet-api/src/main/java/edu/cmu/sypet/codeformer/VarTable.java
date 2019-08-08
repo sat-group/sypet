@@ -12,7 +12,7 @@ class VarTable {
   private final Map<Type, List<Integer>> table = new HashMap<>();
   private final Map<Integer, Type> lookupTable = new HashMap<>();
 
-  public void addEntry(Type type, int var) {
+  public void addEntry(final Type type, final int var) {
     if (!table.containsKey(type)) {
       table.put(type, new ArrayList<>());
     }
@@ -22,12 +22,12 @@ class VarTable {
 
   /** No defensive copy is made here.
    * @param type*/
-  public List<Integer> getEntries(Type type) {
+  public List<Integer> getEntries(final Type type) {
     if (table.containsKey(type)) return table.get(type);
     else return new LinkedList<>();
   }
 
-  public Type getType(int val) {
+  public Type getType(final int val) {
     return lookupTable.get(val);
   }
 }

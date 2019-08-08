@@ -20,12 +20,10 @@ import org.sat4j.specs.TimeoutException;
  * Java code.
  */
 public class CodeFormer {
+
   private final List<MethodSignature> sigs;
-  private int slotNumber = 0;
-  private int retNumber = 0;
   private final VarTable slotTypes = new VarTable();
   private final VarTable returnedValTypes = new VarTable();
-  private boolean unsat = false;
   private final ImmutableList<Type> paramTypes;
   private final Type returnType;
   private final List<String> varNames;
@@ -35,26 +33,27 @@ public class CodeFormer {
   private final ImmutableMultimap<Type, Type> superclassMap;
   private final ISolver solver = SolverFactory.newDefault();
 
+  private int slotNumber = 0;
+  private int retNumber = 0;
+  private boolean unsat = false;
+
   /**
    * The initial setup for the class.
-   * @param sigs requires a sequence of signatures in the expected order.
-   * @param paramTypes
-   * @param returnType
+   *
+   * @param signatures requires a sequence of signatures in the expected order.
    * @param varNames parameter names of the method
    * @param methodName method name of the method
-   * @param subclassMap
-   * @param superclassMap
    */
   public CodeFormer(
-      ImmutableList<MethodSignature> sigs,
-      ImmutableList<Type> paramTypes,
-      Type returnType,
-      ImmutableList<String> varNames,
-      String methodName,
-      ImmutableMultimap<Type, Type> subclassMap,
-      ImmutableMultimap<Type, Type> superclassMap
+      final ImmutableList<MethodSignature> signatures,
+      final ImmutableList<Type> paramTypes,
+      final Type returnType,
+      final ImmutableList<String> varNames,
+      final String methodName,
+      final ImmutableMultimap<Type, Type> subclassMap,
+      final ImmutableMultimap<Type, Type> superclassMap
   ) {
-    this.sigs = sigs;
+    this.sigs = signatures;
     this.paramTypes = paramTypes;
     this.returnType = returnType;
     this.varNames = varNames;
@@ -71,7 +70,7 @@ public class CodeFormer {
     }
 
     // Add slots and variables to the signatures table
-    for (MethodSignature sig : sigs) {
+    for (MethodSignature sig : signatures) {
       if (sig.isConstructor()) {
 
       } else if (!sig.isStatic()) {
@@ -130,7 +129,9 @@ public class CodeFormer {
     VecInt block = new VecInt();
     for (Integer id : satResult) {
       block.push(-id);
-      if (id > 0) satList.add(id);
+      if (id > 0) {
+        satList.add(id);
+      }
     }
     try {
       solver.addClause(block);
@@ -142,7 +143,9 @@ public class CodeFormer {
     return formCode(satList);
   }
 
-  /** @return true iff the problem is no longer solvable. */
+  /**
+   * @return true iff the problem is no longer solvable.
+   */
   public boolean isUnsat() {
     return unsat;
   }
@@ -166,9 +169,11 @@ public class CodeFormer {
 
       for (final Type curSlotType : possibleSlotTypes) {
         for (int returnedValue : returnedValTypes.getEntries(curSlotType)) {
-          if (returnedValue < lastValueOfSlot.get(slotValue))
+          if (returnedValue < lastValueOfSlot.get(slotValue)) {
             vec.push(calculateID(returnedValue, slotValue));
-          else vec0.push(calculateID(returnedValue, slotValue));
+          } else {
+            vec0.push(calculateID(returnedValue, slotValue));
+          }
         }
       }
       try {
@@ -209,7 +214,7 @@ public class CodeFormer {
     }
   }
 
-  private String formCode(List<Integer> satResult) {
+  private String formCode(final List<Integer> satResult) {
 
     // FIXME: check what is causing this bug
     String error = "";
@@ -234,7 +239,9 @@ public class CodeFormer {
       builder.append(" ");
       builder.append(convVarName(varCount));
       varCount += 1;
-      if (i != paramTypes.size() - 1) builder.append(", ");
+      if (i != paramTypes.size() - 1) {
+        builder.append(", ");
+      }
     }
     builder.append(") throws Throwable{\n");
 
@@ -255,7 +262,9 @@ public class CodeFormer {
         builder.append(hostclstr.replace('$', '.'));
         builder.append(".");
       } else {
-        if (slotCount >= satResult.size()) return error;
+        if (slotCount >= satResult.size()) {
+          return error;
+        }
         int id = satResult.get(slotCount);
         slotCount++;
         int returnedValue = calculateReturnedValue(id);
@@ -266,7 +275,9 @@ public class CodeFormer {
       builder.append(sig.name().replace('$', '.'));
       builder.append("(");
       for (int i = 0; i < sig.parameterTypes().size(); i++) {
-        if (slotCount >= satResult.size()) return error;
+        if (slotCount >= satResult.size()) {
+          return error;
+        }
         int id = satResult.get(slotCount);
         slotCount++;
         int returnedValue = calculateReturnedValue(id);
@@ -283,7 +294,9 @@ public class CodeFormer {
     if (returnType != null) {
       builder.append("return ");
 
-      if (slotCount >= satResult.size()) return error;
+      if (slotCount >= satResult.size()) {
+        return error;
+      }
       int id = satResult.get(slotCount);
       slotCount++;
       int returnedValue = calculateReturnedValue(id);
@@ -296,20 +309,23 @@ public class CodeFormer {
     return builder.toString().replace('$', '.');
   }
 
-  private int calculateID(int returnedValue, int slotValue) {
+  private int calculateID(final int returnedValue, final int slotValue) {
     return returnedValue + retNumber * slotValue + 1;
   }
 
-  private int calculateReturnedValue(int id) {
+  private int calculateReturnedValue(final int id) {
     return (id - 1) % retNumber;
   }
 
-  private int calculateSlotValue(int id) {
+  private int calculateSlotValue(final int id) {
     return (id - 1) / retNumber;
   }
 
-  private String convVarName(int val) {
-    if (val < varNames.size()) return varNames.get(val);
-    else return "var_" + (val - varNames.size());
+  private String convVarName(final int val) {
+    if (val < varNames.size()) {
+      return varNames.get(val);
+    } else {
+      return "var_" + (val - varNames.size());
+    }
   }
 }

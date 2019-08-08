@@ -38,36 +38,19 @@ import javax.tools.ToolProvider;
  * @author Yu Feng
  */
 class Compile {
+
   private static final boolean DISPLAY_ERROR = false;
-  private static String CLASS_NAME;
+  private final String className;
 
-  Compile(String classname) {
-    Compile.CLASS_NAME = classname;
-  }
-
-  static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject> {
-    @Override
-    public void report(Diagnostic<? extends JavaFileObject> diagnostic) {}
-  }
-
-  public boolean runTest(String code, ImmutableSet<Jar> libs) {
-    Class<?> compiledClass = compileClass(code, libs);
-    if (compiledClass == null) {
-      return false;
-    }
-    boolean success = false;
-    try {
-      Method method = compiledClass.getMethod("test");
-      success = (boolean) method.invoke(null);
-    } catch (Exception e) {
-      if (DISPLAY_ERROR) e.printStackTrace();
-    }
-    return success;
+  Compile(final String classname) {
+    className = classname;
   }
 
   @SuppressWarnings("rawtypes")
-  private static Class compileClass(String program, ImmutableSet<Jar> libs) {
-    if (DISPLAY_ERROR) System.out.println(program);
+  private Class compileClass(final String program, final ImmutableSet<Jar> libs) {
+    if (DISPLAY_ERROR) {
+      System.out.println(program);
+    }
     String classpath = genClassPath(libs);
     try {
       JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
@@ -80,19 +63,23 @@ class Compile {
       List<String> options = new ArrayList<>();
       options.add("-cp");
       options.add(classpath);
-      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(CLASS_NAME, program));
+      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(className, program));
       Writer out = DISPLAY_ERROR ? new PrintWriter(System.err) : null;
       JavaCompiler.CompilationTask compile =
           javac.getTask(out, fileManager, c, options, null, compilationUnits);
       boolean mCompilationSuccess = compile.call();
-      if (mCompilationSuccess) return cl.findClass(CLASS_NAME);
+      if (mCompilationSuccess) {
+        return cl.findClass(className);
+      }
     } catch (Exception e) {
-      if (DISPLAY_ERROR) e.printStackTrace();
+      if (DISPLAY_ERROR) {
+        e.printStackTrace();
+      }
     }
     return null;
   }
 
-  private static String genClassPath(ImmutableSet<Jar> libs) {
+  private static String genClassPath(final ImmutableSet<Jar> libs) {
     StringBuilder builder = new StringBuilder();
     for (final Jar lib : libs) {
       builder.append(lib.name());
@@ -101,17 +88,44 @@ class Compile {
     builder.append('.');
     return builder.toString();
   }
+
+  public boolean runTest(final String code, final ImmutableSet<Jar> libs) {
+    Class<?> compiledClass = compileClass(code, libs);
+    if (compiledClass == null) {
+      return false;
+    }
+
+    boolean success = false;
+    try {
+      Method method = compiledClass.getMethod("test");
+      success = (boolean) method.invoke(null);
+    } catch (Exception e) {
+      if (DISPLAY_ERROR) {
+        e.printStackTrace();
+      }
+    }
+
+    return success;
+  }
+
+  static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject> {
+
+    @Override
+    public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+    }
+  }
 }
 
 class MemorySource extends SimpleJavaFileObject {
+
   private final String src;
 
-  public MemorySource(String name, String src) {
+  public MemorySource(final String name, final String src) {
     super(URI.create("file:///" + name + ".java"), Kind.SOURCE);
     this.src = src;
   }
 
-  public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+  public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
     return src;
   }
 
@@ -125,34 +139,43 @@ class MemorySource extends SimpleJavaFileObject {
 }
 
 class SpecialJavaFileManager extends ForwardingJavaFileManager {
+
   private final SpecialClassLoader xcl;
 
   @SuppressWarnings("unchecked")
-  public SpecialJavaFileManager(StandardJavaFileManager sjfm, SpecialClassLoader xcl) {
+  public SpecialJavaFileManager(
+      final StandardJavaFileManager sjfm,
+      final SpecialClassLoader xcl
+  ) {
     super(sjfm);
     this.xcl = xcl;
   }
 
   public JavaFileObject getJavaFileForOutput(
-      Location location, String name, JavaFileObject.Kind kind, FileObject sibling) {
+      final Location location,
+      final String name,
+      final JavaFileObject.Kind kind,
+      final FileObject sibling
+  ) {
     MemoryByteCode mbc = new MemoryByteCode(name);
     xcl.addClass(name, mbc);
     return mbc;
   }
 
-  public ClassLoader getClassLoader(Location location) {
+  public ClassLoader getClassLoader(final Location location) {
     return xcl;
   }
 }
 
 class MemoryByteCode extends SimpleJavaFileObject {
+
   private ByteArrayOutputStream baos;
 
-  public MemoryByteCode(String name) {
+  public MemoryByteCode(final String name) {
     super(URI.create("byte:///" + name + ".class"), Kind.CLASS);
   }
 
-  public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+  public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
     throw new IllegalStateException();
   }
 
@@ -171,16 +194,17 @@ class MemoryByteCode extends SimpleJavaFileObject {
 }
 
 class SpecialClassLoader extends ClassLoader {
+
   private final Map<String, MemoryByteCode> map = new HashMap<>();
   private final ImmutableSet<Jar> libs;
   private URLClassLoader cl = null;
 
-  public SpecialClassLoader(ImmutableSet<Jar> libs) {
+  public SpecialClassLoader(final ImmutableSet<Jar> libs) {
     this.libs = libs;
   }
 
   @Override
-  protected Class<?> findClass(String name) throws ClassNotFoundException {
+  protected Class<?> findClass(final String name) throws ClassNotFoundException {
     MemoryByteCode mbc = map.get(name);
     if (mbc == null) {
       URL[] urls = getUrls(libs);
@@ -193,7 +217,7 @@ class SpecialClassLoader extends ClassLoader {
     }
   }
 
-  public void addClass(String name, MemoryByteCode mbc) {
+  public void addClass(final String name, final MemoryByteCode mbc) {
     map.put(name, mbc);
   }
 

@@ -16,7 +16,10 @@ public class EncodingUtil {
    * Given petrinet and input, create a set of <Place, Integer> pair that
    * represents the initial state
    */
-  public static Set<Pair<Place, Integer>> setInitialState(PetriNet pnet, ImmutableList<Type> inputs) {
+  public static Set<Pair<Place, Integer>> setInitialState(
+      final PetriNet pnet,
+      final ImmutableList<Type> inputs
+  ) {
     // Initial state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();
     HashMap<Place, Integer> count = new HashMap<>();
@@ -57,7 +60,7 @@ public class EncodingUtil {
    * Given petrinet and output , create a set of <Place, Integer> pair that
    * represents the goal state
    */
-  public static Set<Pair<Place, Integer>> setGoalState(PetriNet pnet, Type retType) {
+  public static Set<Pair<Place, Integer>> setGoalState(final PetriNet pnet, final Type retType) {
 
     // Final state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();

@@ -2,22 +2,27 @@ package edu.cmu.sypet;
 
 public class SyPetException extends Exception {
 
-  public SyPetException() {}
+  public SyPetException() {
+  }
 
-  public SyPetException(String message) {
+  public SyPetException(final String message) {
     super(message);
   }
 
-  public SyPetException(String message, Throwable cause) {
+  public SyPetException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public SyPetException(Throwable cause) {
+  public SyPetException(final Throwable cause) {
     super(cause);
   }
 
   public SyPetException(
-      String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+      final String message,
+      final Throwable cause,
+      final boolean enableSuppression,
+      final boolean writableStackTrace
+  ) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 }
