@@ -2,6 +2,8 @@ package edu.cmu.sypet.codeformer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
+import edu.cmu.sypet.SyPetException;
+import edu.cmu.sypet.java.ImmutableProgram;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
@@ -107,7 +109,7 @@ public class CodeFormer {
    * @return one solution to the programming (Java code)
    * @throws TimeoutException Iff there is no solution available
    */
-  public String solve() throws TimeoutException {
+  public ImmutableProgram solve() throws TimeoutException, SyPetException {
     // Solve
     int[] satResult;
     try {
@@ -214,7 +216,7 @@ public class CodeFormer {
     }
   }
 
-  private String formCode(final ImmutableList<Integer> satResult) {
+  private ImmutableProgram formCode(final ImmutableList<Integer> satResult) throws SyPetException {
 
     // FIXME: check what is causing this bug
     String error = "";
@@ -263,7 +265,7 @@ public class CodeFormer {
         builder.append(".");
       } else {
         if (slotCount >= satResult.size()) {
-          return error;
+          throw new SyPetException(error);
         }
         int id = satResult.get(slotCount);
         slotCount++;
@@ -276,7 +278,7 @@ public class CodeFormer {
       builder.append("(");
       for (int i = 0; i < sig.parameterTypes().size(); i++) {
         if (slotCount >= satResult.size()) {
-          return error;
+          throw new SyPetException(error);
         }
         int id = satResult.get(slotCount);
         slotCount++;
@@ -295,7 +297,7 @@ public class CodeFormer {
       builder.append("return ");
 
       if (slotCount >= satResult.size()) {
-        return error;
+        throw new SyPetException(error);
       }
       int id = satResult.get(slotCount);
       slotCount++;
@@ -306,7 +308,7 @@ public class CodeFormer {
       builder.append(";\n");
     }
     builder.append("}");
-    return builder.toString().replace('$', '.');
+    return ImmutableProgram.of(builder.toString().replace('$', '.'));
   }
 
   private int calculateID(final int returnedValue, final int slotValue) {

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Jar;
 import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.java.Package;
+import edu.cmu.sypet.java.TestProgram;
 import edu.cmu.sypet.java.Type;
 import org.immutables.value.Value;
 
@@ -37,7 +38,7 @@ public abstract class SynthesisTask {
   public abstract ImmutableSet<Jar> jars();
 
   /** The Java test code that the method we want to synthesize must satisfy. */
-  public abstract String testCode();
+  public abstract TestProgram testProgram();
 
   // TODO False, this refers to the length of the path on the petri net.
   /** Lower bound on the number of lines of code of the method we want to synthesize. */

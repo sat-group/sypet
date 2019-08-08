@@ -2,6 +2,8 @@ package edu.cmu.sypet.compilation;
 
 import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Jar;
+import edu.cmu.sypet.java.Program;
+import edu.cmu.sypet.java.TestProgram;
 
 /**
  * Write code given the tests and classes.
@@ -21,8 +23,8 @@ public class Test {
    * @return whether test pasted
    */
   public static boolean runTest(
-      final String code,
-      final String testCode,
+      final Program code,
+      final TestProgram testCode,
       final ImmutableSet<Jar> libs
   ) {
     // Create file;
@@ -32,12 +34,14 @@ public class Test {
   }
 
   private static String writeCode(
-      final String code,
-      String testCode
+      final Program code,
+      final TestProgram testProgram
   ) {
+    String testCode = testProgram.code();
+
     StringBuilder builder = new StringBuilder()
         .append("public class " + CLASSNAME + " {\n")
-        .append(code);
+        .append(code.code());
 
     // test cases need to be static for compilation to succeed
     if (!testCode.contains("public static")) {

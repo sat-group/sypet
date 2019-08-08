@@ -8,9 +8,12 @@ import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.java.ClassgraphTypeFinder;
+import edu.cmu.sypet.java.ImmutableProgram;
 import edu.cmu.sypet.java.Jar;
 import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.java.MethodSignature;
+import edu.cmu.sypet.java.Program;
+import edu.cmu.sypet.java.TestProgram;
 import edu.cmu.sypet.java.Type;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
@@ -72,19 +75,20 @@ public final class SyPetAPI {
    * @return optionally a program, if one can be synthesized
    * @see SynthesisTask
    */
-  public static Optional<String> synthesize(
+  public static Optional<Program> synthesize(
       final SynthesisTask synthesisTask
   ) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
 
-  private Optional<String> synthesize(final int min_loc, final int max_loc) {
-
+  private Optional<Program> synthesize(final int min_loc, final int max_loc) throws SyPetException {
     int loc = min_loc;
     boolean solution = false;
-    String synthesizedCode = "";
-    String code;
+
+    ImmutableProgram synthesizedCode = null;
+    ImmutableProgram code;
+
     int paths = 0;
     int programs = 0;
 
@@ -130,8 +134,6 @@ public final class SyPetAPI {
           sat = !former.isUnsat();
           // 6. Run the test cases
           boolean compre;
-          // System.out.println("code = " + code);
-          // System.out.println("testCode = " + testCode);
           compre = Test.runTest(code, getTestCode(), getLibs());
           if (compre) {
             solution = true;
@@ -151,14 +153,16 @@ public final class SyPetAPI {
     System.out.println("c #Programs explored = " + programs);
     System.out.println("c #Paths explored = " + paths);
 
-    return Optional.of(synthesizedCode).filter(s -> !s.isEmpty());
+    return Optional.ofNullable(synthesizedCode)
+        .filter(program -> !program.code().isEmpty())
+        .map(program -> program); // ... :-/
   }
 
-  public ImmutableList<String> synthesizeAll(final int max_loc) {
-    ArrayList<String> allCode = new ArrayList<>();
+  public ImmutableList<Program> synthesizeAll(final int max_loc) throws SyPetException {
+    ArrayList<ImmutableProgram> allPrograms = new ArrayList<>();
 
     int loc = 1;
-    String code;
+    ImmutableProgram code;
 
     while (loc <= max_loc) {
       // create a formula that has the same semantics as the petri-net
@@ -201,7 +205,7 @@ public final class SyPetAPI {
           compre = Test.runTest(code, getTestCode(), this.getLibs());
 
           if (compre) {
-            allCode.add(code);
+            allPrograms.add(code);
           }
 
           // the current path did not result in a program that passes all test cases find
@@ -213,7 +217,8 @@ public final class SyPetAPI {
       // we did not find a program of length = loc
       loc++;
     }
-    return ImmutableList.copyOf(allCode);
+
+    return ImmutableList.copyOf(allPrograms);
   }
 
   public ImmutableMultimap<Type, Type> getSuperclassMap() {
@@ -252,8 +257,8 @@ public final class SyPetAPI {
     return this.task.jars();
   }
 
-  public String getTestCode() {
-    return this.task.testCode();
+  public TestProgram getTestCode() {
+    return this.task.testProgram();
   }
 
   public ImmutableSet<Method> getHints() {
