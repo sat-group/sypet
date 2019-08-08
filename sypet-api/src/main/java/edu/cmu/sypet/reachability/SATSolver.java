@@ -1,23 +1,20 @@
 package edu.cmu.sypet.reachability;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
-// import org.sat4j.minisat.SolverFactory;
-// import org.sat4j.specs.ISolver;
-
 public class SATSolver {
 
   // Maps the variable id to transition
-  public final HashMap<Integer, Variable> id2variable = new HashMap<>();
-  public final VecInt loc_variables;
+  protected final HashMap<Integer, Variable> id2variable = new HashMap<>();
+  protected final VecInt loc_variables;
   private final VecInt assumptions;
 
   private IPBSolver solver = null;
@@ -100,7 +97,11 @@ public class SATSolver {
     }
   }
 
-  public void addConstraint(final VecInt constraint, final ConstraintType ct, final int k) {
+  public void addConstraint(
+      final VecInt constraint,
+      final ConstraintType ct,
+      final int k
+  ) {
     try {
       switch (ct) {
         case LTE:
@@ -142,7 +143,7 @@ public class SATSolver {
     }
   }
 
-  public List<Variable> findPath(final int loc) {
+  public ImmutableList<Variable> findPath(final int loc) {
 
     ArrayList<Variable> res = new ArrayList<>();
     // TODO: what happens when loc -> loc+1
@@ -184,7 +185,7 @@ public class SATSolver {
     // sort transitions by increasing time step
     Collections.sort(res);
 
-    return res;
+    return ImmutableList.copyOf(res);
   }
 
   enum ConstraintType {

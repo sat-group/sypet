@@ -3,7 +3,6 @@ package edu.cmu.sypet.reachability;
 import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Method;
 import java.util.HashMap;
-import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import uniol.apt.adt.pn.Place;
@@ -22,7 +21,7 @@ public interface Encoding {
 
   SATSolver solver = new SATSolver();
 
-  void setState(final Set<Pair<Place, Integer>> state, final int timestep);
+  void setState(final ImmutableSet<Pair<Place, Integer>> state, final int timestep);
 
   void setHints(final ImmutableSet<Method> atLeastK);
 

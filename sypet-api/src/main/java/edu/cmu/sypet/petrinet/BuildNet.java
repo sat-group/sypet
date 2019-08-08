@@ -1,6 +1,8 @@
 package edu.cmu.sypet.petrinet;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Method;
@@ -27,12 +29,15 @@ import uniol.apt.adt.pn.Transition;
  * @author Anlun Xu
  */
 public class BuildNet {
-  private final PetriNet petrinet;
+
   // A map from transition name to a method signature
   public final Map<String, MethodSignature> dict;
 
-  private final Map<Type, List<Type>> superDict;
-  private final Map<Type, List<Type>> subDict;
+  private final PetriNet petrinet;
+
+  // TODO These two should be immutable
+  private final Map<String, List<Type>> superDict;
+  private final Map<String, List<Type>> subDict;
 
   private final ImmutableSet<Method> noSideEffects;
 
@@ -42,6 +47,10 @@ public class BuildNet {
     this.superDict = new HashMap<>();
     this.subDict = new HashMap<>();
     this.noSideEffects = noSideEffects;
+  }
+
+  public ImmutableMap<String, MethodSignature> getDict() {
+    return ImmutableMap.copyOf(dict);
   }
 
   private void generatePolymophism(
@@ -82,7 +91,9 @@ public class BuildNet {
           break;
         }
         //noinspection ConstantConditions
-        if (polymorphicOutput) break;
+        if (polymorphicOutput) {
+          break;
+        }
       }
 
       Transition newTransition = petrinet.createTransition(newTransitionName.toString());
@@ -106,7 +117,9 @@ public class BuildNet {
           List<Type> subClasses = subDict.get(p.getId());
 
           for (Type subclass : subClasses) {
-            if (!petrinet.containsPlace(subclass.name())) continue;
+            if (!petrinet.containsPlace(subclass.name())) {
+              continue;
+            }
 
             String newPolyTransitionName = newTransitionName + "(" + subclass + ")";
 
@@ -168,8 +181,8 @@ public class BuildNet {
   // This method handles polymorphism by creating methods that transforms each
   // subclass into its super class
   private void normalPolymorphism() {
-    for (final Type subClass : superDict.keySet()) {
-      addPlace(subClass.name());
+    for (final String subClass : superDict.keySet()) {
+      addPlace(subClass);
 
       for (final Type superClass : superDict.get(subClass)) {
         addPlace(superClass.name());
@@ -177,7 +190,7 @@ public class BuildNet {
         String methodName = subClass + "IsPolymorphicTo" + superClass;
 
         petrinet.createTransition(methodName);
-        petrinet.createFlow(subClass.name(), methodName, 1);
+        petrinet.createFlow(subClass, methodName, 1);
         petrinet.createFlow(methodName, superClass.name(), 1);
       }
     }
@@ -196,7 +209,7 @@ public class BuildNet {
 
       if (superClasses.size() != 0) {
         List<Type> superClassList = new ArrayList<>(superClasses);
-        superDict.put(superclass, superClassList);
+        superDict.put(superclass.name(), superClassList);
       }
     }
 
@@ -209,7 +222,7 @@ public class BuildNet {
 
       if (subClasses.size() != 0) {
         List<Type> subClassList = new ArrayList<>(subClasses);
-        subDict.put(subclass, subClassList);
+        subDict.put(subclass.name(), subClassList);
       }
     }
   }
@@ -315,8 +328,9 @@ public class BuildNet {
       transitionName.append(")");
       transitionName.append(methodSig.returnType());
       // FIXME: fix this potential bug later; triggered in javax.mail
-      if (!petrinet.containsTransition(transitionName.toString()))
+      if (!petrinet.containsTransition(transitionName.toString())) {
         petrinet.createTransition(transitionName.toString());
+      }
     } else if (isStatic) {
       transitionName = new StringBuilder("(static)" + className + "." + methodname + "(");
       for (Type t : args) {
@@ -325,8 +339,9 @@ public class BuildNet {
       transitionName.append(")");
       transitionName.append(methodSig.returnType());
       // FIXME: fix this potential bug later; triggered in javax.mail
-      if (!petrinet.containsTransition(transitionName.toString()))
+      if (!petrinet.containsTransition(transitionName.toString())) {
         petrinet.createTransition(transitionName.toString());
+      }
     } else { // The method is not static, so it has an extra argument
       transitionName = new StringBuilder(className + "." + methodname + "(");
       transitionName.append(className).append(" ");
@@ -366,7 +381,7 @@ public class BuildNet {
     }
   }
 
-  public void setMaxTokens(final List<String> inputs) {
+  public void setMaxTokens(final ImmutableList<Type> inputs) {
     Map<String, Integer> maxTokenMap = new HashMap<>();
     for (Place p : petrinet.getPlaces()) {
       maxTokenMap.put(p.getId(), 1);
@@ -379,7 +394,9 @@ public class BuildNet {
         int num = flow.getWeight();
         assert maxTokenMap.containsKey(argType);
         int curr = maxTokenMap.get(argType);
-        if (num > curr) maxTokenMap.put(argType, num);
+        if (num > curr) {
+          maxTokenMap.put(argType, num);
+        }
       }
     }
     for (Place p : petrinet.getPlaces()) {
@@ -389,9 +406,9 @@ public class BuildNet {
 
     // Update the maxtoken for inputs
     HashMap<Place, Integer> count = new HashMap<>();
-    for (String input : inputs) {
+    for (final Type type : inputs) {
       Place p;
-      p = petrinet.getPlace(input);
+      p = petrinet.getPlace(type.name());
       if (count.containsKey(p)) {
         count.put(p, count.get(p) + 1);
       } else {
@@ -409,7 +426,7 @@ public class BuildNet {
       final ImmutableCollection<MethodSignature> result,
       final ImmutableMultimap<Type, Type> superClassMap,
       final ImmutableMultimap<Type, Type> subClassMap,
-      final List<String> inputs,
+      final ImmutableList<Type> inputs,
       final boolean copyPoly
   ) {
 

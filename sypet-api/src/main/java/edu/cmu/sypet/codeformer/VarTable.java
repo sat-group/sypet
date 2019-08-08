@@ -20,8 +20,8 @@ class VarTable {
     lookupTable.put(var, type);
   }
 
-  /** No defensive copy is made here.
-   * @param type*/
+  // No defensive copy is made here.
+  // TODO (Rodrigo): Why not?
   public List<Integer> getEntries(final Type type) {
     if (table.containsKey(type)) return table.get(type);
     else return new LinkedList<>();

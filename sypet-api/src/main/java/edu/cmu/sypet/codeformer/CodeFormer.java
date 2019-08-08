@@ -140,7 +140,7 @@ public class CodeFormer {
     }
 
     // formCode
-    return formCode(satList);
+    return formCode(ImmutableList.copyOf(satList));
   }
 
   /**
@@ -214,7 +214,7 @@ public class CodeFormer {
     }
   }
 
-  private String formCode(final List<Integer> satResult) {
+  private String formCode(final ImmutableList<Integer> satResult) {
 
     // FIXME: check what is causing this bug
     String error = "";

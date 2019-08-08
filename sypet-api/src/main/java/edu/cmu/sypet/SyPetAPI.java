@@ -40,14 +40,14 @@ public final class SyPetAPI {
 
   private final PetriNet net;
 
-  public SyPetAPI(final SynthesisTask task) throws SyPetException {
+  private SyPetAPI(final SynthesisTask task) throws SyPetException {
     this.task = task;
 
     final ImmutableCollection<MethodSignature> signatures;
     try (final TypeFinder typeFinder = new ClassgraphTypeFinder(getLibs(), task.packages())) {
       final ImmutableSet<Type> localSuperClasses = task.localSuperClasses();
 
-      this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
+      this.superclassMap = typeFinder.getSuperClasses(localSuperClasses);
       this.subclassMap = getSuperclassMap().inverse();
 
       signatures = typeFinder.getSignatures(task.methodBlacklist());
@@ -60,9 +60,9 @@ public final class SyPetAPI {
         signatures,
         getSuperclassMap(),
         getSubclassMap(),
-        new ArrayList<>(),
+        getParamTypes(),
         true);
-    this.signatureMap = ImmutableMap.copyOf(buildNet.dict);
+    this.signatureMap = buildNet.getDict();
   }
 
   /**
@@ -72,7 +72,9 @@ public final class SyPetAPI {
    * @return optionally a program, if one can be synthesized
    * @see SynthesisTask
    */
-  public static Optional<String> synthesize(final SynthesisTask synthesisTask) throws SyPetException {
+  public static Optional<String> synthesize(
+      final SynthesisTask synthesisTask
+  ) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
@@ -152,7 +154,7 @@ public final class SyPetAPI {
     return Optional.of(synthesizedCode).filter(s -> !s.isEmpty());
   }
 
-  public List<String> synthesizeAll(final int max_loc) {
+  public ImmutableList<String> synthesizeAll(final int max_loc) {
     ArrayList<String> allCode = new ArrayList<>();
 
     int loc = 1;
@@ -211,7 +213,7 @@ public final class SyPetAPI {
       // we did not find a program of length = loc
       loc++;
     }
-    return allCode;
+    return ImmutableList.copyOf(allCode);
   }
 
   public ImmutableMultimap<Type, Type> getSuperclassMap() {

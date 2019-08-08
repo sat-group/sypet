@@ -1,6 +1,7 @@
 package edu.cmu.sypet.reachability;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Type;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ public class EncodingUtil {
    * Given petrinet and input, create a set of <Place, Integer> pair that
    * represents the initial state
    */
-  public static Set<Pair<Place, Integer>> setInitialState(
+  public static ImmutableSet<Pair<Place, Integer>> setInitialState(
       final PetriNet pnet,
       final ImmutableList<Type> inputs
   ) {
@@ -53,18 +54,20 @@ public class EncodingUtil {
         initial.add(new ImmutablePair<>(p, 0));
       }
     }
-    return initial;
+    return ImmutableSet.copyOf(initial);
   }
 
   /*
    * Given petrinet and output , create a set of <Place, Integer> pair that
    * represents the goal state
    */
-  public static Set<Pair<Place, Integer>> setGoalState(final PetriNet pnet, final Type retType) {
-
+  public static ImmutableSet<Pair<Place, Integer>> setGoalState(
+      final PetriNet pnet,
+      final Type retType) {
     // Final state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();
     Set<Place> pl = pnet.getPlaces();
+
     for (Place p : pl) {
       if (p.getId().equals("void")) {
       } else if (p.getId().equals(retType)) {
@@ -73,6 +76,7 @@ public class EncodingUtil {
         initial.add(new ImmutablePair<>(p, 0));
       }
     }
-    return initial;
+
+    return ImmutableSet.copyOf(initial);
   }
 }

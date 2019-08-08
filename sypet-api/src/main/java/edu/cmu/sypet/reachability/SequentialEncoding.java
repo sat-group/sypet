@@ -1,5 +1,6 @@
 package edu.cmu.sypet.reachability;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.reachability.SATSolver.ConstraintType;
@@ -40,7 +41,7 @@ public class SequentialEncoding implements Encoding {
     // System.out.println("#constraints = " + solver.getNbConstraints());
   }
 
-  public void setAtLeastK(final List<Pair<String, Integer>> atLeastK) {
+  public void setAtLeastK(final ImmutableList<Pair<String, Integer>> atLeastK) {
     for (Pair<String, Integer> p : atLeastK) {
       atLeastK(p.getRight(), p.getLeft());
     }
@@ -408,7 +409,7 @@ public class SequentialEncoding implements Encoding {
   }
 
   @Override
-  public void setState(final Set<Pair<Place, Integer>> state, final int timestep) {
+  public void setState(final ImmutableSet<Pair<Place, Integer>> state, final int timestep) {
 
     Set<Place> visited = new HashSet<>();
     for (Pair<Place, Integer> p : state) {

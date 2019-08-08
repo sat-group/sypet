@@ -14,10 +14,7 @@ public interface TypeFinder extends AutoCloseable {
    * @return the map mapping each class name, to the subset of its super classes that is in {@code
    *     acceptableSuperClasses}.
    */
-  ImmutableMultimap<Type, Type> getSuperClasses(
-      final ImmutableSet<Type> acceptableSuperClasses,
-      final ImmutableSet<Package> packages);
+  ImmutableMultimap<Type, Type> getSuperClasses(final ImmutableSet<Type> acceptableSuperClasses);
 
-  ImmutableSet<MethodSignature> getSignatures(
-      final ImmutableSet<Method> methodBlacklist);
+  ImmutableSet<MethodSignature> getSignatures(final ImmutableSet<Method> methodBlacklist);
 }

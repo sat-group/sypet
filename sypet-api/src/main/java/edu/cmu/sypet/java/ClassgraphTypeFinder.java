@@ -51,8 +51,7 @@ public class ClassgraphTypeFinder implements TypeFinder {
 
   @Override
   public ImmutableMultimap<Type, Type> getSuperClasses(
-      final ImmutableSet<Type> acceptableSuperClasses,
-      final ImmutableSet<Package> packages
+      final ImmutableSet<Type> acceptableSuperClasses
   ) {
     final Iterable<ClassInfo> acceptableFilteredClasses =
         acceptableSuperClasses.stream()
