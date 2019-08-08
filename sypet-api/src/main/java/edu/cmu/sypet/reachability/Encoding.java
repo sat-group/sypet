@@ -1,7 +1,8 @@
 package edu.cmu.sypet.reachability;
 
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -23,7 +24,7 @@ public interface Encoding {
 
   void setState(Set<Pair<Place, Integer>> state, int timestep);
 
-  void setHints(List<String> atLeastK);
+  void setHints(ImmutableSet<Method> atLeastK);
 
   void createConstraints();
 

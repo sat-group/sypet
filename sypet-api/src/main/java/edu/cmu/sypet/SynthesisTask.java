@@ -1,7 +1,11 @@
 package edu.cmu.sypet;
 
-import java.util.Collections;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Jar;
+import edu.cmu.sypet.java.Method;
+import edu.cmu.sypet.java.Package;
+import edu.cmu.sypet.java.Type;
 import org.immutables.value.Value;
 
 /** This class represents all the necessary and optional parameters that define a synthesis task. */
@@ -15,21 +19,22 @@ public abstract class SynthesisTask {
   }
 
   /** The names of the parameters of the method we want to synthesize. */
-  public abstract List<String> paramNames();
+  public abstract ImmutableList<String> paramNames();
 
   /** The types of the parameters of the method we want to synthesize. */
-  public abstract List<String> paramTypes();
+  public abstract ImmutableList<Type> paramTypes();
 
   /** The return type of the method we want to synthesize. */
-  public abstract String returnType();
+  public abstract Type returnType();
 
   /** The names of the packages the synthesized program is allowed to import. */
-  public abstract List<String> packages();
+  public abstract ImmutableSet<Package> packages();
 
   /**
    * Libraries where the packages that the synthesized program is allowed to import can be found.
+   * @return
    */
-  public abstract List<String> libs();
+  public abstract ImmutableSet<Jar> jars();
 
   /** The Java test code that the method we want to synthesize must satisfy. */
   public abstract String testCode();
@@ -48,34 +53,28 @@ public abstract class SynthesisTask {
     return 10;
   }
 
-  /** TODO Explain this. */
+  /** TODO Explain this.
+   * @return*/
   @Value.Default
-  public List<String> hints() {
-    return Collections.emptyList();
+  public ImmutableSet<Method> hints() {
+     return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public List<String> localSuperClasses() {
-    return Collections.emptyList();
-  }
-
-  /** TODO */
-  @Deprecated
-  @Value.Default
-  public List<List<String>> globalSuperClasses() {
-    return Collections.emptyList();
+  public ImmutableSet<Type> localSuperClasses() {
+     return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public List<String> blacklist() {
-    return Collections.emptyList();
+  public ImmutableSet<Method> methodBlacklist() {
+     return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public List<String> noSideEffects() {
-    return Collections.emptyList();
+  public ImmutableSet<Method> noSideEffects() {
+     return ImmutableSet.of();
   }
 }

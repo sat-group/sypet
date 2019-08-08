@@ -1,8 +1,9 @@
 package edu.cmu.sypet.reachability;
 
+import com.google.common.collect.ImmutableList;
+import edu.cmu.sypet.java.Type;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -15,14 +16,14 @@ public class EncodingUtil {
    * Given petrinet and input, create a set of <Place, Integer> pair that
    * represents the initial state
    */
-  public static Set<Pair<Place, Integer>> setInitialState(PetriNet pnet, List<String> inputs) {
+  public static Set<Pair<Place, Integer>> setInitialState(PetriNet pnet, ImmutableList<Type> inputs) {
     // Initial state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();
     HashMap<Place, Integer> count = new HashMap<>();
     // Count the number of inputs
-    for (String input : inputs) {
+    for (final Type input : inputs) {
       Place p;
-      p = pnet.getPlace(input);
+      p = pnet.getPlace(input.name());
       if (count.containsKey(p)) {
         count.put(p, count.get(p) + 1);
       } else {
@@ -38,8 +39,8 @@ public class EncodingUtil {
     Set<Place> ps = pnet.getPlaces();
     for (Place p : ps) {
       boolean isInput = false;
-      for (String input : inputs) {
-        if (p.getId().equals(input)) {
+      for (final Type input : inputs) {
+        if (p.getId().equals(input.name())) {
           isInput = true;
         }
       }
@@ -56,7 +57,7 @@ public class EncodingUtil {
    * Given petrinet and output , create a set of <Place, Integer> pair that
    * represents the goal state
    */
-  public static Set<Pair<Place, Integer>> setGoalState(PetriNet pnet, String retType) {
+  public static Set<Pair<Place, Integer>> setGoalState(PetriNet pnet, Type retType) {
 
     // Final state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();

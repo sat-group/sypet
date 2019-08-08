@@ -1,6 +1,7 @@
 package edu.cmu.sypet.compilation;
 
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Jar;
 
 /**
  * Write code given the tests and classes.
@@ -16,9 +17,10 @@ public class Test {
    *
    * @param code synthesized code
    * @param testCode test code with name "test"
+   * @param libs
    * @return whether test pasted
    */
-  public static boolean runTest(String code, String testCode, List<String> libs) {
+  public static boolean runTest(String code, String testCode, ImmutableSet<Jar> libs) {
     // Create file;
     String classCode = writeCode(code, testCode);
     Compile compile = new Compile(CLASSNAME);

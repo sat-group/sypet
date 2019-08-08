@@ -1,5 +1,8 @@
 package edu.cmu.sypet.compilation;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Jar;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,7 +50,7 @@ class Compile {
     public void report(Diagnostic<? extends JavaFileObject> diagnostic) {}
   }
 
-  public boolean runTest(String code, List<String> libs) {
+  public boolean runTest(String code, ImmutableSet<Jar> libs) {
     Class<?> compiledClass = compileClass(code, libs);
     if (compiledClass == null) {
       return false;
@@ -63,7 +66,7 @@ class Compile {
   }
 
   @SuppressWarnings("rawtypes")
-  private static Class compileClass(String program, List<String> libs) {
+  private static Class compileClass(String program, ImmutableSet<Jar> libs) {
     if (DISPLAY_ERROR) System.out.println(program);
     String classpath = genClassPath(libs);
     try {
@@ -89,10 +92,10 @@ class Compile {
     return null;
   }
 
-  private static String genClassPath(List<String> libs) {
+  private static String genClassPath(ImmutableSet<Jar> libs) {
     StringBuilder builder = new StringBuilder();
-    for (String lib : libs) {
-      builder.append(lib);
+    for (final Jar lib : libs) {
+      builder.append(lib.name());
       builder.append(':');
     }
     builder.append('.');
@@ -169,10 +172,10 @@ class MemoryByteCode extends SimpleJavaFileObject {
 
 class SpecialClassLoader extends ClassLoader {
   private final Map<String, MemoryByteCode> map = new HashMap<>();
-  private final List<String> libs;
+  private final ImmutableSet<Jar> libs;
   private URLClassLoader cl = null;
 
-  public SpecialClassLoader(List<String> libs) {
+  public SpecialClassLoader(ImmutableSet<Jar> libs) {
     this.libs = libs;
   }
 
@@ -194,15 +197,17 @@ class SpecialClassLoader extends ClassLoader {
     map.put(name, mbc);
   }
 
-  private URL[] getUrls(List<String> libs) {
-    URL[] urls = new URL[libs.size()];
+  private URL[] getUrls(final ImmutableSet<Jar> libs) {
+    final ImmutableList.Builder<URL> urlsBuilder = ImmutableList.builder();
+
     try {
-      for (int i = 0; i < libs.size(); ++i) {
-        urls[i] = new File(libs.get(i)).toURI().toURL();
+      for (final Jar jar : libs) {
+        urlsBuilder.add(new File(jar.name()).toURI().toURL());
       }
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
-    return urls;
+
+    return urlsBuilder.build().toArray(new URL[0]);
   }
 }

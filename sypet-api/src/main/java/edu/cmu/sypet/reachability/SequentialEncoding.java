@@ -1,5 +1,7 @@
 package edu.cmu.sypet.reachability;
 
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.reachability.SATSolver.ConstraintType;
 import edu.cmu.sypet.reachability.Variable.Type;
 import java.util.*;
@@ -53,18 +55,18 @@ public class SequentialEncoding implements Encoding {
     }
   }
 
-  public void setHints(List<String> hints) {
+  public void setHints(ImmutableSet<Method> hints) {
 
     if (solver.loc_variables.isEmpty()) return;
 
     // System.out.println("#variables = " + solver.getNbVariables());
-    for (String s : hints) {
+    for (final Method method : hints) {
 
       VecInt aux = new VecInt();
 
       for (Transition tr : pnet.getTransitions()) {
 
-        if (tr.getId().contains(s)) {
+        if (tr.getId().contains(method.name())) {
 
           if (solver.loc_variables.isEmpty()) return;
           int v = solver.loc_variables.last();

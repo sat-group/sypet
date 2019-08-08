@@ -1,6 +1,9 @@
 package edu.cmu.sypet.petrinet;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
+import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
@@ -28,12 +31,12 @@ public class BuildNet {
   // A map from transition name to a method signature
   public static Map<String, MethodSignature> dict = new HashMap<>();
 
-  private static Map<String, List<String>> superDict = new HashMap<>();
-  private static Map<String, List<String>> subDict = new HashMap<>();
+  private static Map<Type, List<Type>> superDict = new HashMap<>();
+  private static Map<Type, List<Type>> subDict = new HashMap<>();
 
-  private static List<String> noSideEffects = new ArrayList<>();
+  private static ImmutableSet<Method> noSideEffects;
 
-  public BuildNet(List<String> noSideEffects) {
+  public BuildNet(final ImmutableSet<Method> noSideEffects) {
     petrinet = new PetriNet("net");
     dict = new HashMap<>();
     superDict = new HashMap<>();
@@ -67,7 +70,9 @@ public class BuildNet {
       boolean polymorphicOutput = false;
       for (Flow f : t.getPostsetEdges()) {
         Place p = f.getPlace();
-        List<String> subClasses = subDict.get(p.getId());
+
+        List<Type> subClasses = subDict.get(p.getId());
+
         if (subClasses != null) {
           polymorphicOutput = true;
           break;
@@ -93,17 +98,25 @@ public class BuildNet {
 
         for (Flow f : t.getPostsetEdges()) {
           Place p = f.getPlace();
-          List<String> subClasses = subDict.get(p.getId());
-          for (String s : subClasses) {
-            if (!petrinet.containsPlace(s)) continue;
-            String newPolyTransitionName = newTransitionName + "(" + s + ")";
+
+          List<Type> subClasses = subDict.get(p.getId());
+
+          for (Type subclass : subClasses) {
+            if (!petrinet.containsPlace(subclass.name())) continue;
+
+            String newPolyTransitionName = newTransitionName + "(" + subclass + ")";
+
             assert (!petrinet.containsTransition(newPolyTransitionName));
+
             newTransition = petrinet.createTransition(newPolyTransitionName);
+
             for (Place p2 : polyInputs) {
               addFlow(p2.getId(), newPolyTransitionName, 1);
             }
+
             int w = f.getWeight();
-            petrinet.createFlow(newTransition, petrinet.getPlace(s), w);
+
+            petrinet.createFlow(newTransition, petrinet.getPlace(subclass.name()), w);
             dict.put(newPolyTransitionName, dict.get(t.getId()));
           }
         }
@@ -111,16 +124,20 @@ public class BuildNet {
 
     } else {
       Place p = inputs.get(count);
-      List<String> subClasses = subDict.get(p.getId());
+
+      final List<Type> subClasses = subDict.get(p.getId());
+
       if (subClasses == null) { // No possible polymophism
         polyInputs.push(p);
         generatePolymophism(t, count + 1, inputs, polyInputs);
         polyInputs.pop();
       } else {
-        for (String subclass : subClasses) {
-          addPlace(subclass);
-          Place polyClass = petrinet.getPlace(subclass);
+        for (final Type subclass : subClasses) {
+          addPlace(subclass.name());
+
+          Place polyClass = petrinet.getPlace(subclass.name());
           polyInputs.push(polyClass);
+
           generatePolymophism(t, count + 1, inputs, polyInputs);
           polyInputs.pop();
         }
@@ -147,37 +164,48 @@ public class BuildNet {
   // This method handles polymorphism by creating methods that transforms each
   // subclass into its super class
   private static void normalPolymorphism() {
-    for (String subClass : superDict.keySet()) {
-      addPlace(subClass);
-      for (String superClass : superDict.get(subClass)) {
-        addPlace(superClass);
+    for (final Type subClass : superDict.keySet()) {
+      addPlace(subClass.name());
+
+      for (final Type superClass : superDict.get(subClass)) {
+        addPlace(superClass.name());
+
         String methodName = subClass + "IsPolymorphicTo" + superClass;
+
         petrinet.createTransition(methodName);
-        petrinet.createFlow(subClass, methodName, 1);
-        petrinet.createFlow(methodName, superClass, 1);
+        petrinet.createFlow(subClass.name(), methodName, 1);
+        petrinet.createFlow(methodName, superClass.name(), 1);
       }
     }
   }
 
   private static void getPolymorphismInformation(
-      ImmutableMultimap<String, String> superClassMap,
-      ImmutableMultimap<String, String> subClassMap) {
-    for (String s : superClassMap.keySet()) {
-      if (!petrinet.containsPlace(s)) continue;
+      ImmutableMultimap<Type, Type> superClassMap,
+      ImmutableMultimap<Type, Type> subClassMap) {
+    for (final Type superclass : superClassMap.keySet()) {
 
-      Collection<String> superClasses = superClassMap.get(s);
+      if (!petrinet.containsPlace(superclass.name())) {
+        continue;
+      }
+
+      final Collection<Type> superClasses = superClassMap.get(superclass);
+
       if (superClasses.size() != 0) {
-        List<String> superClassList = new ArrayList<>(superClasses);
-        superDict.put(s, superClassList);
+        List<Type> superClassList = new ArrayList<>(superClasses);
+        superDict.put(superclass, superClassList);
       }
     }
-    for (String s : subClassMap.keySet()) {
-      if (!petrinet.containsPlace(s)) continue;
 
-      Collection<String> subClasses = subClassMap.get(s);
+    for (final Type subclass : subClassMap.keySet()) {
+      if (!petrinet.containsPlace(subclass.name())) {
+        continue;
+      }
+
+      final Collection<Type> subClasses = subClassMap.get(subclass);
+
       if (subClasses.size() != 0) {
-        List<String> subClassList = new ArrayList<>(subClasses);
-        subDict.put(s, subClassList);
+        List<Type> subClassList = new ArrayList<>(subClasses);
+        subDict.put(subclass, subClassList);
       }
     }
   }
@@ -374,9 +402,9 @@ public class BuildNet {
   }
 
   public PetriNet build(
-      List<MethodSignature> result,
-      ImmutableMultimap<String, String> superClassMap,
-      ImmutableMultimap<String, String> subClassMap,
+      ImmutableCollection<MethodSignature> result,
+      ImmutableMultimap<Type, Type> superClassMap,
+      ImmutableMultimap<Type, Type> subClassMap,
       List<String> inputs,
       boolean copyPoly) {
 

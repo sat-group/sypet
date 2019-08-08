@@ -1,10 +1,17 @@
 package edu.cmu.sypet;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.java.ClassgraphTypeFinder;
+import edu.cmu.sypet.java.Jar;
+import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.java.MethodSignature;
+import edu.cmu.sypet.java.Type;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
 import edu.cmu.sypet.reachability.Encoding;
@@ -12,45 +19,50 @@ import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/** This class represents the SyPet library API. */
+/**
+ * This class represents the SyPet library API.
+ */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
 
   private final SynthesisTask task;
 
-  private final ImmutableMultimap<String, String> superclassMap;
-  private final ImmutableMultimap<String, String> subclassMap;
+  private final ImmutableMultimap<Type, Type> superclassMap;
+  private final ImmutableMultimap<Type, Type> subclassMap;
+  private final ImmutableMap<String, MethodSignature> signatureMap;
+
   private final PetriNet net;
-  private final Map<String, MethodSignature> signatureMap;
 
   public SyPetAPI(final SynthesisTask task) throws SyPetException {
     this.task = task;
 
-    final List<MethodSignature> signatures;
+    final ImmutableCollection<MethodSignature> signatures;
     try (final TypeFinder typeFinder = new ClassgraphTypeFinder(getLibs(), task.packages())) {
-      final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
+      final ImmutableSet<Type> localSuperClasses = task.localSuperClasses();
 
       this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
       this.subclassMap = getSuperclassMap().inverse();
 
-      signatures = typeFinder.getSignatures(task.blacklist());
+      signatures = typeFinder.getSignatures(task.methodBlacklist());
     } catch (Exception e) {
       throw new SyPetException(e);
     }
 
     BuildNet buildNet = new BuildNet(task.noSideEffects());
-    this.net =
-        buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
-    this.signatureMap = BuildNet.dict;
+    this.net = buildNet.build(
+        signatures,
+        getSuperclassMap(),
+        getSubclassMap(),
+        new ArrayList<>(),
+        true);
+    this.signatureMap = ImmutableMap.copyOf(BuildNet.dict);
   }
 
   /**
@@ -88,17 +100,13 @@ public final class SyPetAPI {
       // for each loc find all possible programs
       List<Variable> result = Encoding.solver.findPath(loc);
       paths++;
+
       while (!result.isEmpty() && !solution) {
-        List<String> apis = new ArrayList<>();
-        // A list of method signatures
-        List<MethodSignature> signatures = new ArrayList<>();
-        for (Variable s : result) {
-          apis.add(s.getName());
-          MethodSignature sig = getSignatureMap().get(s.getName());
-          if (sig != null) { // check if s is a line of a code
-            signatures.add(sig);
-          }
-        }
+        final ImmutableList<MethodSignature> signatures = result.stream()
+            .map(variable -> getSignatureMap().get(variable.getName()))
+            .filter(Objects::nonNull)
+            .collect(ImmutableList.toImmutableList());
+
         // 5. Convert a path to a program
         boolean sat = true;
         CodeFormer former =
@@ -163,16 +171,11 @@ public final class SyPetAPI {
       // for each loc find all possible programs
       List<Variable> result = Encoding.solver.findPath(loc);
       while (!result.isEmpty()) {
-        List<String> apis = new ArrayList<>();
-        // A list of method signatures
-        List<MethodSignature> signatures = new ArrayList<>();
-        for (Variable s : result) {
-          apis.add(s.getName());
-          MethodSignature sig = getSignatureMap().get(s.getName());
-          if (sig != null) { // check if s is a line of a code
-            signatures.add(sig);
-          }
-        }
+        final ImmutableList<MethodSignature> signatures = result.stream()
+            .map(variable -> getSignatureMap().get(variable.getName()))
+            .filter(Objects::nonNull)
+            .collect(ImmutableList.toImmutableList());
+
         // 5. Convert a path to a program
         boolean sat = true;
         CodeFormer former =
@@ -211,11 +214,11 @@ public final class SyPetAPI {
     return allCode;
   }
 
-  public ImmutableMultimap<String, String> getSuperclassMap() {
+  public ImmutableMultimap<Type, Type> getSuperclassMap() {
     return superclassMap;
   }
 
-  public ImmutableMultimap<String, String> getSubclassMap() {
+  public ImmutableMultimap<Type, Type> getSubclassMap() {
     return subclassMap;
   }
 
@@ -223,7 +226,7 @@ public final class SyPetAPI {
     return net;
   }
 
-  public Map<String, MethodSignature> getSignatureMap() {
+  public ImmutableMap<String, MethodSignature> getSignatureMap() {
     return signatureMap;
   }
 
@@ -231,27 +234,27 @@ public final class SyPetAPI {
     return this.task.methodName();
   }
 
-  public List<String> getParamNames() {
+  public ImmutableList<String> getParamNames() {
     return this.task.paramNames();
   }
 
-  public List<String> getParamTypes() {
+  public ImmutableList<Type> getParamTypes() {
     return this.task.paramTypes();
   }
 
-  public String getReturnType() {
+  public Type getReturnType() {
     return this.task.returnType();
   }
 
-  public List<String> getLibs() {
-    return this.task.libs();
+  public ImmutableSet<Jar> getLibs() {
+    return this.task.jars();
   }
 
   public String getTestCode() {
     return this.task.testCode();
   }
 
-  public List<String> getHints() {
+  public ImmutableSet<Method> getHints() {
     return this.task.hints();
   }
 }
