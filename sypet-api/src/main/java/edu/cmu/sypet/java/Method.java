@@ -1,5 +1,10 @@
 package edu.cmu.sypet.java;
 
-public abstract class Method {
-  public abstract String name();
+import org.immutables.value.Value;
+
+@Value.Immutable
+public interface Method {
+
+  @Value.Parameter
+  String name();
 }

@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.immutables.value.Value;
 
 public class ClassgraphTypeFinder implements TypeFinder {
 
@@ -57,21 +56,21 @@ public class ClassgraphTypeFinder implements TypeFinder {
   ) {
     final Iterable<ClassInfo> acceptableFilteredClasses =
         acceptableSuperClasses.stream()
-                .map(type -> this.scanResult.getClassInfo(type.name()))
-                .filter(Objects::nonNull)
+            .map(type -> this.scanResult.getClassInfo(type.name()))
+            .filter(Objects::nonNull)
             ::iterator;
 
     final ImmutableMultimap.Builder<Type, Type> subClassMapBuilder =
         new ImmutableMultimap.Builder<>();
 
     for (final ClassInfo classInfo : acceptableFilteredClasses) {
-      final Iterable<ImmutableClassgraphType> subClassNames = classInfo.getSubclasses().stream()
+      final Iterable<ImmutableType> subClassNames = classInfo.getSubclasses().stream()
           .map(ClassInfo::getName)
-          .map(ImmutableClassgraphType::of)
+          .map(ImmutableType::of)
           ::iterator;
 
       subClassMapBuilder.putAll(
-          ImmutableClassgraphType.of(classInfo.getName()),
+          ImmutableType.of(classInfo.getName()),
           subClassNames);
     }
 
@@ -88,7 +87,7 @@ public class ClassgraphTypeFinder implements TypeFinder {
   ) {
     return this.scanResult.getAllClasses().stream()
         .flatMap(classInfo -> classInfo.getDeclaredMethodAndConstructorInfo().stream())
-        .map(ClassgraphMethodSignature::of)
+        .map(MethodSignatureFactory::of)
         .collect(ImmutableSet.toImmutableSet());
   }
 
@@ -98,11 +97,13 @@ public class ClassgraphTypeFinder implements TypeFinder {
   }
 }
 
-@Value.Immutable
-abstract class ClassgraphMethodSignature implements MethodSignature {
+abstract class MethodSignatureFactory {
 
-  public static ClassgraphMethodSignature of(final MethodInfo methodInfo) {
-    return ImmutableClassgraphMethodSignature.builder()
+  private MethodSignatureFactory() {
+  }
+
+  protected static MethodSignature of(final MethodInfo methodInfo) {
+    return ImmutableMethodSignature.builder()
         .name(name(methodInfo))
         .returnType(returnType(methodInfo))
         .addAllParameterTypes(parameterTypes(methodInfo))
@@ -123,29 +124,30 @@ abstract class ClassgraphMethodSignature implements MethodSignature {
     if (methodInfo.isConstructor()) {
       return declaringClass(methodInfo);
     }
-    return ImmutableClassgraphType.builder()
-        .name(methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toString())
-        .build();
+    return ImmutableType.of(methodInfo
+        .getTypeSignatureOrTypeDescriptor()
+        .getResultType()
+        .toString());
   }
 
   private static Type declaringClass(final MethodInfo methodInfo) {
-    return ImmutableClassgraphType.builder().name(methodInfo.getClassInfo().getName()).build();
+    return ImmutableType.of(methodInfo.getClassInfo().getName());
   }
 
   private static List<Type> parameterTypes(final MethodInfo methodInfo) {
     return Arrays.stream(methodInfo.getParameterInfo())
         .map(MethodParameterInfo::getTypeSignatureOrTypeDescriptor)
-        .map(
-            typeSignature ->
-                ImmutableClassgraphType.builder().name(typeSignature.toString()).build())
+        .map(typeSignature -> ImmutableType.of(typeSignature.toString()))
         .collect(Collectors.toList());
   }
 }
 
-@Value.Immutable
-abstract class ClassgraphType implements Type {
+abstract class TypeFactory {
 
-  @Value.Parameter
-  @Override
-  public abstract String name();
+  private TypeFactory() {
+  }
+
+  protected static Type of(final String name) {
+    return ImmutableType.of(name);
+  }
 }
