@@ -50,7 +50,10 @@ public class BuildNet {
   }
 
   public ImmutableMap<String, MethodSignature> getDict() {
-    return ImmutableMap.copyOf(dict);
+//    return ImmutableMap.copyOf(dict);
+    return dict.entrySet().stream()
+        .filter(entry -> entry.getValue() != null)
+        .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   private void generatePolymophism(
