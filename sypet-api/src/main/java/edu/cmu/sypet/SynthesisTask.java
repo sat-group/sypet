@@ -2,11 +2,6 @@ package edu.cmu.sypet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import edu.cmu.sypet.java.Jar;
-import edu.cmu.sypet.java.Method;
-import edu.cmu.sypet.java.Package;
-import edu.cmu.sypet.java.TestProgram;
-import edu.cmu.sypet.java.Type;
 import org.immutables.value.Value;
 
 /** This class represents all the necessary and optional parameters that define a synthesis task. */
@@ -23,22 +18,22 @@ public abstract class SynthesisTask {
   public abstract ImmutableList<String> paramNames();
 
   /** The types of the parameters of the method we want to synthesize. */
-  public abstract ImmutableList<Type> paramTypes();
+  public abstract ImmutableList<String> paramTypes();
 
   /** The return type of the method we want to synthesize. */
-  public abstract Type returnType();
+  public abstract String returnType();
 
   /** The names of the packages the synthesized program is allowed to import. */
-  public abstract ImmutableSet<Package> packages();
+  public abstract ImmutableSet<String> packages();
 
   /**
    * Libraries where the packages that the synthesized program is allowed to import can be found.
    * @return
    */
-  public abstract ImmutableSet<Jar> jars();
+  public abstract ImmutableSet<String> jars();
 
   /** The Java test code that the method we want to synthesize must satisfy. */
-  public abstract TestProgram testProgram();
+  public abstract String testProgram();
 
   // TODO False, this refers to the length of the path on the petri net.
   /** Lower bound on the number of lines of code of the method we want to synthesize. */
@@ -57,25 +52,25 @@ public abstract class SynthesisTask {
   /** TODO Explain this.
    * @return*/
   @Value.Default
-  public ImmutableSet<Method> hints() {
+  public ImmutableSet<String> hints() {
      return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public ImmutableSet<Type> localSuperClasses() {
+  public ImmutableSet<String> localSuperClasses() {
      return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public ImmutableSet<Method> methodBlacklist() {
+  public ImmutableSet<String> methodBlacklist() {
      return ImmutableSet.of();
   }
 
   /** TODO */
   @Value.Default
-  public ImmutableSet<Method> noSideEffects() {
+  public ImmutableSet<String> noSideEffects() {
      return ImmutableSet.of();
   }
 }
