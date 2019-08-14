@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 import uniol.apt.adt.exception.NoSuchEdgeException;
 import uniol.apt.adt.exception.NoSuchNodeException;
 import uniol.apt.adt.pn.Flow;
@@ -18,30 +19,55 @@ import uniol.apt.adt.pn.Place;
 import uniol.apt.adt.pn.Transition;
 
 /**
- * Build petri net from a set of libraries.
- *
- * @author Ruben Martins
- * @author Anlun Xu
+ * Build a petri net from a set of libraries.
  */
 public class BuildNet {
-  private static PetriNet petrinet = new PetriNet("net");
-  // A map from transition name to a method signature
-  public static Map<String, MethodSignature> dict = new HashMap<>();
+  private final PetriNet petrinet;
 
-  private static Map<String, List<String>> superDict = new HashMap<>();
-  private static Map<String, List<String>> subDict = new HashMap<>();
+  /**
+   * A map from a transition name to a method signature.
+   */
+  private final Map<String, MethodSignature> dict;
 
-  private static List<String> noSideEffects = new ArrayList<>();
+  /**
+   * Direct correspondent to {@code edu.cmu.sypet.SyPetAPI#superclassMap} but only with the keys
+   * (types) that are places in the petri net.
+   */
+  private final Map<String, List<String>> superDict;
 
-  public BuildNet(List<String> noSideEffects) {
-    petrinet = new PetriNet("net");
-    dict = new HashMap<>();
-    superDict = new HashMap<>();
-    subDict = new HashMap<>();
-    BuildNet.noSideEffects = noSideEffects;
+  /**
+   * Direct correspondent to {@code edu.cmu.sypet.SyPetAPI#subclassMap}, but only with the keys
+   * (types) that are places in the petri net.
+   */
+  private final Map<String, List<String>> subDict;
+
+  // TODO Ruben is the following correct?
+
+  /**
+   * Methods for which we can ignore the return type.
+   */
+  private final List<String> noSideEffects;
+
+  public BuildNet(final List<String> noSideEffects) {
+    this.petrinet = new PetriNet("net");
+    this.dict = new HashMap<>();
+    this.superDict = new HashMap<>();
+    this.subDict = new HashMap<>();
+    this.noSideEffects = noSideEffects;
   }
 
-  private static void generatePolymophism(
+  // -----------------------------------------------------------------------------------------------
+  // Getters
+
+  public Map<String, MethodSignature> dict() {
+    return dict;
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Polymorphism
+
+  // TODO Ruben for the life of me, I cannot understand what is going on...
+  private void generatePolymophism(
       Transition t, int count, List<Place> inputs, Stack<Place> polyInputs) {
     if (inputs.size() == count) {
       boolean skip = true;
@@ -128,7 +154,7 @@ public class BuildNet {
     }
   }
 
-  private static void copyPolymorphism() {
+  private void copyPolymorphism() {
     // Handles polymorphism by creating copies for each method that
     // has superclass as input type
     for (Transition t : petrinet.getTransitions()) {
@@ -144,35 +170,53 @@ public class BuildNet {
     }
   }
 
-  // This method handles polymorphism by creating methods that transforms each
-  // subclass into its super class
-  private static void normalPolymorphism() {
-    for (String subClass : superDict.keySet()) {
-      addPlace(subClass);
-      for (String superClass : superDict.get(subClass)) {
-        addPlace(superClass);
-        String methodName = subClass + "IsPolymorphicTo" + superClass;
+  /**
+   * Adds new transitions in {@link BuildNet#petrinet} for each class to each of its super classes.
+   */
+  private void addUpCastTransitions() {
+    for (final Map.Entry<String, List<String>> entry : superDict.entrySet()) {
+      final String subclass = entry.getKey();
+      addPlace(subclass);
+
+      final List<String> superclasses = entry.getValue();
+      for (final String superclass : superclasses) {
+        addPlace(superclass);
+
+        final String methodName = subclass + "IsPolymorphicTo" + superclass;
+
         petrinet.createTransition(methodName);
-        petrinet.createFlow(subClass, methodName, 1);
-        petrinet.createFlow(methodName, superClass, 1);
+        petrinet.createFlow(subclass, methodName, 1);
+        petrinet.createFlow(methodName, superclass, 1);
       }
     }
   }
 
-  private static void getPolymorphismInformation(
+  /**
+   * Populates {@code superDict} and {@code subDict} with the entries of {@code superClassMap} and
+   * {@code subClassMap}, respectively, but only with the types that are places in the petri net.
+   */
+  private void getPolymorphismInformation(
       ImmutableMultimap<String, String> superClassMap,
-      ImmutableMultimap<String, String> subClassMap) {
-    for (String s : superClassMap.keySet()) {
-      if (!petrinet.containsPlace(s)) continue;
+      ImmutableMultimap<String, String> subClassMap
+  ) {
+    // Filter keys (types) that correspond to places in the petri net.
+    // Apart from that, `superDict` is exactly the same as `superclassMap` in `SyPetAPI`.
+    for (final String type : superClassMap.keySet()) {
+      if (!petrinet.containsPlace(type)) {
+        continue;
+      }
 
-      Collection<String> superClasses = superClassMap.get(s);
+      final Collection<String> superClasses = superClassMap.get(type);
       if (superClasses.size() != 0) {
-        List<String> superClassList = new ArrayList<>(superClasses);
-        superDict.put(s, superClassList);
+        superDict.put(type, new ArrayList<>(superClasses));
       }
     }
+
+    // Exactly the same as above, but for `subclassMap`.
     for (String s : subClassMap.keySet()) {
-      if (!petrinet.containsPlace(s)) continue;
+      if (!petrinet.containsPlace(s)) {
+        continue;
+      }
 
       Collection<String> subClasses = subClassMap.get(s);
       if (subClasses.size() != 0) {
@@ -182,206 +226,191 @@ public class BuildNet {
     }
   }
 
-  private static void addPlace(String placeID) {
-    // placeID = placeID.replace("$", ".");
+  // -----------------------------------------------------------------------------------------------
+  // Petri Net Construction
+
+  /**
+   * Adds a new place to {@link BuildNet#petrinet} with id {@code placeID} if one does not exist
+   * already.
+   */
+  private void addPlace(final String placeID) {
     try {
       petrinet.getPlace(placeID);
     } catch (NoSuchNodeException e) {
       petrinet.createPlace(placeID);
-      petrinet.createTransition(placeID + "Clone");
-      // petrinet.getPlace(placeID).setMaxToken(2);
-      petrinet.createFlow(placeID, placeID + "Clone", 1);
-      petrinet.createFlow(placeID + "Clone", placeID, 2);
+      addCloneTransition(placeID);
     }
   }
 
-  private static void addFlow(String ID1, String ID2, int weight) {
-    Flow f;
+  /**
+   * Adds a clone transition to the place with id {@code placeID} in {@link BuildNet#petrinet}.
+   */
+  private void addCloneTransition(final String placeID) {
+    final String transitionID = placeID + "Clone";
+
+    petrinet.createTransition(transitionID);
+    petrinet.createFlow(placeID, transitionID, 1);
+    petrinet.createFlow(transitionID, placeID, 2);
+  }
+
+  /**
+   * Adds a new flow in {@link BuildNet#petrinet} between the place (resp. transition) {@code id1}
+   * and the transition (resp. place) {@code id2}, if one does not exist already. If a flow already
+   * exists, it adds {@code weight} to the weight of that flow.
+   */
+  private void addFlow(final String id1, final String id2, final int weight) {
     try {
-      f = petrinet.getFlow(ID1, ID2);
+      final Flow f = petrinet.getFlow(id1, id2);
       f.setWeight(f.getWeight() + weight);
     } catch (NoSuchEdgeException e) {
-      petrinet.createFlow(ID1, ID2, weight);
+      petrinet.createFlow(id1, id2, weight);
     }
   }
 
-  // TODO: clean the code in this method
-  private static void addVoidTransition(MethodSignature methodSig) {
-    String methodname = methodSig.name();
-    boolean isStatic = methodSig.isStatic();
-    boolean isConstructor = methodSig.isConstructor();
-    String className = methodSig.declaringClass().name();
-    StringBuilder transitionName = new StringBuilder("(Void)");
-    List<Type> args = methodSig.parameterTypes();
+  /**
+   * Creates a transition in the petri net corresponding to the {@code methodSignature}. Also
+   * creates places in the petri net for the types of the parameters and the return type, in case
+   * they do not exist yet, as well as for the declaring class, in case the method is not static and
+   * not a constructor.
+   */
+  private void addTransition(final MethodSignature methodSignature) {
+    final String className = methodSignature.declaringClass().name();
+    final List<Type> args = methodSignature.parameterTypes();
 
-    if (isConstructor) {
-      transitionName.append(methodname).append("(Constructor)").append("(");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
+    final String transitionName = makeTransitionName(methodSignature, className, args);
+    petrinet.createTransition(transitionName);
+
+    if (!methodSignature.isConstructor() && !methodSignature.isStatic()) {
+      addPlace(className);
+      addFlow(className, transitionName, 1);
+    }
+
+    // Put the signature in the map.
+    dict.put(transitionName, methodSignature);
+
+    for (final Type type : args) {
+      addPlace(type.name());
+      addFlow(type.name(), transitionName, 1);
+    }
+
+    // TODO Ask Ruben to explain.
+    // Add place for the return type.
+    final Type returnType = methodSignature.returnType();
+    if (returnType.toString() != "void") {
+      addPlace(returnType.name());
+      addFlow(transitionName, returnType.name(), 1);
+    } else { // Return type is `void`.
+      if (noSideEffects
+          .contains(className)) { // TODO `className`? Shouldn't it be `methodName` instead?
+        addVoidTransition(methodSignature);
       }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      petrinet.createTransition(transitionName.toString());
-    } else if (isStatic) {
-      transitionName
+
+      addPlace(className);
+      addFlow(transitionName, className, 1);
+    }
+  }
+
+  /**
+   * Creates an appropriate transition name, depending on whether the {@code methodSig} is a
+   * constructor, static or a non-static method.
+   */
+  private String makeTransitionName(
+      final MethodSignature methodSig,
+      final String className,
+      final List<Type> args
+  ) {
+    final String methodName = methodSig.name();
+    final StringBuilder transitionNameBuilder = new StringBuilder();
+
+    if (methodSig.isConstructor()) {
+      transitionNameBuilder
+          .append(methodName)
+          .append("(Constructor)")
+          .append("(");
+    } else if (methodSig.isStatic()) {
+      transitionNameBuilder
           .append("(static)")
           .append(className)
           .append(".")
-          .append(methodname)
+          .append(methodName)
           .append("(");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
-      }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      petrinet.createTransition(transitionName.toString());
     } else { // The method is not static, so it has an extra argument
-      transitionName.append(className).append(".").append(methodname).append("(");
-      transitionName.append(className).append(" ");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
-      }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      petrinet.createTransition(transitionName.toString());
-
-      addPlace(className);
-      addFlow(className, transitionName.toString(), 1);
-    }
-    dict.put(transitionName.toString(), methodSig); // add signature into map
-
-    for (Type t : args) {
-      addPlace(t.toString());
-      addFlow(t.toString(), transitionName.toString(), 1);
+      transitionNameBuilder
+          .append(className)
+          .append(".")
+          .append(methodName)
+          .append("(")
+          .append(className)
+          .append(" ");
     }
 
-    // add place for the return type
-    Type retType = methodSig.returnType();
-    assert (retType.toString() == "void");
-    if (retType.toString() != "void") {
-      addPlace(retType.toString());
-      addFlow(transitionName.toString(), retType.toString(), 1);
-    } else {
-      addPlace("void");
-      addFlow(transitionName.toString(), "void", 1);
+    for (final Type type : args) {
+      transitionNameBuilder
+          .append(type.name())
+          .append(" ");
     }
+
+    transitionNameBuilder
+        .append(")")
+        .append(methodSig.returnType().name());
+
+    return transitionNameBuilder.toString();
   }
 
-  private static void addTransition(MethodSignature methodSig) {
-    String methodname = methodSig.name();
-    boolean isStatic = methodSig.isStatic();
-    boolean isConstructor = methodSig.isConstructor();
-    String className = methodSig.declaringClass().name();
-    StringBuilder transitionName;
-    List<Type> args = methodSig.parameterTypes();
+  // TODO Ruben Can you verify if the following javadoc is correct?
 
-    if (isConstructor) {
-      transitionName = new StringBuilder(methodname + "(Constructor)" + "(");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
-      }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      // FIXME: fix this potential bug later; triggered in javax.mail
-      if (!petrinet.containsTransition(transitionName.toString()))
-        petrinet.createTransition(transitionName.toString());
-    } else if (isStatic) {
-      transitionName = new StringBuilder("(static)" + className + "." + methodname + "(");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
-      }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      // FIXME: fix this potential bug later; triggered in javax.mail
-      if (!petrinet.containsTransition(transitionName.toString()))
-        petrinet.createTransition(transitionName.toString());
-    } else { // The method is not static, so it has an extra argument
-      transitionName = new StringBuilder(className + "." + methodname + "(");
-      transitionName.append(className).append(" ");
-      for (Type t : args) {
-        transitionName.append(t.toString()).append(" ");
-      }
-      transitionName.append(")");
-      transitionName.append(methodSig.returnType());
-      // FIXME: fix this potential bug later; triggered in javax.mail
-      if (!petrinet.containsTransition(transitionName.toString())) {
-        petrinet.createTransition(transitionName.toString());
+  /**
+   * Sets the maximum number of tokens for each place in {@link BuildNet#petrinet} in order to
+   * ensure termination.
+   */
+  private void setMaxTokens(final List<String> inputs) {
+    final Map<String, Integer> maxTokenMap = new HashMap<>();
 
-        addPlace(className);
-        addFlow(className, transitionName.toString(), 1);
-      }
-    }
-    dict.put(transitionName.toString(), methodSig); // add signature into map
-
-    for (Type t : args) {
-      addPlace(t.toString());
-      addFlow(t.toString(), transitionName.toString(), 1);
+    // Map each place in the petri net to 1.
+    for (final Place place : petrinet.getPlaces()) {
+      maxTokenMap.put(place.getId(), 1);
     }
 
-    // add place for the return type
-    Type retType = methodSig.returnType();
-    if (retType.toString() != "void") {
-      addPlace(retType.toString());
-      addFlow(transitionName.toString(), retType.toString(), 1);
-    } else {
+    // For each input type, compute the maximum weight on any of its outgoing flows. This
+    // corresponds to the maximum number of arguments of that type that any method (transition) may
+    // require.
+    for (final Transition transition : petrinet.getTransitions()) {
+      for (final Flow flow : transition.getPresetEdges()) {
+        final String inputType = flow.getSource().getId();
+        final int flowWeight = flow.getWeight();
 
-      if (noSideEffects.contains(className)) {
-        addVoidTransition(methodSig);
-      }
-
-      addPlace(className);
-      addFlow(transitionName.toString(), className, 1);
-    }
-  }
-
-  public void setMaxTokens(List<String> inputs) {
-    Map<String, Integer> maxTokenMap = new HashMap<>();
-    for (Place p : petrinet.getPlaces()) {
-      maxTokenMap.put(p.getId(), 1);
-    }
-
-    // compute max.
-    for (Transition t : petrinet.getTransitions()) {
-      for (Flow flow : t.getPresetEdges()) {
-        String argType = flow.getSource().getId();
-        int num = flow.getWeight();
-        assert maxTokenMap.containsKey(argType);
-        int curr = maxTokenMap.get(argType);
-        if (num > curr) maxTokenMap.put(argType, num);
+        if (flowWeight > maxTokenMap.get(inputType)) {
+          maxTokenMap.put(inputType, flowWeight);
+        }
       }
     }
-    for (Place p : petrinet.getPlaces()) {
-      assert (maxTokenMap.containsKey(p.getId()));
-      p.setMaxToken(maxTokenMap.get(p.getId()) + 1);
+
+    // TODO Ruben Is this comment correct?
+    // Set max token of each place in the petri net to their correspondent value in the map plus 1.
+    // See an explanation for this on section 6.2 ("Ensuring Termination") of the paper.
+    for (final Place place : petrinet.getPlaces()) {
+      place.setMaxToken(maxTokenMap.get(place.getId()) + 1);
     }
 
-    // Update the maxtoken for inputs
-    HashMap<Place, Integer> count = new HashMap<>();
-    for (String input : inputs) {
-      Place p;
-      p = petrinet.getPlace(input);
-      if (count.containsKey(p)) {
-        count.put(p, count.get(p) + 1);
-      } else {
-        count.put(p, 1);
-      }
-    }
-    for (Place p : count.keySet()) {
-      if (count.get(p) > p.getMaxToken()) {
-        p.setMaxToken(count.get(p));
-      }
+    // Update the maximum number of tokens for each input type.
+    final Map<Place, Integer> placeCount = inputs.stream()
+        .collect(Collectors.groupingBy(petrinet::getPlace, Collectors.summingInt(x -> 1)));
+
+    for (final Place place : placeCount.keySet()) {
+      // TODO Ruben Why is this set to the maximum and not to placeCount.get(place)?
+      place.setMaxToken(Math.max(placeCount.get(place), place.getMaxToken()));
     }
   }
 
   public PetriNet build(
-      List<MethodSignature> result,
-      ImmutableMultimap<String, String> superClassMap,
-      ImmutableMultimap<String, String> subClassMap,
-      List<String> inputs,
-      boolean copyPoly) {
-
-    for (MethodSignature k : result) {
-      addTransition(k);
+      final List<MethodSignature> result,
+      final ImmutableMultimap<String, String> superClassMap,
+      final ImmutableMultimap<String, String> subClassMap,
+      final List<String> inputs,
+      final boolean copyPoly
+  ) {
+    for (final MethodSignature methodSignature : result) {
+      addTransition(methodSignature);
     }
 
     getPolymorphismInformation(superClassMap, subClassMap);
@@ -389,11 +418,50 @@ public class BuildNet {
     if (copyPoly) {
       copyPolymorphism();
     } else {
-      normalPolymorphism();
+      addUpCastTransitions();
     }
 
     setMaxTokens(inputs);
 
     return petrinet;
   }
+
+  // -----------------------------------------------------------------------------------------------
+
+  // TODO: clean the code in this method
+  // This is almost a copy of `addTransition` and needs explanation.
+  private void addVoidTransition(MethodSignature methodSig) {
+    final String className = methodSig.declaringClass().name();
+    final List<Type> args = methodSig.parameterTypes();
+
+    final String transitionName = "(Void)" +
+        makeTransitionName(methodSig, className, args);
+
+    if (!methodSig.isConstructor() && !methodSig.isStatic()) {
+      addPlace(className);
+      addFlow(className, transitionName, 1);
+    }
+
+    // add signature into map
+    dict.put(transitionName, methodSig);
+
+    for (Type t : args) {
+      addPlace(t.toString());
+      addFlow(t.toString(), transitionName, 1);
+    }
+
+    // add place for the return type
+    Type retType = methodSig.returnType();
+
+    assert (retType.toString() == "void");
+
+    if (retType.toString() != "void") {
+      addPlace(retType.toString());
+      addFlow(transitionName, retType.toString(), 1);
+    } else {
+      addPlace("void");
+      addFlow(transitionName, "void", 1);
+    }
+  }
+
 }

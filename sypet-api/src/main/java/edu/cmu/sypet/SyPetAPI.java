@@ -50,7 +50,7 @@ public final class SyPetAPI {
     BuildNet buildNet = new BuildNet(task.noSideEffects());
     this.net =
         buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
-    this.signatureMap = BuildNet.dict;
+    this.signatureMap = buildNet.dict();
   }
 
   /**
