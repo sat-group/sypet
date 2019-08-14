@@ -1,15 +1,8 @@
 package edu.cmu.sypet.reachability;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.reachability.SATSolver.ConstraintType;
 import edu.cmu.sypet.reachability.Variable.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,9 +18,9 @@ public class SequentialEncoding implements Encoding {
   private int loc = 1;
   private PetriNet pnet = null;
   private int nbVariables = 1;
-  private int nbConstraints = 0;
+  int nbConstraints = 0;
 
-  public SequentialEncoding(final PetriNet pnet, final int loc) {
+  public SequentialEncoding(PetriNet pnet, int loc) {
     this.pnet = pnet;
     this.loc = loc;
 
@@ -41,13 +34,13 @@ public class SequentialEncoding implements Encoding {
     // System.out.println("#constraints = " + solver.getNbConstraints());
   }
 
-  public void setAtLeastK(final ImmutableList<Pair<String, Integer>> atLeastK) {
+  public void setAtLeastK(List<Pair<String, Integer>> atLeastK) {
     for (Pair<String, Integer> p : atLeastK) {
       atLeastK(p.getRight(), p.getLeft());
     }
   }
 
-  public void atMostK(final int k) {
+  public void atMostK(int k) {
     for (Transition tr : pnet.getTransitions()) {
       VecInt constraint = new VecInt();
       for (int t = 0; t < loc; t++) {
@@ -60,24 +53,20 @@ public class SequentialEncoding implements Encoding {
     }
   }
 
-  public void setHints(final ImmutableSet<Method> hints) {
+  public void setHints(List<String> hints) {
 
-    if (solver.loc_variables.isEmpty()) {
-      return;
-    }
+    if (solver.loc_variables.isEmpty()) return;
 
     // System.out.println("#variables = " + solver.getNbVariables());
-    for (final Method method : hints) {
+    for (String s : hints) {
 
       VecInt aux = new VecInt();
 
       for (Transition tr : pnet.getTransitions()) {
 
-        if (tr.getId().contains(method.name())) {
+        if (tr.getId().contains(s)) {
 
-          if (solver.loc_variables.isEmpty()) {
-            return;
-          }
+          if (solver.loc_variables.isEmpty()) return;
           int v = solver.loc_variables.last();
           solver.loc_variables.pop();
           aux.push(v);
@@ -104,7 +93,7 @@ public class SequentialEncoding implements Encoding {
     }
   }
 
-  private void atLeastK(final int k, final String transition) {
+  private void atLeastK(int k, String transition) {
 
     // TODO: support multiple methods with the same name with auxiliary variables
     for (Transition tr : pnet.getTransitions()) {
@@ -155,20 +144,14 @@ public class SequentialEncoding implements Encoding {
         HashMap<Place, Integer> places_to_be_changed = new HashMap<>();
         for (Flow f : tr.getPostsetEdges()) {
           Place p = f.getPlace();
-          if (!places_to_be_changed.containsKey(p)) {
-            places_to_be_changed.put(p, f.getWeight());
-          } else {
-            places_to_be_changed.put(p, places_to_be_changed.get(p) + f.getWeight());
-          }
+          if (!places_to_be_changed.containsKey(p)) places_to_be_changed.put(p, f.getWeight());
+          else places_to_be_changed.put(p, places_to_be_changed.get(p) + f.getWeight());
         }
 
         for (Flow f : tr.getPresetEdges()) {
           Place p = f.getPlace();
-          if (!places_to_be_changed.containsKey(p)) {
-            places_to_be_changed.put(p, -f.getWeight());
-          } else {
-            places_to_be_changed.put(p, places_to_be_changed.get(p) - f.getWeight());
-          }
+          if (!places_to_be_changed.containsKey(p)) places_to_be_changed.put(p, -f.getWeight());
+          else places_to_be_changed.put(p, places_to_be_changed.get(p) - f.getWeight());
         }
 
         Pair<Transition, Integer> transition = new ImmutablePair<>(tr, t);
@@ -179,14 +162,10 @@ public class SequentialEncoding implements Encoding {
 
             int diff = places_to_be_changed.get(p);
             // void always remains the same
-            if (p.getId().equals("void")) {
-              diff = 0;
-            }
+            if (p.getId().equals("void")) diff = 0;
 
             if (w + places_to_be_changed.get(p) < 0
-                || w + places_to_be_changed.get(p) > p.getMaxToken()) {
-              continue;
-            }
+                || w + places_to_be_changed.get(p) > p.getMaxToken()) continue;
 
             Triple<Place, Integer, Integer> placeBefore = new ImmutableTriple<>(p, t, w);
             Triple<Place, Integer, Integer> placeAfter = new ImmutableTriple<>(p, t + 1, w + diff);
@@ -194,7 +173,7 @@ public class SequentialEncoding implements Encoding {
             Variable previousState = place2variable.get(placeBefore);
             Variable nextState = place2variable.get(placeAfter);
             VecInt state =
-                new VecInt(new int[]{-fireTr.getId(), -previousState.getId(), nextState.getId()});
+                new VecInt(new int[] {-fireTr.getId(), -previousState.getId(), nextState.getId()});
             solver.addClause(state);
 
             // f AND a => b
@@ -249,9 +228,7 @@ public class SequentialEncoding implements Encoding {
           Triple<Place, Integer, Integer> triple = new ImmutableTriple<>(p, t, p.getMaxToken());
           Variable v = place2variable.get(triple);
           boolean ok = true;
-          if (p.getId().equals("void")) {
-            ok = false;
-          }
+          if (p.getId().equals("void")) ok = false;
 
           for (Flow o : tr.getPresetEdges()) {
             Place c = o.getPlace();
@@ -267,7 +244,7 @@ public class SequentialEncoding implements Encoding {
           }
 
           if (ok) {
-            VecInt clause = new VecInt(new int[]{-v.getId(), -fireTr.getId()});
+            VecInt clause = new VecInt(new int[] {-v.getId(), -fireTr.getId()});
             solver.addClause(clause);
           }
         }
@@ -409,7 +386,7 @@ public class SequentialEncoding implements Encoding {
   }
 
   @Override
-  public void setState(final ImmutableSet<Pair<Place, Integer>> state, final int timestep) {
+  public void setState(Set<Pair<Place, Integer>> state, int timestep) {
 
     Set<Place> visited = new HashSet<>();
     for (Pair<Place, Integer> p : state) {

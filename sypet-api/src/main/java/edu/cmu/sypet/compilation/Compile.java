@@ -1,8 +1,5 @@
 package edu.cmu.sypet.compilation;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import edu.cmu.sypet.java.Jar;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,19 +35,36 @@ import javax.tools.ToolProvider;
  * @author Yu Feng
  */
 class Compile {
-
   private static final boolean DISPLAY_ERROR = false;
-  private final String className;
+  private static String CLASS_NAME;
 
-  Compile(final String classname) {
-    className = classname;
+  Compile(String classname) {
+    Compile.CLASS_NAME = classname;
+  }
+
+  static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject> {
+    @Override
+    public void report(Diagnostic<? extends JavaFileObject> diagnostic) {}
+  }
+
+  public boolean runTest(String code, List<String> libs) {
+    Class<?> compiledClass = compileClass(code, libs);
+    if (compiledClass == null) {
+      return false;
+    }
+    boolean success = false;
+    try {
+      Method method = compiledClass.getMethod("test");
+      success = (boolean) method.invoke(null);
+    } catch (Exception e) {
+      if (DISPLAY_ERROR) e.printStackTrace();
+    }
+    return success;
   }
 
   @SuppressWarnings("rawtypes")
-  private Class compileClass(final String program, final ImmutableSet<Jar> libs) {
-    if (DISPLAY_ERROR) {
-      System.out.println(program);
-    }
+  private static Class compileClass(String program, List<String> libs) {
+    if (DISPLAY_ERROR) System.out.println(program);
     String classpath = genClassPath(libs);
     try {
       JavaCompiler javac = ToolProvider.getSystemJavaCompiler();
@@ -63,69 +77,38 @@ class Compile {
       List<String> options = new ArrayList<>();
       options.add("-cp");
       options.add(classpath);
-      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(className, program));
+      List<MemorySource> compilationUnits = Arrays.asList(new MemorySource(CLASS_NAME, program));
       Writer out = DISPLAY_ERROR ? new PrintWriter(System.err) : null;
       JavaCompiler.CompilationTask compile =
           javac.getTask(out, fileManager, c, options, null, compilationUnits);
       boolean mCompilationSuccess = compile.call();
-      if (mCompilationSuccess) {
-        return cl.findClass(className);
-      }
+      if (mCompilationSuccess) return cl.findClass(CLASS_NAME);
     } catch (Exception e) {
-      if (DISPLAY_ERROR) {
-        e.printStackTrace();
-      }
+      if (DISPLAY_ERROR) e.printStackTrace();
     }
     return null;
   }
 
-  private static String genClassPath(final ImmutableSet<Jar> libs) {
+  private static String genClassPath(List<String> libs) {
     StringBuilder builder = new StringBuilder();
-    for (final Jar lib : libs) {
-      builder.append(lib.name());
+    for (String lib : libs) {
+      builder.append(lib);
       builder.append(':');
     }
     builder.append('.');
     return builder.toString();
   }
-
-  public boolean runTest(final String code, final ImmutableSet<Jar> libs) {
-    Class<?> compiledClass = compileClass(code, libs);
-    if (compiledClass == null) {
-      return false;
-    }
-
-    boolean success = false;
-    try {
-      Method method = compiledClass.getMethod("test");
-      success = (boolean) method.invoke(null);
-    } catch (Exception e) {
-      if (DISPLAY_ERROR) {
-        e.printStackTrace();
-      }
-    }
-
-    return success;
-  }
-
-  static class MyDiagnosticListener implements DiagnosticListener<JavaFileObject> {
-
-    @Override
-    public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-    }
-  }
 }
 
 class MemorySource extends SimpleJavaFileObject {
-
   private final String src;
 
-  public MemorySource(final String name, final String src) {
+  public MemorySource(String name, String src) {
     super(URI.create("file:///" + name + ".java"), Kind.SOURCE);
     this.src = src;
   }
 
-  public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
+  public CharSequence getCharContent(boolean ignoreEncodingErrors) {
     return src;
   }
 
@@ -139,43 +122,34 @@ class MemorySource extends SimpleJavaFileObject {
 }
 
 class SpecialJavaFileManager extends ForwardingJavaFileManager {
-
   private final SpecialClassLoader xcl;
 
   @SuppressWarnings("unchecked")
-  public SpecialJavaFileManager(
-      final StandardJavaFileManager sjfm,
-      final SpecialClassLoader xcl
-  ) {
+  public SpecialJavaFileManager(StandardJavaFileManager sjfm, SpecialClassLoader xcl) {
     super(sjfm);
     this.xcl = xcl;
   }
 
   public JavaFileObject getJavaFileForOutput(
-      final Location location,
-      final String name,
-      final JavaFileObject.Kind kind,
-      final FileObject sibling
-  ) {
+      Location location, String name, JavaFileObject.Kind kind, FileObject sibling) {
     MemoryByteCode mbc = new MemoryByteCode(name);
     xcl.addClass(name, mbc);
     return mbc;
   }
 
-  public ClassLoader getClassLoader(final Location location) {
+  public ClassLoader getClassLoader(Location location) {
     return xcl;
   }
 }
 
 class MemoryByteCode extends SimpleJavaFileObject {
-
   private ByteArrayOutputStream baos;
 
-  public MemoryByteCode(final String name) {
+  public MemoryByteCode(String name) {
     super(URI.create("byte:///" + name + ".class"), Kind.CLASS);
   }
 
-  public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
+  public CharSequence getCharContent(boolean ignoreEncodingErrors) {
     throw new IllegalStateException();
   }
 
@@ -194,17 +168,16 @@ class MemoryByteCode extends SimpleJavaFileObject {
 }
 
 class SpecialClassLoader extends ClassLoader {
-
   private final Map<String, MemoryByteCode> map = new HashMap<>();
-  private final ImmutableSet<Jar> libs;
+  private final List<String> libs;
   private URLClassLoader cl = null;
 
-  public SpecialClassLoader(final ImmutableSet<Jar> libs) {
+  public SpecialClassLoader(List<String> libs) {
     this.libs = libs;
   }
 
   @Override
-  protected Class<?> findClass(final String name) throws ClassNotFoundException {
+  protected Class<?> findClass(String name) throws ClassNotFoundException {
     MemoryByteCode mbc = map.get(name);
     if (mbc == null) {
       URL[] urls = getUrls(libs);
@@ -217,21 +190,19 @@ class SpecialClassLoader extends ClassLoader {
     }
   }
 
-  public void addClass(final String name, final MemoryByteCode mbc) {
+  public void addClass(String name, MemoryByteCode mbc) {
     map.put(name, mbc);
   }
 
-  private URL[] getUrls(final ImmutableSet<Jar> libs) {
-    final ImmutableList.Builder<URL> urlsBuilder = ImmutableList.builder();
-
+  private URL[] getUrls(List<String> libs) {
+    URL[] urls = new URL[libs.size()];
     try {
-      for (final Jar jar : libs) {
-        urlsBuilder.add(new File(jar.name()).toURI().toURL());
+      for (int i = 0; i < libs.size(); ++i) {
+        urls[i] = new File(libs.get(i)).toURI().toURL();
       }
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
-
-    return urlsBuilder.build().toArray(new URL[0]);
+    return urls;
   }
 }

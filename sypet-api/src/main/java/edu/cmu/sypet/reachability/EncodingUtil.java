@@ -1,10 +1,8 @@
 package edu.cmu.sypet.reachability;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import edu.cmu.sypet.java.Type;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -17,17 +15,14 @@ public class EncodingUtil {
    * Given petrinet and input, create a set of <Place, Integer> pair that
    * represents the initial state
    */
-  public static ImmutableSet<Pair<Place, Integer>> setInitialState(
-      final PetriNet pnet,
-      final ImmutableList<Type> inputs
-  ) {
+  public static Set<Pair<Place, Integer>> setInitialState(PetriNet pnet, List<String> inputs) {
     // Initial state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();
     HashMap<Place, Integer> count = new HashMap<>();
     // Count the number of inputs
-    for (final Type input : inputs) {
+    for (String input : inputs) {
       Place p;
-      p = pnet.getPlace(input.name());
+      p = pnet.getPlace(input);
       if (count.containsKey(p)) {
         count.put(p, count.get(p) + 1);
       } else {
@@ -43,8 +38,8 @@ public class EncodingUtil {
     Set<Place> ps = pnet.getPlaces();
     for (Place p : ps) {
       boolean isInput = false;
-      for (final Type input : inputs) {
-        if (p.getId().equals(input.name())) {
+      for (String input : inputs) {
+        if (p.getId().equals(input)) {
           isInput = true;
         }
       }
@@ -54,20 +49,18 @@ public class EncodingUtil {
         initial.add(new ImmutablePair<>(p, 0));
       }
     }
-    return ImmutableSet.copyOf(initial);
+    return initial;
   }
 
   /*
    * Given petrinet and output , create a set of <Place, Integer> pair that
    * represents the goal state
    */
-  public static ImmutableSet<Pair<Place, Integer>> setGoalState(
-      final PetriNet pnet,
-      final Type retType) {
+  public static Set<Pair<Place, Integer>> setGoalState(PetriNet pnet, String retType) {
+
     // Final state
     HashSet<Pair<Place, Integer>> initial = new HashSet<>();
     Set<Place> pl = pnet.getPlaces();
-
     for (Place p : pl) {
       if (p.getId().equals("void")) {
       } else if (p.getId().equals(retType)) {
@@ -76,7 +69,6 @@ public class EncodingUtil {
         initial.add(new ImmutablePair<>(p, 0));
       }
     }
-
-    return ImmutableSet.copyOf(initial);
+    return initial;
   }
 }

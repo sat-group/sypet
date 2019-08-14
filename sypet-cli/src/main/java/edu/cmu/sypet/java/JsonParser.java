@@ -92,7 +92,7 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
   private static final String SRC_TYPES = "srcTypes";
   private static final String TGT_TYPE = "tgtType";
   private static final String PACKAGES = "packages";
-  private static final String LIBS = "jars";
+  private static final String LIBS = "libs";
   private static final String TEST_PATH = "testPath";
   private static final String LOC_LOWER_BOUND = "locLowerBound";
   private static final String LOC_UPPER_BOUND = "locUpperBound";
@@ -152,7 +152,7 @@ class SyPetInputDeserializer implements JsonDeserializer<SyPetInput> {
 class SyPetConfigDeserializer implements JsonDeserializer<SyPetConfig> {
 
   private static final String LOCAL_SUPER_CLASSES = "localSuperClasses";
-  private static final String BLACKLIST = "methodBlacklist";
+  private static final String BLACKLIST = "blacklist";
   private static final String NO_SIDE_EFFECTS = "noSideEffects";
   private static final String GLOBAL_SUPER_CLASSES = "globalSuperClasses";
 

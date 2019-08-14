@@ -1,13 +1,11 @@
 package edu.cmu.sypet.codeformer;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
-import edu.cmu.sypet.SyPetException;
-import edu.cmu.sypet.java.ImmutableProgram;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.sat4j.core.VecInt;
@@ -22,42 +20,41 @@ import org.sat4j.specs.TimeoutException;
  * Java code.
  */
 public class CodeFormer {
-
   private final List<MethodSignature> sigs;
+  private int slotNumber = 0;
+  private int retNumber = 0;
   private final VarTable slotTypes = new VarTable();
   private final VarTable returnedValTypes = new VarTable();
-  private final ImmutableList<Type> paramTypes;
-  private final Type returnType;
+  private boolean unsat = false;
+  private final List<String> inputTypes;
+  private final String retType;
   private final List<String> varNames;
   private final String methodName;
   private final Map<Integer, Integer> lastValueOfSlot = new HashMap<>();
-  private final ImmutableMultimap<Type, Type> subclassMap;
-  private final ImmutableMultimap<Type, Type> superclassMap;
+  private final ImmutableMultimap<String, String> subclassMap;
+  private final ImmutableMultimap<String, String> superclassMap;
   private final ISolver solver = SolverFactory.newDefault();
-
-  private int slotNumber = 0;
-  private int retNumber = 0;
-  private boolean unsat = false;
 
   /**
    * The initial setup for the class.
    *
-   * @param signatures requires a sequence of signatures in the expected order.
+   * @param sigs requires a sequence of signatures in the expected order.
    * @param varNames parameter names of the method
    * @param methodName method name of the method
+   * @param subclassMap
+   * @param superclassMap
    */
   public CodeFormer(
-      final ImmutableList<MethodSignature> signatures,
-      final ImmutableList<Type> paramTypes,
-      final Type returnType,
-      final ImmutableList<String> varNames,
-      final String methodName,
-      final ImmutableMultimap<Type, Type> subclassMap,
-      final ImmutableMultimap<Type, Type> superclassMap
-  ) {
-    this.sigs = signatures;
-    this.paramTypes = paramTypes;
-    this.returnType = returnType;
+      List<MethodSignature> sigs,
+      List<String> inputTypes,
+      String retType,
+      List<String> varNames,
+      String methodName,
+      ImmutableMultimap<String, String> subclassMap,
+      ImmutableMultimap<String, String> superclassMap) {
+    this.sigs = sigs;
+    this.inputTypes = inputTypes;
+    this.retType = retType;
     this.varNames = varNames;
     this.methodName = methodName;
     this.subclassMap = subclassMap;
@@ -66,34 +63,34 @@ public class CodeFormer {
     // Setup
     // Add method input
 
-    for (final Type paramType : paramTypes) {
-      returnedValTypes.addEntry(paramType, retNumber);
+    for (String input : inputTypes) {
+      returnedValTypes.addEntry(input, retNumber);
       retNumber += 1;
     }
 
     // Add slots and variables to the signatures table
-    for (MethodSignature sig : signatures) {
+    for (MethodSignature sig : sigs) {
       if (sig.isConstructor()) {
 
       } else if (!sig.isStatic()) {
-        slotTypes.addEntry(sig.declaringClass(), slotNumber);
+        slotTypes.addEntry(sig.declaringClass().name(), slotNumber);
         lastValueOfSlot.put(slotNumber, retNumber);
         slotNumber += 1;
       }
       for (Type type : sig.parameterTypes()) {
-        slotTypes.addEntry(type, slotNumber);
+        slotTypes.addEntry(type.toString(), slotNumber);
         lastValueOfSlot.put(slotNumber, retNumber);
         slotNumber += 1;
       }
 
       if (!sig.returnType().toString().equals("void")) {
-        returnedValTypes.addEntry(sig.returnType(), retNumber);
+        returnedValTypes.addEntry(sig.returnType().toString(), retNumber);
         retNumber += 1;
       }
     }
     // Add method return value
-    if (returnType != null) {
-      slotTypes.addEntry(returnType, slotNumber);
+    if (retType != null) {
+      slotTypes.addEntry(retType, slotNumber);
       lastValueOfSlot.put(slotNumber, retNumber);
       slotNumber += 1;
     }
@@ -109,7 +106,7 @@ public class CodeFormer {
    * @return one solution to the programming (Java code)
    * @throws TimeoutException Iff there is no solution available
    */
-  public ImmutableProgram solve() throws TimeoutException, SyPetException {
+  public String solve() throws TimeoutException {
     // Solve
     int[] satResult;
     try {
@@ -131,9 +128,7 @@ public class CodeFormer {
     VecInt block = new VecInt();
     for (Integer id : satResult) {
       block.push(-id);
-      if (id > 0) {
-        satList.add(id);
-      }
+      if (id > 0) satList.add(id);
     }
     try {
       solver.addClause(block);
@@ -142,12 +137,10 @@ public class CodeFormer {
     }
 
     // formCode
-    return formCode(ImmutableList.copyOf(satList));
+    return formCode(satList);
   }
 
-  /**
-   * @return true iff the problem is no longer solvable.
-   */
+  /** @return true iff the problem is no longer solvable. */
   public boolean isUnsat() {
     return unsat;
   }
@@ -157,25 +150,15 @@ public class CodeFormer {
     for (int slotValue = 0; slotValue < slotNumber; slotValue += 1) {
       IVecInt vec = new VecInt();
       IVecInt vec0 = new VecInt();
-
-      final Type slotType = slotTypes.getType(slotValue);
-
-      ImmutableList.Builder<Type> possibleSlotTypesBuilder = ImmutableList.builder();
-
-      if (subclassMap.containsKey(slotType)) {
-        possibleSlotTypesBuilder.addAll(subclassMap.get(slotType));
-      }
-      possibleSlotTypesBuilder.add(slotType);
-
-      final ImmutableList<Type> possibleSlotTypes = possibleSlotTypesBuilder.build();
-
-      for (final Type curSlotType : possibleSlotTypes) {
+      String slotType = slotTypes.getType(slotValue);
+      List<String> possibleSlotTypes = new LinkedList<>();
+      if (subclassMap.containsKey(slotType)) possibleSlotTypes.addAll(subclassMap.get(slotType));
+      possibleSlotTypes.add(slotType);
+      for (String curSlotType : possibleSlotTypes) {
         for (int returnedValue : returnedValTypes.getEntries(curSlotType)) {
-          if (returnedValue < lastValueOfSlot.get(slotValue)) {
+          if (returnedValue < lastValueOfSlot.get(slotValue))
             vec.push(calculateID(returnedValue, slotValue));
-          } else {
-            vec0.push(calculateID(returnedValue, slotValue));
-          }
+          else vec0.push(calculateID(returnedValue, slotValue));
         }
       }
       try {
@@ -191,19 +174,12 @@ public class CodeFormer {
   private void addAtLeastOneSlot() {
     for (int returnedValue = 0; returnedValue < retNumber; returnedValue += 1) {
       IVecInt vec = new VecInt();
-
-      final Type returnedType = returnedValTypes.getType(returnedValue);
-
-      ImmutableList.Builder<Type> possibleSlotTypesBuilder = ImmutableList.builder();
-
-      if (subclassMap.containsKey(returnedType)) {
-        possibleSlotTypesBuilder.addAll(subclassMap.get(returnedType));
-      }
-      possibleSlotTypesBuilder.add(returnedType);
-
-      final ImmutableList<Type> possibleSlotTypes = possibleSlotTypesBuilder.build();
-
-      for (final Type slotType : possibleSlotTypes) {
+      List<String> possibleSlotTypes = new LinkedList<>();
+      String returnedType = returnedValTypes.getType(returnedValue);
+      if (superclassMap.containsKey(returnedType))
+        possibleSlotTypes.addAll(superclassMap.get(returnedType));
+      possibleSlotTypes.add(returnedType);
+      for (String slotType : possibleSlotTypes) {
         for (int slotValue : slotTypes.getEntries(slotType)) {
           vec.push(calculateID(returnedValue, slotValue));
         }
@@ -216,7 +192,7 @@ public class CodeFormer {
     }
   }
 
-  private ImmutableProgram formCode(final ImmutableList<Integer> satResult) throws SyPetException {
+  private String formCode(List<Integer> satResult) {
 
     // FIXME: check what is causing this bug
     String error = "";
@@ -228,22 +204,20 @@ public class CodeFormer {
 
     // Add method signature
     builder.append("public static ");
-    if (returnType != null) {
-      builder.append(returnType);
+    if (retType != null) {
+      builder.append(retType);
       builder.append(" ");
     } else {
       builder.append("void ");
     }
     builder.append(methodName);
     builder.append("(");
-    for (int i = 0; i < paramTypes.size(); i++) {
-      builder.append(paramTypes.get(i));
+    for (int i = 0; i < inputTypes.size(); i++) {
+      builder.append(inputTypes.get(i));
       builder.append(" ");
       builder.append(convVarName(varCount));
       varCount += 1;
-      if (i != paramTypes.size() - 1) {
-        builder.append(", ");
-      }
+      if (i != inputTypes.size() - 1) builder.append(", ");
     }
     builder.append(") throws Throwable{\n");
 
@@ -264,9 +238,7 @@ public class CodeFormer {
         builder.append(hostclstr.replace('$', '.'));
         builder.append(".");
       } else {
-        if (slotCount >= satResult.size()) {
-          throw new SyPetException(error);
-        }
+        if (slotCount >= satResult.size()) return error;
         int id = satResult.get(slotCount);
         slotCount++;
         int returnedValue = calculateReturnedValue(id);
@@ -277,9 +249,7 @@ public class CodeFormer {
       builder.append(sig.name().replace('$', '.'));
       builder.append("(");
       for (int i = 0; i < sig.parameterTypes().size(); i++) {
-        if (slotCount >= satResult.size()) {
-          throw new SyPetException(error);
-        }
+        if (slotCount >= satResult.size()) return error;
         int id = satResult.get(slotCount);
         slotCount++;
         int returnedValue = calculateReturnedValue(id);
@@ -293,12 +263,10 @@ public class CodeFormer {
       }
       builder.append(");\n");
     }
-    if (returnType != null) {
+    if (retType != null) {
       builder.append("return ");
 
-      if (slotCount >= satResult.size()) {
-        throw new SyPetException(error);
-      }
+      if (slotCount >= satResult.size()) return error;
       int id = satResult.get(slotCount);
       slotCount++;
       int returnedValue = calculateReturnedValue(id);
@@ -308,26 +276,23 @@ public class CodeFormer {
       builder.append(";\n");
     }
     builder.append("}");
-    return ImmutableProgram.of(builder.toString().replace('$', '.'));
+    return builder.toString().replace('$', '.');
   }
 
-  private int calculateID(final int returnedValue, final int slotValue) {
+  private int calculateID(int returnedValue, int slotValue) {
     return returnedValue + retNumber * slotValue + 1;
   }
 
-  private int calculateReturnedValue(final int id) {
+  private int calculateReturnedValue(int id) {
     return (id - 1) % retNumber;
   }
 
-  private int calculateSlotValue(final int id) {
+  private int calculateSlotValue(int id) {
     return (id - 1) / retNumber;
   }
 
-  private String convVarName(final int val) {
-    if (val < varNames.size()) {
-      return varNames.get(val);
-    } else {
-      return "var_" + (val - varNames.size());
-    }
+  private String convVarName(int val) {
+    if (val < varNames.size()) return varNames.get(val);
+    else return "var_" + (val - varNames.size());
   }
 }

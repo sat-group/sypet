@@ -1,20 +1,10 @@
 package edu.cmu.sypet;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.java.ClassgraphTypeFinder;
-import edu.cmu.sypet.java.ImmutableProgram;
-import edu.cmu.sypet.java.Jar;
-import edu.cmu.sypet.java.Method;
 import edu.cmu.sypet.java.MethodSignature;
-import edu.cmu.sypet.java.Program;
-import edu.cmu.sypet.java.TestProgram;
-import edu.cmu.sypet.java.Type;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
 import edu.cmu.sypet.reachability.Encoding;
@@ -22,50 +12,45 @@ import edu.cmu.sypet.reachability.EncodingUtil;
 import edu.cmu.sypet.reachability.SequentialEncoding;
 import edu.cmu.sypet.reachability.Variable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sat4j.specs.TimeoutException;
 import uniol.apt.adt.pn.PetriNet;
 
-/**
- * This class represents the SyPet library API.
- */
+/** This class represents the SyPet library API. */
 @SuppressWarnings("WeakerAccess")
 public final class SyPetAPI {
   // TODO Use Collection instead of List.
 
   private final SynthesisTask task;
 
-  private final ImmutableMultimap<Type, Type> superclassMap;
-  private final ImmutableMultimap<Type, Type> subclassMap;
-  private final ImmutableMap<String, MethodSignature> signatureMap;
-
+  private final ImmutableMultimap<String, String> superclassMap;
+  private final ImmutableMultimap<String, String> subclassMap;
   private final PetriNet net;
+  private final Map<String, MethodSignature> signatureMap;
 
-  private SyPetAPI(final SynthesisTask task) throws SyPetException {
+  public SyPetAPI(final SynthesisTask task) throws SyPetException {
     this.task = task;
 
-    final ImmutableCollection<MethodSignature> signatures;
+    final List<MethodSignature> signatures;
     try (final TypeFinder typeFinder = new ClassgraphTypeFinder(getLibs(), task.packages())) {
-      final ImmutableSet<Type> localSuperClasses = task.localSuperClasses();
+      final Set<String> localSuperClasses = new HashSet<>(task.localSuperClasses());
 
-      this.superclassMap = typeFinder.getSuperClasses(localSuperClasses);
+      this.superclassMap = typeFinder.getSuperClasses(localSuperClasses, task.packages());
       this.subclassMap = getSuperclassMap().inverse();
 
-      signatures = typeFinder.getSignatures(task.methodBlacklist());
+      signatures = typeFinder.getSignatures(task.blacklist());
     } catch (Exception e) {
       throw new SyPetException(e);
     }
 
-    final BuildNet buildNet = new BuildNet(task.noSideEffects());
-    this.net = buildNet.build(
-        signatures,
-        getSuperclassMap(),
-        getSubclassMap(),
-        getParamTypes(),
-        true);
-    this.signatureMap = buildNet.getDict();
+    BuildNet buildNet = new BuildNet(task.noSideEffects());
+    this.net =
+        buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
+    this.signatureMap = BuildNet.dict;
   }
 
   /**
@@ -75,20 +60,17 @@ public final class SyPetAPI {
    * @return optionally a program, if one can be synthesized
    * @see SynthesisTask
    */
-  public static Optional<Program> synthesize(
-      final SynthesisTask synthesisTask
-  ) throws SyPetException {
+  public static Optional<String> synthesize(SynthesisTask synthesisTask) throws SyPetException {
     final SyPetAPI sypet = new SyPetAPI(synthesisTask);
     return sypet.synthesize(synthesisTask.locLowerBound(), synthesisTask.locUpperBound());
   }
 
-  private Optional<Program> synthesize(final int min_loc, final int max_loc) throws SyPetException {
+  private Optional<String> synthesize(int min_loc, int max_loc) {
+
     int loc = min_loc;
     boolean solution = false;
-
-    ImmutableProgram synthesizedCode = null;
-    ImmutableProgram code;
-
+    String synthesizedCode = "";
+    String code;
     int paths = 0;
     int programs = 0;
 
@@ -106,13 +88,17 @@ public final class SyPetAPI {
       // for each loc find all possible programs
       List<Variable> result = Encoding.solver.findPath(loc);
       paths++;
-
       while (!result.isEmpty() && !solution) {
-        final ImmutableList<MethodSignature> signatures = result.stream()
-            .map(variable -> getSignatureMap().get(variable.getName()))
-            .filter(Objects::nonNull)
-            .collect(ImmutableList.toImmutableList());
-
+        List<String> apis = new ArrayList<>();
+        // A list of method signatures
+        List<MethodSignature> signatures = new ArrayList<>();
+        for (Variable s : result) {
+          apis.add(s.getName());
+          MethodSignature sig = getSignatureMap().get(s.getName());
+          if (sig != null) { // check if s is a line of a code
+            signatures.add(sig);
+          }
+        }
         // 5. Convert a path to a program
         boolean sat = true;
         CodeFormer former =
@@ -134,6 +120,8 @@ public final class SyPetAPI {
           sat = !former.isUnsat();
           // 6. Run the test cases
           boolean compre;
+          // System.out.println("code = " + code);
+          // System.out.println("testCode = " + testCode);
           compre = Test.runTest(code, getTestCode(), getLibs());
           if (compre) {
             solution = true;
@@ -153,16 +141,14 @@ public final class SyPetAPI {
     System.out.println("c #Programs explored = " + programs);
     System.out.println("c #Paths explored = " + paths);
 
-    return Optional.ofNullable(synthesizedCode)
-        .filter(program -> !program.code().isEmpty())
-        .map(program -> program); // ... :-/
+    return Optional.of(synthesizedCode).filter(s -> !s.isEmpty());
   }
 
-  public ImmutableList<Program> synthesizeAll(final int max_loc) throws SyPetException {
-    ArrayList<ImmutableProgram> allPrograms = new ArrayList<>();
+  public List<String> synthesizeAll(int max_loc) {
+    ArrayList<String> allCode = new ArrayList<>();
 
     int loc = 1;
-    ImmutableProgram code;
+    String code;
 
     while (loc <= max_loc) {
       // create a formula that has the same semantics as the petri-net
@@ -177,11 +163,16 @@ public final class SyPetAPI {
       // for each loc find all possible programs
       List<Variable> result = Encoding.solver.findPath(loc);
       while (!result.isEmpty()) {
-        final ImmutableList<MethodSignature> signatures = result.stream()
-            .map(variable -> getSignatureMap().get(variable.getName()))
-            .filter(Objects::nonNull)
-            .collect(ImmutableList.toImmutableList());
-
+        List<String> apis = new ArrayList<>();
+        // A list of method signatures
+        List<MethodSignature> signatures = new ArrayList<>();
+        for (Variable s : result) {
+          apis.add(s.getName());
+          MethodSignature sig = getSignatureMap().get(s.getName());
+          if (sig != null) { // check if s is a line of a code
+            signatures.add(sig);
+          }
+        }
         // 5. Convert a path to a program
         boolean sat = true;
         CodeFormer former =
@@ -205,7 +196,7 @@ public final class SyPetAPI {
           compre = Test.runTest(code, getTestCode(), this.getLibs());
 
           if (compre) {
-            allPrograms.add(code);
+            allCode.add(code);
           }
 
           // the current path did not result in a program that passes all test cases find
@@ -217,15 +208,14 @@ public final class SyPetAPI {
       // we did not find a program of length = loc
       loc++;
     }
-
-    return ImmutableList.copyOf(allPrograms);
+    return allCode;
   }
 
-  public ImmutableMultimap<Type, Type> getSuperclassMap() {
+  public ImmutableMultimap<String, String> getSuperclassMap() {
     return superclassMap;
   }
 
-  public ImmutableMultimap<Type, Type> getSubclassMap() {
+  public ImmutableMultimap<String, String> getSubclassMap() {
     return subclassMap;
   }
 
@@ -233,7 +223,7 @@ public final class SyPetAPI {
     return net;
   }
 
-  public ImmutableMap<String, MethodSignature> getSignatureMap() {
+  public Map<String, MethodSignature> getSignatureMap() {
     return signatureMap;
   }
 
@@ -241,27 +231,27 @@ public final class SyPetAPI {
     return this.task.methodName();
   }
 
-  public ImmutableList<String> getParamNames() {
+  public List<String> getParamNames() {
     return this.task.paramNames();
   }
 
-  public ImmutableList<Type> getParamTypes() {
+  public List<String> getParamTypes() {
     return this.task.paramTypes();
   }
 
-  public Type getReturnType() {
+  public String getReturnType() {
     return this.task.returnType();
   }
 
-  public ImmutableSet<Jar> getLibs() {
-    return this.task.jars();
+  public List<String> getLibs() {
+    return this.task.libs();
   }
 
-  public TestProgram getTestCode() {
-    return this.task.testProgram();
+  public String getTestCode() {
+    return this.task.testCode();
   }
 
-  public ImmutableSet<Method> getHints() {
+  public List<String> getHints() {
     return this.task.hints();
   }
 }

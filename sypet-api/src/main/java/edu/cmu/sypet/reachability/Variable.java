@@ -7,43 +7,44 @@ package edu.cmu.sypet.reachability;
  */
 public class Variable implements Comparable<Variable> {
 
+  enum Type {
+    FLOWPLACE,
+    PLACE,
+    TRANSITION
+  }
+
   private final int id;
   private final String name;
   private final int timestep;
   private final int value;
+  private int flows;
   private final Type type;
-  private final int flows;
 
-  public Variable(final int id, final String name, final Type type) {
+  public Variable(int id, String name, Type type) {
     this.id = id;
     this.name = name;
     this.timestep = 0;
     this.value = 0;
     this.type = type;
-    this.flows = 0;
   }
 
-  public Variable(final int id, final String name, final Type type, final int timestep) {
+  public Variable(int id, String name, Type type, int timestep) {
     this.id = id;
     this.name = name;
     this.timestep = timestep;
     this.value = 0;
     this.type = type;
-    this.flows = 0;
   }
 
-  public Variable(final int id, final String name, final Type type, final int timestep,
-      final int value) {
+  public Variable(int id, String name, Type type, int timestep, int value) {
     this.id = id;
     this.name = name;
     this.timestep = timestep;
     this.value = value;
     this.type = type;
-    this.flows = 0;
   }
 
-  public Variable(final int id, final String name, final Type type, final int timestep,
-      final int value, final int flows) {
+  public Variable(int id, String name, Type type, int timestep, int value, int flows) {
     this.id = id;
     this.name = name;
     this.timestep = timestep;
@@ -75,9 +76,9 @@ public class Variable implements Comparable<Variable> {
   @Override
   public String toString() {
     String res = "";
-    if (type == Type.TRANSITION) {
+    if (type == Type.TRANSITION)
       res += "[" + name + "]" + "(id=" + id + ",Type=" + type + ",timestep=" + timestep + ")";
-    } else if (type == Type.PLACE) {
+    else if (type == Type.PLACE)
       res +=
           "["
               + name
@@ -91,7 +92,7 @@ public class Variable implements Comparable<Variable> {
               + ",value="
               + value
               + ")";
-    } else if (type == Type.FLOWPLACE) {
+    else if (type == Type.FLOWPLACE)
       res +=
           "["
               + name
@@ -107,19 +108,12 @@ public class Variable implements Comparable<Variable> {
               + ",timestep="
               + timestep
               + ")";
-    }
 
     return res;
   }
 
   @Override
-  public int compareTo(final Variable var) {
+  public int compareTo(Variable var) {
     return this.timestep - var.timestep;
-  }
-
-  enum Type {
-    FLOWPLACE,
-    PLACE,
-    TRANSITION
   }
 }

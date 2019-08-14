@@ -1,14 +1,11 @@
 package edu.cmu.sypet;
 
-import edu.cmu.sypet.java.Program;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-;
 
 class Point2DSynthesisTests {
 
@@ -24,12 +21,14 @@ class Point2DSynthesisTests {
   private static final String vectorClass = pointPackage + ".Vector2D";
 
   void testTemplate(SynthesisTask task) {
+    final Optional<String> maybeCode;
     try {
-      final Optional<Program> maybeCode = SyPetAPI.synthesize(task);
-      Assertions.assertTrue(maybeCode.isPresent());
+      maybeCode = SyPetAPI.synthesize(task);
     } catch (SyPetException e) {
       throw new RuntimeException(e);
     }
+
+    Assertions.assertTrue(maybeCode.isPresent());
   }
 
   @Disabled // Takes too long or GC exceeds memory limit.
@@ -42,8 +41,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass, pointClass)))
             .returnType(pointClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage, testPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 "public boolean test1() throws Throwable {\n"
                     + "    Point2D point1 = new Point2D(2, 3);\n"
                     + "    Point2D point2 = new Point2D(-1, 4);\n"
@@ -79,8 +78,8 @@ class Point2DSynthesisTests {
             .returnType("void")
             //                    .returnType(pointClass)  // This works, but I really want void.
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "    %1$s.Point2D point1 = new %1$s.Point2D(2, 3);\n"
@@ -112,8 +111,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
             .returnType(anotherPointClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "  %1$s.Point2D mp = new %1$s.Point2D(0, 0);\n"
@@ -145,8 +144,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass)))
             .returnType(pointClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "    %1$s.Point2D point1 = new %1$s.Point2D(0, 1);\n"
@@ -179,8 +178,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(vectorClass)))
             .returnType(vectorClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "    %1$s point1 = new %1$s(0, 1);\n"
@@ -207,8 +206,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(vectorClass)))
             .returnType(vectorClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "    %1$s.Vector2D point1 = new %1$s.Vector2D(0, 1);\n"
@@ -236,8 +235,8 @@ class Point2DSynthesisTests {
             .paramTypes(new ArrayList<>(Arrays.asList(pointClass, "double")))
             .returnType(pointClass)
             .packages(new ArrayList<>(Arrays.asList(pointPackage, testPackage)))
-            .jars(new ArrayList<>(Arrays.asList(TEST_LIB)))
-            .testProgram(
+            .libs(new ArrayList<>(Arrays.asList(TEST_LIB)))
+            .testCode(
                 String.format(
                     "public boolean test() throws Throwable {\n"
                         + "    %1$s %3$s = new %1$s(1, 1);\n"

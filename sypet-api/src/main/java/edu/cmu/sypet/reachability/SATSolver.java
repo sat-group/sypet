@@ -1,25 +1,35 @@
 package edu.cmu.sypet.reachability;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import org.sat4j.core.VecInt;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
-public class SATSolver {
+// import org.sat4j.minisat.SolverFactory;
+// import org.sat4j.specs.ISolver;
 
-  // Maps the variable id to transition
-  protected final HashMap<Integer, Variable> id2variable = new HashMap<>();
-  protected final VecInt loc_variables;
-  private final VecInt assumptions;
+public class SATSolver {
 
   private IPBSolver solver = null;
   private boolean unsat = false;
+  private final VecInt assumptions;
+
+  enum ConstraintType {
+    LTE,
+    EQ,
+    GTE
+  }
+
+  // Maps the variable id to transition
+  public final HashMap<Integer, Variable> id2variable = new HashMap<>();
+
   private int nbVariables = 0;
+  public final VecInt loc_variables;
 
   public SATSolver() {
     solver = SolverFactory.newDefault();
@@ -38,11 +48,7 @@ public class SATSolver {
     return solver.nConstraints();
   }
 
-  public int getNbVariables() {
-    return nbVariables;
-  }
-
-  public void setNbVariables(final int vars) {
+  public void setNbVariables(int vars) {
 
     // version for additional variables
     //		for (int i = vars+1; i <= vars+100; i++)
@@ -64,7 +70,11 @@ public class SATSolver {
     solver.newVar(nbVariables);
   }
 
-  public void addClause(final VecInt constraint) {
+  public int getNbVariables() {
+    return nbVariables;
+  }
+
+  public void addClause(VecInt constraint) {
     try {
       solver.addClause(constraint);
     } catch (ContradictionException e) {
@@ -72,12 +82,7 @@ public class SATSolver {
     }
   }
 
-  public void addConstraint(
-      final VecInt constraint,
-      final VecInt coeffs,
-      final ConstraintType ct,
-      final int k
-  ) {
+  public void addConstraint(VecInt constraint, VecInt coeffs, ConstraintType ct, int k) {
     try {
       switch (ct) {
         case LTE:
@@ -97,11 +102,7 @@ public class SATSolver {
     }
   }
 
-  public void addConstraint(
-      final VecInt constraint,
-      final ConstraintType ct,
-      final int k
-  ) {
+  public void addConstraint(VecInt constraint, ConstraintType ct, int k) {
     try {
       switch (ct) {
         case LTE:
@@ -121,29 +122,29 @@ public class SATSolver {
     }
   }
 
-  public void setAssumption(final int v) {
+  public void setAssumption(int v) {
     assumptions.push(v);
   }
 
-  public void setTrue(final int v) {
+  public void setTrue(int v) {
     try {
-      VecInt clause = new VecInt(new int[]{v});
+      VecInt clause = new VecInt(new int[] {v});
       solver.addClause(clause);
     } catch (ContradictionException e) {
       unsat = true;
     }
   }
 
-  public void setFalse(final int v) {
+  public void setFalse(int v) {
     try {
-      VecInt clause = new VecInt(new int[]{-v});
+      VecInt clause = new VecInt(new int[] {-v});
       solver.addClause(clause);
     } catch (ContradictionException e) {
       unsat = true;
     }
   }
 
-  public ImmutableList<Variable> findPath(final int loc) {
+  public List<Variable> findPath(int loc) {
 
     ArrayList<Variable> res = new ArrayList<>();
     // TODO: what happens when loc -> loc+1
@@ -185,12 +186,6 @@ public class SATSolver {
     // sort transitions by increasing time step
     Collections.sort(res);
 
-    return ImmutableList.copyOf(res);
-  }
-
-  enum ConstraintType {
-    LTE,
-    EQ,
-    GTE
+    return res;
   }
 }
