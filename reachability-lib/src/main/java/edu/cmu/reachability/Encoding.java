@@ -1,12 +1,12 @@
-package edu.cmu.sypet.reachability;
+package edu.cmu.reachability;
 
+import edu.cmu.reachability.petrinet.Place;
+import edu.cmu.reachability.petrinet.Transition;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import uniol.apt.adt.pn.Place;
-import uniol.apt.adt.pn.Transition;
 
 public interface Encoding {
 

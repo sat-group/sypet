@@ -7,10 +7,11 @@ import edu.cmu.sypet.java.ClassgraphTypeFinder;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
-import edu.cmu.sypet.reachability.Encoding;
-import edu.cmu.sypet.reachability.EncodingUtil;
-import edu.cmu.sypet.reachability.SequentialEncoding;
-import edu.cmu.sypet.reachability.Variable;
+import edu.cmu.reachability.petrinet.PetriNet;
+import edu.cmu.reachability.Encoding;
+import edu.cmu.reachability.EncodingUtil;
+import edu.cmu.reachability.SequentialEncoding;
+import edu.cmu.reachability.Variable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.sat4j.specs.TimeoutException;
-import uniol.apt.adt.pn.PetriNet;
 
 /** This class represents the SyPet library API. */
 @SuppressWarnings("WeakerAccess")

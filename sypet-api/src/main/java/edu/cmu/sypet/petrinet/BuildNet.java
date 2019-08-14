@@ -3,6 +3,12 @@ package edu.cmu.sypet.petrinet;
 import com.google.common.collect.ImmutableMultimap;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
+import edu.cmu.reachability.petrinet.Flow;
+import edu.cmu.reachability.petrinet.NoSuchFlowException;
+import edu.cmu.reachability.petrinet.NoSuchPlaceException;
+import edu.cmu.reachability.petrinet.PetriNet;
+import edu.cmu.reachability.petrinet.Place;
+import edu.cmu.reachability.petrinet.Transition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,12 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-import uniol.apt.adt.exception.NoSuchEdgeException;
-import uniol.apt.adt.exception.NoSuchNodeException;
-import uniol.apt.adt.pn.Flow;
-import uniol.apt.adt.pn.PetriNet;
-import uniol.apt.adt.pn.Place;
-import uniol.apt.adt.pn.Transition;
 
 /**
  * Build a petri net from a set of libraries.
@@ -49,7 +49,7 @@ public class BuildNet {
   private final List<String> noSideEffects;
 
   public BuildNet(final List<String> noSideEffects) {
-    this.petrinet = new PetriNet("net");
+    this.petrinet = APTPetriNetAdapter.of(new uniol.apt.adt.pn.PetriNet());
     this.dict = new HashMap<>();
     this.superDict = new HashMap<>();
     this.subDict = new HashMap<>();
@@ -236,7 +236,7 @@ public class BuildNet {
   private void addPlace(final String placeID) {
     try {
       petrinet.getPlace(placeID);
-    } catch (NoSuchNodeException e) {
+    } catch (NoSuchPlaceException e) {
       petrinet.createPlace(placeID);
       addCloneTransition(placeID);
     }
@@ -262,7 +262,7 @@ public class BuildNet {
     try {
       final Flow f = petrinet.getFlow(id1, id2);
       f.setWeight(f.getWeight() + weight);
-    } catch (NoSuchEdgeException e) {
+    } catch (NoSuchFlowException e) {
       petrinet.createFlow(id1, id2, weight);
     }
   }
@@ -402,7 +402,7 @@ public class BuildNet {
     }
   }
 
-  public PetriNet build(
+  public edu.cmu.reachability.petrinet.PetriNet build(
       final List<MethodSignature> result,
       final ImmutableMultimap<String, String> superClassMap,
       final ImmutableMultimap<String, String> subClassMap,

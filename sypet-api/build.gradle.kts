@@ -4,8 +4,10 @@ plugins {
 }
 
 dependencies {
+    compile(project(":reachability-lib"))
+
     // sat4j must come before apt on the classpath, because apt comes with another version of sat4j.
-    implementation(files("lib/sat4j-pb.jar"))
+    implementation(fileTree("../reachability-lib/lib/sat4j-pb.jar"))
     implementation(fileTree("lib"))
 
     implementation("org.apache.commons:commons-lang3:3.9")

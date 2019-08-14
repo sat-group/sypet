@@ -1,4 +1,4 @@
-package edu.cmu.sypet.reachability;
+package edu.cmu.reachability;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,13 +1,13 @@
-package edu.cmu.sypet.reachability;
+package edu.cmu.reachability;
 
+import edu.cmu.reachability.petrinet.PetriNet;
+import edu.cmu.reachability.petrinet.Place;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import uniol.apt.adt.pn.PetriNet;
-import uniol.apt.adt.pn.Place;
 
 public class EncodingUtil {
 

@@ -1,17 +1,21 @@
-package edu.cmu.sypet.reachability;
+package edu.cmu.reachability;
 
-import edu.cmu.sypet.reachability.SATSolver.ConstraintType;
-import edu.cmu.sypet.reachability.Variable.Type;
-import java.util.*;
+import edu.cmu.reachability.petrinet.Flow;
+import edu.cmu.reachability.petrinet.PetriNet;
+import edu.cmu.reachability.petrinet.Place;
+import edu.cmu.reachability.petrinet.Transition;
+import edu.cmu.reachability.SATSolver.ConstraintType;
+import edu.cmu.reachability.Variable.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.sat4j.core.VecInt;
-import uniol.apt.adt.pn.Flow;
-import uniol.apt.adt.pn.PetriNet;
-import uniol.apt.adt.pn.Place;
-import uniol.apt.adt.pn.Transition;
 
 public class SequentialEncoding implements Encoding {
 

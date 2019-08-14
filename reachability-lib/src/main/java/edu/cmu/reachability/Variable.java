@@ -1,4 +1,4 @@
-package edu.cmu.sypet.reachability;
+package edu.cmu.reachability;
 
 /**
  * Variable representation for the constraint solver.
