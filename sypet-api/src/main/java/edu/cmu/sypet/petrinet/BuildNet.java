@@ -49,7 +49,7 @@ public class BuildNet {
   private final List<String> noSideEffects;
 
   public BuildNet(final List<String> noSideEffects) {
-    this.petrinet = APTPetriNetAdapter.of(new uniol.apt.adt.pn.PetriNet());
+    this.petrinet = new APTPetriNetAdapter();
     this.dict = new HashMap<>();
     this.superDict = new HashMap<>();
     this.subDict = new HashMap<>();
@@ -376,7 +376,7 @@ public class BuildNet {
     // require.
     for (final Transition transition : petrinet.getTransitions()) {
       for (final Flow flow : transition.getPresetEdges()) {
-        final String inputType = flow.getSource().getId();
+        final String inputType = flow.getPlace().getId();
         final int flowWeight = flow.getWeight();
 
         if (flowWeight > maxTokenMap.get(inputType)) {

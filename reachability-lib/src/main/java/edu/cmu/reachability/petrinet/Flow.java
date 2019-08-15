@@ -6,7 +6,5 @@ public interface Flow {
 
   Integer getWeight();
 
-  Place getSource();
-
   void setWeight(int i);
 }
