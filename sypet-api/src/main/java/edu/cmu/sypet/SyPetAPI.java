@@ -48,8 +48,7 @@ public final class SyPetAPI {
     }
 
     BuildNet buildNet = new BuildNet(task.noSideEffects());
-    this.net =
-        buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>(), true);
+    this.net = buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>());
     this.signatureMap = buildNet.dict();
   }
 

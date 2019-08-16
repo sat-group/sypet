@@ -1,21 +1,19 @@
 package edu.cmu.sypet.petrinet;
 
 import com.google.common.collect.ImmutableMultimap;
-import edu.cmu.sypet.java.MethodSignature;
-import edu.cmu.sypet.java.Type;
 import edu.cmu.reachability.petrinet.Flow;
 import edu.cmu.reachability.petrinet.NoSuchFlowException;
 import edu.cmu.reachability.petrinet.NoSuchPlaceException;
 import edu.cmu.reachability.petrinet.PetriNet;
 import edu.cmu.reachability.petrinet.Place;
 import edu.cmu.reachability.petrinet.Transition;
+import edu.cmu.sypet.java.MethodSignature;
+import edu.cmu.sypet.java.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -65,110 +63,6 @@ public class BuildNet {
 
   // -----------------------------------------------------------------------------------------------
   // Polymorphism
-
-  // TODO Ruben for the life of me, I cannot understand what is going on...
-  private void generatePolymophism(
-      Transition t, int count, List<Place> inputs, Stack<Place> polyInputs) {
-    if (inputs.size() == count) {
-      boolean skip = true;
-      for (int i = 0; i < inputs.size(); i++) {
-        if (!inputs.get(i).equals(polyInputs.get(i))) {
-          skip = false;
-        }
-      }
-      if (skip) {
-        return;
-      }
-
-      StringBuilder newTransitionName = new StringBuilder(t.getId() + "Poly:(");
-      for (Place p : polyInputs) {
-        newTransitionName.append(p.getId()).append(" ");
-      }
-      newTransitionName.append(")");
-
-      if (petrinet.containsTransition(newTransitionName.toString())) {
-        return;
-      }
-
-      boolean polymorphicOutput = false;
-      for (Flow f : t.getPostsetEdges()) {
-        Place p = f.getPlace();
-        List<String> subClasses = subDict.get(p.getId());
-        if (subClasses != null) {
-          polymorphicOutput = true;
-          break;
-        }
-        //noinspection ConstantConditions
-        if (polymorphicOutput) break;
-      }
-
-      Transition newTransition = petrinet.createTransition(newTransitionName.toString());
-      for (Place p : polyInputs) {
-        // NOTE: why is the weight of the flow restricted to 1?
-        addFlow(p.getId(), newTransitionName.toString(), 1);
-      }
-
-      for (Flow f : t.getPostsetEdges()) {
-        Place p = f.getPlace();
-        int w = f.getWeight();
-        petrinet.createFlow(newTransition, p, w);
-      }
-      dict.put(newTransitionName.toString(), dict.get(t.getId()));
-
-      if (polymorphicOutput) {
-
-        for (Flow f : t.getPostsetEdges()) {
-          Place p = f.getPlace();
-          List<String> subClasses = subDict.get(p.getId());
-          for (String s : subClasses) {
-            if (!petrinet.containsPlace(s)) continue;
-            String newPolyTransitionName = newTransitionName + "(" + s + ")";
-            assert (!petrinet.containsTransition(newPolyTransitionName));
-            newTransition = petrinet.createTransition(newPolyTransitionName);
-            for (Place p2 : polyInputs) {
-              addFlow(p2.getId(), newPolyTransitionName, 1);
-            }
-            int w = f.getWeight();
-            petrinet.createFlow(newTransition, petrinet.getPlace(s), w);
-            dict.put(newPolyTransitionName, dict.get(t.getId()));
-          }
-        }
-      }
-
-    } else {
-      Place p = inputs.get(count);
-      List<String> subClasses = subDict.get(p.getId());
-      if (subClasses == null) { // No possible polymophism
-        polyInputs.push(p);
-        generatePolymophism(t, count + 1, inputs, polyInputs);
-        polyInputs.pop();
-      } else {
-        for (String subclass : subClasses) {
-          addPlace(subclass);
-          Place polyClass = petrinet.getPlace(subclass);
-          polyInputs.push(polyClass);
-          generatePolymophism(t, count + 1, inputs, polyInputs);
-          polyInputs.pop();
-        }
-      }
-    }
-  }
-
-  private void copyPolymorphism() {
-    // Handles polymorphism by creating copies for each method that
-    // has superclass as input type
-    for (Transition t : petrinet.getTransitions()) {
-      List<Place> inputs = new ArrayList<>();
-      Set<Flow> inEdges = t.getPresetEdges();
-      for (Flow f : inEdges) {
-        for (int i = 0; i < f.getWeight(); i++) {
-          inputs.add(f.getPlace());
-        }
-      }
-      Stack<Place> polyInputs = new Stack<>();
-      generatePolymophism(t, 0, inputs, polyInputs);
-    }
-  }
 
   /**
    * Adds new transitions in {@link BuildNet#petrinet} for each class to each of its super classes.
@@ -406,21 +300,14 @@ public class BuildNet {
       final List<MethodSignature> result,
       final ImmutableMultimap<String, String> superClassMap,
       final ImmutableMultimap<String, String> subClassMap,
-      final List<String> inputs,
-      final boolean copyPoly
+      final List<String> inputs
   ) {
     for (final MethodSignature methodSignature : result) {
       addTransition(methodSignature);
     }
 
     getPolymorphismInformation(superClassMap, subClassMap);
-
-    if (copyPoly) {
-      copyPolymorphism();
-    } else {
-      addUpCastTransitions();
-    }
-
+    addUpCastTransitions();
     setMaxTokens(inputs);
 
     return petrinet;
