@@ -39,8 +39,6 @@ public class BuildNet {
    */
   private final Map<String, List<String>> subDict;
 
-  // TODO Ruben is the following correct?
-
   /**
    * Methods for which we can ignore the return type.
    */
@@ -187,7 +185,6 @@ public class BuildNet {
       addFlow(type.name(), transitionName, 1);
     }
 
-    // TODO Ask Ruben to explain.
     // Add place for the return type.
     final Type returnType = methodSignature.returnType();
     if (returnType.toString() != "void") {
@@ -251,11 +248,8 @@ public class BuildNet {
     return transitionNameBuilder.toString();
   }
 
-  // TODO Ruben Can you verify if the following javadoc is correct?
-
   /**
-   * Sets the maximum number of tokens for each place in {@link BuildNet#petrinet} in order to
-   * ensure termination.
+   * Sets the number of tokens for each place in {@link BuildNet#petrinet}.
    */
   private void setMaxTokens(final List<String> inputs) {
     final Map<String, Integer> maxTokenMap = new HashMap<>();
@@ -279,7 +273,6 @@ public class BuildNet {
       }
     }
 
-    // TODO Ruben Is this comment correct?
     // Set max token of each place in the petri net to their correspondent value in the map plus 1.
     // See an explanation for this on section 6.2 ("Ensuring Termination") of the paper.
     for (final Place place : petrinet.getPlaces()) {
