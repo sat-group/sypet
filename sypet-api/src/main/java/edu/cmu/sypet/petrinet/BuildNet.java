@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Build a petri net from a set of libraries.
  */
-public class BuildNet {
+public final class BuildNet {
   private final PetriNet petrinet;
 
   /**
