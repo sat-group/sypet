@@ -315,6 +315,7 @@ public final class BuildNet {
 
     final String transitionName = "(Void)" +
         makeTransitionName(methodSig, className, args);
+    petrinet.createTransition(transitionName);
 
     if (!methodSig.isConstructor() && !methodSig.isStatic()) {
       addPlace(className);
