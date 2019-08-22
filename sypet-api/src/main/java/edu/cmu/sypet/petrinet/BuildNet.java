@@ -191,8 +191,7 @@ public final class BuildNet {
       addPlace(returnType.name());
       addFlow(transitionName, returnType.name(), 1);
     } else { // Return type is `void`.
-      if (noSideEffects
-          .contains(className)) { // TODO `className`? Shouldn't it be `methodName` instead?
+      if (noSideEffects.contains(methodSignature.name())) {
         addVoidTransition(methodSignature);
       }
 
