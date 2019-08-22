@@ -62,14 +62,6 @@ public final class APTPetriNetAdapter implements PetriNet {
   }
 
   /**
-   * Check whether there's a transition with id {@code transitionId} in the Petri net.
-   */
-  @Override
-  public boolean containsTransition(final String transitionId) {
-    return delegate.containsTransition(transitionId);
-  }
-
-  /**
    * Creates a new transition with id {@code transitionId}, and places it in the cache.
    */
   @Override
@@ -134,15 +126,6 @@ public final class APTPetriNetAdapter implements PetriNet {
         new APTPetriNetFlowAdapter(flow);
 
     this.flowCache.put(flow, flowAdapter);
-  }
-
-  /**
-   * Creates a new flow with * weight {@code weight} from the transition {@code transition} to the
-   * place {@code place}, and places it in the cache.
-   */
-  @Override
-  public void createFlow(final Transition transition, final Place place, final int weight) {
-    this.createFlow(transition.getId(), place.getId(), weight);
   }
 
   /**
