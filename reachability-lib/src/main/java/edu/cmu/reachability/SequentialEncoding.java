@@ -391,14 +391,12 @@ public class SequentialEncoding implements Encoding {
 
   @Override
   public void setState(Set<Pair<Place, Integer>> state, int timestep) {
-
-    Set<Place> visited = new HashSet<>();
-    for (Pair<Place, Integer> p : state) {
+    for (Pair<Place, Integer> pair : state) {
       Triple<Place, Integer, Integer> place =
-          new ImmutableTriple<>(p.getLeft(), timestep, p.getRight());
-      int v = place2variable.get(place).getId();
+          new ImmutableTriple<>(pair.getLeft(), timestep, pair.getRight());
+
+      final int v = place2variable.get(place).getId();
       solver.setTrue(v);
-      visited.add(p.getLeft());
     }
   }
 }
