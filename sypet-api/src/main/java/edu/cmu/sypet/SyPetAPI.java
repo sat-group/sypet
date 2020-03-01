@@ -49,12 +49,12 @@ public final class SyPetAPI {
     }
 
     edu.cmu.sypet.petrinet.PetriNet emptyPetriNet =
-        new APTPetriNetAdapter(
+        APTPetriNetAdapter.of(
             new uniol.apt.adt.pn.PetriNet("delegate-petri-net"));
 
     BuildNet buildNet = new BuildNet(emptyPetriNet, task.noSideEffects());
 
-    this.net = new ReachabilityPetriNetAdapter(
+    this.net = ReachabilityPetriNetAdapter.of(
       buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>()));
     this.signatureMap = buildNet.dict();
   }
