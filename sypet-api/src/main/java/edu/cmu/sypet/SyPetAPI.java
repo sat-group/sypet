@@ -1,17 +1,18 @@
 package edu.cmu.sypet;
 
 import com.google.common.collect.ImmutableMultimap;
+import edu.cmu.reachability.Encoding;
+import edu.cmu.reachability.EncodingUtil;
+import edu.cmu.reachability.SequentialEncoding;
+import edu.cmu.reachability.Variable;
+import edu.cmu.reachability.petrinet.PetriNet;
 import edu.cmu.sypet.codeformer.CodeFormer;
 import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.java.ClassgraphTypeFinder;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.TypeFinder;
 import edu.cmu.sypet.petrinet.BuildNet;
-import edu.cmu.reachability.petrinet.PetriNet;
-import edu.cmu.reachability.Encoding;
-import edu.cmu.reachability.EncodingUtil;
-import edu.cmu.reachability.SequentialEncoding;
-import edu.cmu.reachability.Variable;
+import edu.cmu.sypet.petrinet.adapters.APTPetriNetAdapter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +48,14 @@ public final class SyPetAPI {
       throw new SyPetException(e);
     }
 
-    BuildNet buildNet = new BuildNet(task.noSideEffects());
-    this.net = buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>());
+    edu.cmu.sypet.petrinet.PetriNet emptyPetriNet =
+        new APTPetriNetAdapter(
+            new uniol.apt.adt.pn.PetriNet("delegate-petri-net"));
+
+    BuildNet buildNet = new BuildNet(emptyPetriNet, task.noSideEffects());
+
+    this.net = new ReachabilityPetriNetAdapter(
+      buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>()));
     this.signatureMap = buildNet.dict();
   }
 

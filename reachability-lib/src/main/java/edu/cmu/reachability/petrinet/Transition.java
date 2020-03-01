@@ -5,7 +5,7 @@ import java.util.Set;
 public interface Transition {
   String getId();
 
-  Flow[] getPostsetEdges();
+  Set<Flow> getPostsetEdges();
 
   Set<Flow> getPresetEdges();
 

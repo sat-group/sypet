@@ -10,6 +10,4 @@ public interface Place {
   Collection<? extends Transition> getPostset();
 
   Collection<? extends Transition> getPreset();
-
-  void setMaxToken(int i);
 }
