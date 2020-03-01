@@ -1,7 +1,6 @@
 package edu.cmu.sypet;
 
 import edu.cmu.sypet.petrinet.PetriNet;
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.immutables.value.Value;
@@ -130,14 +129,14 @@ abstract class ImmutablePlace implements edu.cmu.reachability.petrinet.Place {
   }
 
   @Override
-  public Collection<? extends edu.cmu.reachability.petrinet.Transition> getPostset() {
+  public Set<edu.cmu.reachability.petrinet.Transition> getPostset() {
     return place().getPostset().stream()
         .map(Transition::of)
         .collect(Collectors.toSet());
   }
 
   @Override
-  public Collection<? extends edu.cmu.reachability.petrinet.Transition> getPreset() {
+  public Set<edu.cmu.reachability.petrinet.Transition> getPreset() {
     return place().getPreset().stream()
         .map(Transition::of)
         .collect(Collectors.toSet());

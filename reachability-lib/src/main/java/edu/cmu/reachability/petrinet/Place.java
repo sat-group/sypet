@@ -1,13 +1,13 @@
 package edu.cmu.reachability.petrinet;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface Place {
   String getId();
 
   int getMaxToken();
 
-  Collection<? extends Transition> getPostset();
+  Set<Transition> getPostset();
 
-  Collection<? extends Transition> getPreset();
+  Set<Transition> getPreset();
 }
