@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * The Petri net interface used in this library.
  *
- * @see BuildNet
+ * @see PetriNetFactory
  */
 public interface PetriNet {
 

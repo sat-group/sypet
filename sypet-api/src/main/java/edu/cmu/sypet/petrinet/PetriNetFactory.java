@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Build a petri net from a set of libraries.
  */
-public final class BuildNet {
+public final class PetriNetFactory {
 
   //region Fields
   /**
@@ -45,7 +45,7 @@ public final class BuildNet {
   //endregion
 
   //region Constructors and Build Methods
-  BuildNet(
+  PetriNetFactory(
       final PetriNet petriNet,
       final Map<String, MethodSignature> dict,
       final Map<String, List<String>> superDict,
@@ -60,10 +60,10 @@ public final class BuildNet {
   }
 
   /**
-   * @param petriNet        the empty Petri net on which to build
+   * @param petriNet        the empty Petri net on which to create
    * @param noSideEffects   the methods for which we can ignore the return type
    */
-  public BuildNet(
+  public PetriNetFactory(
       final PetriNet petriNet,
       final List<String> noSideEffects
   ) {
@@ -75,7 +75,7 @@ public final class BuildNet {
         noSideEffects);
   }
 
-  public PetriNet build(
+  public PetriNet create(
       final List<MethodSignature> result,
       final ImmutableMultimap<String, String> superClassMap,
       final ImmutableMultimap<String, String> subClassMap,
@@ -102,7 +102,7 @@ public final class BuildNet {
   //region Methods Used to Retrieve Polymorphism Information
 
   /**
-   * Adds new transitions in {@link BuildNet#petriNet} for each class to each of its super classes.
+   * Adds new transitions in {@link PetriNetFactory#petriNet} for each class to each of its super classes.
    */
   private void addUpCastTransitions() {
     for (final Map.Entry<String, List<String>> entry : superDict.entrySet()) {
@@ -160,7 +160,7 @@ public final class BuildNet {
 
   //region Methods for Petri Net Construction
   /**
-   * Adds a new place to {@link BuildNet#petriNet} with id {@code placeID} if one does not exist
+   * Adds a new place to {@link PetriNetFactory#petriNet} with id {@code placeID} if one does not exist
    * already.
    */
   private void addPlace(final String placeID) {
@@ -173,7 +173,7 @@ public final class BuildNet {
   }
 
   /**
-   * Adds a clone transition to the place with id {@code placeID} in {@link BuildNet#petriNet}.
+   * Adds a clone transition to the place with id {@code placeID} in {@link PetriNetFactory#petriNet}.
    */
   private void addCloneTransition(final String placeID) {
     final String transitionID = placeID + "Clone";
@@ -184,7 +184,7 @@ public final class BuildNet {
   }
 
   /**
-   * Adds a new flow in {@link BuildNet#petriNet} between the place (resp. transition) {@code id1}
+   * Adds a new flow in {@link PetriNetFactory#petriNet} between the place (resp. transition) {@code id1}
    * and the transition (resp. place) {@code id2}, if one does not exist already. If a flow already
    * exists, it adds {@code weight} to the weight of that flow.
    */
@@ -323,7 +323,7 @@ public final class BuildNet {
   }
 
   /**
-   * Sets the number of tokens for each place in {@link BuildNet#petriNet}.
+   * Sets the number of tokens for each place in {@link PetriNetFactory#petriNet}.
    */
   private void setMaxTokens(final List<String> inputs) {
     final Map<String, Integer> maxTokenMap = new HashMap<>();

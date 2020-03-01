@@ -11,7 +11,7 @@ import edu.cmu.sypet.compilation.Test;
 import edu.cmu.sypet.java.ClassgraphTypeFinder;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.TypeFinder;
-import edu.cmu.sypet.petrinet.BuildNet;
+import edu.cmu.sypet.petrinet.PetriNetFactory;
 import edu.cmu.sypet.petrinet.adapters.APTPetriNetAdapter;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,11 +52,11 @@ public final class SyPetAPI {
         APTPetriNetAdapter.of(
             new uniol.apt.adt.pn.PetriNet("delegate-petri-net"));
 
-    BuildNet buildNet = new BuildNet(emptyPetriNet, task.noSideEffects());
+    PetriNetFactory petriNetFactory = new PetriNetFactory(emptyPetriNet, task.noSideEffects());
 
     this.net = ReachabilityPetriNetAdapter.of(
-      buildNet.build(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>()));
-    this.signatureMap = buildNet.dict();
+      petriNetFactory.create(signatures, getSuperclassMap(), getSubclassMap(), new ArrayList<>()));
+    this.signatureMap = petriNetFactory.dict();
   }
 
   /**
