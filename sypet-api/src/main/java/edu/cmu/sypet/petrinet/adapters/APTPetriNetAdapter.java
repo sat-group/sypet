@@ -21,9 +21,6 @@ public class APTPetriNetAdapter implements PetriNet {
 
   private final uniol.apt.adt.pn.PetriNet petriNet;
 
-  /**
-   * Get all the transitions in the Petri net.
-   */
   @Override
   public Set<PetriNet.Transition> getTransitions() {
     return petriNet.getTransitions().stream()
@@ -31,28 +28,18 @@ public class APTPetriNetAdapter implements PetriNet {
         .collect(Collectors.toSet());
   }
 
-  /**
-   * Creates a new transition with id {@code transitionId}, and places it in the cache.
-   */
   @Override
   public PetriNet.Transition createTransition(final String transitionId) {
     return new Transition(petriNet.createTransition(transitionId));
   }
 
-  /**
-   * Get all the places in the Petri net.
-   */
-  @Override
+ @Override
   public Set<PetriNet.Place> getPlaces() {
     return petriNet.getPlaces().stream()
         .map(Place::new)
         .collect(Collectors.toSet());
   }
 
-  /**
-   * Get the place with id {@code placeId} in the Petri net, or throw an exception if it cannot be
-   * found.
-   */
   @Override
   public PetriNet.Place getPlace(final String placeId) {
     try {
@@ -62,35 +49,21 @@ public class APTPetriNetAdapter implements PetriNet {
     }
   }
 
-  /**
-   * Check whether there's a place with id {@code placeId} in the Petri net.
-   */
   @Override
   public boolean containsPlace(final String placeId) {
     return petriNet.containsPlace(placeId);
   }
 
-  /**
-   * Creates a new place with id {@code placeId}, and places it in the cache.
-   */
   @Override
   public void createPlace(final String placeId) {
     petriNet.createPlace(placeId);
   }
 
-  /**
-   * Creates a new flow with weight {@code weight} from the node with id {@code from} to the node
-   * with id {@code to}, and places it in the cache.
-   */
   @Override
   public void createFlow(final String from, final String to, final int weight) {
     petriNet.createFlow(from, to, weight);
   }
 
-  /**
-   * Returns the flow from the node with id {@code id1} to the node with id {@code id2}, or throws
-   * an exception if it cannot be found. A node is either a place or a transition in the Petri net.
-   */
   @Override
   public PetriNet.Flow getFlow(final String id1, final String id2) {
     try {
@@ -143,9 +116,6 @@ public class APTPetriNetAdapter implements PetriNet {
       return transition.getLabel();
     }
 
-    /**
-     * Returns the flows coming in to this transition.
-     */
     @Override
     public Set<PetriNet.Flow> getPresetEdges() {
       return transition.getPresetEdges().stream()
@@ -192,27 +162,18 @@ public class APTPetriNetAdapter implements PetriNet {
       this.flow = flow;
     }
 
-    private final  uniol.apt.adt.pn.Flow flow;
+    private final uniol.apt.adt.pn.Flow flow;
 
-    /**
-     * Returns the place of this flow.
-     */
     @Override
     public PetriNet.Place getPlace() {
       return new Place(flow.getPlace());
     }
 
-    /**
-     * Returns the weight of this flow.
-     */
     @Override
     public Integer getWeight() {
       return flow.getWeight();
     }
 
-    /**
-     * Sets the weight of this flow.
-     */
     @Override
     public void setWeight(final int i) {
       flow.setWeight(i);
@@ -252,9 +213,6 @@ public class APTPetriNetAdapter implements PetriNet {
 
     private final  uniol.apt.adt.pn.Place place;
 
-    /**
-     * Returns the id of this place.
-     */
     @Override
     public String getId() {
       return place.getId();
