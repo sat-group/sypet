@@ -342,7 +342,7 @@ public class SequentialEncoding implements Encoding {
       for (int t = 0; t < loc; t++) {
         // create a variable with <transition in the petri-net,timestamp>
         Pair<Transition, Integer> pair = new ImmutablePair<>(tr, t);
-        Variable var = new Variable(nbVariables, tr.getLabel(), Type.TRANSITION, t);
+        Variable var = new Variable(nbVariables, tr.getId(), Type.TRANSITION, t);
         transition2variable.put(pair, var);
         solver.id2variable.put(nbVariables, var);
         // each variable is associated with an id (starts at 1)

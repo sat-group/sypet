@@ -93,11 +93,6 @@ class ReachabilityPetriNetAdapter implements edu.cmu.reachability.petrinet.Petri
     }
 
     @Override
-    public String getLabel() {
-      return this.transition.getLabel();
-    }
-
-    @Override
     public boolean equals(Object o) {
       if (this == o) {
         return true;

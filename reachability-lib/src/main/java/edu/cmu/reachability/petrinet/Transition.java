@@ -8,6 +8,4 @@ public interface Transition {
   Set<Flow> getPostsetEdges();
 
   Set<Flow> getPresetEdges();
-
-  String getLabel();
 }

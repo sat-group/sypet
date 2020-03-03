@@ -82,8 +82,6 @@ public interface PetriNet {
 
     String getId();
 
-    String getLabel();
-
     /**
      * Returns the flows coming in to the transition.
      *

@@ -112,11 +112,6 @@ public class APTPetriNetAdapter implements PetriNet {
     }
 
     @Override
-    public String getLabel() {
-      return transition.getLabel();
-    }
-
-    @Override
     public Set<PetriNet.Flow> getPresetEdges() {
       return transition.getPresetEdges().stream()
           .map(Flow::new)
