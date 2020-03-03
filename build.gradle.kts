@@ -12,6 +12,11 @@ allprojects {
         jcenter()
         mavenCentral()
     }
+
+    tasks.withType<JavaCompile>().configureEach {
+        options.isDeprecation = true
+        options.compilerArgs.add("-Xlint:unchecked")
+    }
 }
 
 spotless {
