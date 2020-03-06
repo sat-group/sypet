@@ -2,11 +2,11 @@ package edu.cmu.sypet.java;
 
 import java.util.List;
 
-public interface MethodSignature {
+public interface MethodSignature<T extends Type> {
 
-  Type returnType();
+  T returnType();
 
-  MethodName name();
+  String name();
 
-  List<Type> parametersTypes();
+  List<T> parametersTypes();
 }
