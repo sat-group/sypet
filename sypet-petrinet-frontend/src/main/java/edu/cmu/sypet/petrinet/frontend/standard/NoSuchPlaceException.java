@@ -1,4 +1,4 @@
-package edu.cmu.sypet.petrinet.frontend;
+package edu.cmu.sypet.petrinet.frontend.standard;
 
 public class NoSuchPlaceException extends RuntimeException {
 
