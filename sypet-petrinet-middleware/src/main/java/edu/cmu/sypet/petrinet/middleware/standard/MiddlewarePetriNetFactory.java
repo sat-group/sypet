@@ -6,8 +6,9 @@ import edu.cmu.sypet.java.Type;
 import edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNet;
 
 // `PetriNetBuilder` director
-public class MiddlewarePetriNetFactory<T extends Type, MS extends MethodSignature<T>> implements
-    edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNetFactory<MiddlewarePetriNet<T, MS>> {
+public class MiddlewarePetriNetFactory<T extends Type, MS extends MethodSignature<T>>
+    implements edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNetFactory<
+        MiddlewarePetriNet<T, MS>> {
 
   private final PetriNetBuilder<T, MS> builder;
 

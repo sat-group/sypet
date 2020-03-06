@@ -39,9 +39,7 @@ final class PetriNetBuilder<T extends Type, MS extends MethodSignature<T>> {
   }
 
   private void validateTypesArePresent(Stream<T> types) {
-    Optional<T> notFoundType = types
-        .filter(type -> !net.containsPlace(type))
-        .findAny();
+    Optional<T> notFoundType = types.filter(type -> !net.containsPlace(type)).findAny();
 
     if (notFoundType.isPresent()) {
       throw new NoSuchPlaceException(notFoundType.get().name());

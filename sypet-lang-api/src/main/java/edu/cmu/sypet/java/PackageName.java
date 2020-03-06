@@ -1,5 +1,3 @@
 package edu.cmu.sypet.java;
 
-public interface PackageName {
-
-}
+public interface PackageName {}

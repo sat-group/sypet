@@ -3,8 +3,8 @@ package edu.cmu.sypet.petrinet.backend.standard;
 import java.util.Map;
 import java.util.Set;
 
-public final class PetriNet<Place, Transition> implements
-    edu.cmu.sypet.petrinet.backend.BackendPetriNet<Place, Transition> {
+public final class PetriNet<Place, Transition>
+    implements edu.cmu.sypet.petrinet.backend.BackendPetriNet<Place, Transition> {
 
   private final Set<Place> places;
   private final Set<Transition> transitions;
@@ -15,8 +15,7 @@ public final class PetriNet<Place, Transition> implements
       Set<Place> places,
       Set<Transition> transitions,
       Map<Place, Transition> placeToTransitionFlows,
-      Map<Transition, Place> transitionToPlaceFlows
-  ) {
+      Map<Transition, Place> transitionToPlaceFlows) {
     this.places = places;
     this.transitions = transitions;
     this.placeToTransitionFlows = placeToTransitionFlows;

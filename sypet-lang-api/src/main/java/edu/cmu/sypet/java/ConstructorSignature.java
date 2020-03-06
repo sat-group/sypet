@@ -1,5 +1,3 @@
 package edu.cmu.sypet.java;
 
-public interface ConstructorSignature extends MethodSignature {
-
-}
+public interface ConstructorSignature extends MethodSignature {}

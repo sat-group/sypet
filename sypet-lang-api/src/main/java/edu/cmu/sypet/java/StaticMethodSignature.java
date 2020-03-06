@@ -1,5 +1,3 @@
 package edu.cmu.sypet.java;
 
-public interface StaticMethodSignature extends MethodSignature {
-
-}
+public interface StaticMethodSignature extends MethodSignature {}

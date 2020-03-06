@@ -1,11 +1,11 @@
 package edu.cmu.reachability;
 
+import edu.cmu.reachability.SATSolver.ConstraintType;
+import edu.cmu.reachability.Variable.Type;
 import edu.cmu.reachability.petrinet.Flow;
 import edu.cmu.reachability.petrinet.PetriNet;
 import edu.cmu.reachability.petrinet.Place;
 import edu.cmu.reachability.petrinet.Transition;
-import edu.cmu.reachability.SATSolver.ConstraintType;
-import edu.cmu.reachability.Variable.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

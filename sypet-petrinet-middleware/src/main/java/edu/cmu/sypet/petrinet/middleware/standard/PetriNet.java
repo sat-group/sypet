@@ -5,8 +5,8 @@ import edu.cmu.sypet.java.Type;
 import edu.cmu.sypet.petrinet.backend.BackendPetriNet;
 import edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNet;
 
-final class PetriNet<T extends Type, MS extends MethodSignature<T>> implements
-    MiddlewarePetriNet<T, MS> {
+final class PetriNet<T extends Type, MS extends MethodSignature<T>>
+    implements MiddlewarePetriNet<T, MS> {
 
   private final BackendPetriNet<T, MS> net;
 

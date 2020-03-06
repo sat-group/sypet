@@ -5,15 +5,11 @@ import edu.cmu.sypet.petrinet.backend.BackendPetriNetFactory;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class PetriNetFactory<Place, Transition> implements
-    BackendPetriNetFactory<Place, Transition> {
+public class PetriNetFactory<Place, Transition>
+    implements BackendPetriNetFactory<Place, Transition> {
 
   @Override
   public BackendPetriNet<Place, Transition> create() {
-    return new PetriNet<>(
-        new HashSet<>(),
-        new HashSet<>(),
-        new HashMap<>(),
-        new HashMap<>());
+    return new PetriNet<>(new HashSet<>(), new HashSet<>(), new HashMap<>(), new HashMap<>());
   }
 }

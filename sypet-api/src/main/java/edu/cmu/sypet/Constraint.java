@@ -1,5 +1,3 @@
 package edu.cmu.sypet;
 
-public interface Constraint {
-
-}
+public interface Constraint {}
