@@ -3,7 +3,6 @@ package edu.cmu.sypet.petrinet.frontend.standard;
 import com.rits.cloning.Cloner;
 import edu.cmu.sypet.java.MethodSignature;
 import edu.cmu.sypet.java.Type;
-import edu.cmu.sypet.petrinet.frontend.NoSuchPlaceException;
 import edu.cmu.sypet.petrinet.backend.BackendPetriNet;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -17,7 +16,11 @@ final class PetriNetBuilder<T extends Type, MS extends MethodSignature<T>> {
   }
 
   public final PetriNetBuilder<T, MS> addPlace(final T type) {
-    this.net.addPlace(type);
+    // Ensure idempotence.
+    if (!net.containsPlace(type)) {
+      this.net.addPlace(type);
+    }
+
     return this;
   }
 
@@ -26,12 +29,10 @@ final class PetriNetBuilder<T extends Type, MS extends MethodSignature<T>> {
     validateTypesArePresent(signature.parametersTypes().stream());
     validateTypeIsPresent(signature.returnType());
 
-    // Ensure this method is idempotent.
-    if (net.containsTransition(signature)) {
-      return this;
+    // Ensure idempotence.
+    if (!net.containsTransition(signature)) {
+      net.addTransition(signature);
     }
-
-    net.addTransition(signature);
 
     return this;
   }
