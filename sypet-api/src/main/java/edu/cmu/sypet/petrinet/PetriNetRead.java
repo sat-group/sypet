@@ -1,9 +1,11 @@
 package edu.cmu.sypet.petrinet;
 
-/**
- * @see DefaultPetriNetFactory
- */
-interface PetriNetRead {
+import edu.cmu.sypet.java.MethodSignature;
+import edu.cmu.sypet.java.Type;
 
+public interface PetriNetRead {
 
+  boolean contains(Type type);
+
+  boolean contains(MethodSignature signature);
 }

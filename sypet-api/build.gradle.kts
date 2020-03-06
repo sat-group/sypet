@@ -24,6 +24,7 @@ dependencies {
     testImplementation(project(":sypet-test"))
     testImplementation(kotlin("stdlib-jdk8"))
     testImplementation(kotlin("test"))
+    testImplementation("io.mockk:mockk:1.9.3")
 }
 
 tasks.test {

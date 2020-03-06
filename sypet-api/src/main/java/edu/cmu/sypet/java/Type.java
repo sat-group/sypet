@@ -1,5 +1,6 @@
 package edu.cmu.sypet.java;
 
 public interface Type {
-  String name();
+
+  boolean isCastableTo(Type type);
 }
