@@ -10,9 +10,20 @@
 rootProject.name = "sypet"
 
 include(
-    "sypet-core",
+    "sypet-api",
+    "sypet-cli",
+    "sypet-compiler-api",
+    "sypet-gui",
+    "sypet-intellij-plugin",
+    "sypet-lang-api",
     "sypet-petrinet-backend",
-    "sypet-petrinet-frontend",
-    "sypet-test",
+    "sypet-petrinet-backend-api",
+    "sypet-petrinet-frontend-api",
+    "sypet-petrinet-middleware",
+    "sypet-petrinet-middleware-api",
+    "sypet-rest-api",
+    "sypet-runtime-api",
+    "sypet-sketcher-api",
+    "sypet-sketch-solver-api",
     "reachability-lib"
 )

@@ -1,1 +1,0 @@
-This directory contains classes used to test SyPet.

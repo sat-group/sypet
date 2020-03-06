@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    compile(project(":sypet-lang-api"))
     compile(project(":sypet-petrinet-backend-api"))
 }
 

@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":sypet-petrinet-backend-api"))
+    compile(project(":sypet-lang-api"))
 }
 
 tasks.register<Copy>("copyJar") {

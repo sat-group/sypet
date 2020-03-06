@@ -3,10 +3,6 @@ plugins {
     id("com.diffplug.gradle.spotless")
 }
 
-dependencies {
-    compile(project(":sypet-petrinet-backend-api"))
-}
-
 tasks.register<Copy>("copyJar") {
 }
 
