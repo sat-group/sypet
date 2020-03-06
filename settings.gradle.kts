@@ -9,4 +9,10 @@
 
 rootProject.name = "sypet"
 
-include("sypet-api", "sypet-cli", "sypet-test", "reachability-lib")
+include(
+    "sypet-core",
+    "sypet-petrinet-backend",
+    "sypet-petrinet-frontend",
+    "sypet-test",
+    "reachability-lib"
+)
