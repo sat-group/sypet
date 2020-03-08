@@ -1,7 +1,6 @@
 package edu.cmu.petrinet.sypet;
 
 import com.rits.cloning.Cloner;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -59,58 +58,28 @@ final class PetriNetBuilder {
   }
 
   final PetriNetBuilder addCloneTransition(final Type type) {
-    throw new UnsupportedOperationException();
+    final MethodSignature cloneSignature = new CloneMethodSignature(type);
+
+    this.addTransition(cloneSignature);
+
+    return this;
   }
 
   final PetriNetBuilder addCastTransition(final Type from, final Type to) {
-    throw new UnsupportedOperationException();
+    final MethodSignature castSignature = new CastMethodSignature(from, to);
+
+    if (!from.isCastableTo(to)) {
+      throw new BadCastException(from, to);
+    }
+
+    this.addTransition(castSignature);
+
+    return this;
   }
 
   // this method should return a new copy of the private net
   public final SyPetriNet build() {
     BackendPetriNet<Type, MethodSignature> copy = new Cloner().deepClone(this.net);
     return new PetriNet(copy);
-  }
-}
-
-final class VoidMethodSignature implements MethodSignature {
-  private final MethodSignature signature;
-
-  public VoidMethodSignature(MethodSignature signature) {
-    this.signature = signature;
-  }
-
-  @Override
-  public Collection<Type> parametersTypes() {
-    return signature.parametersTypes();
-  }
-
-  @Override
-  public String name() {
-    return signature.name();
-  }
-
-  @Override
-  public Type returnType() {
-    return new TypeFactory().createVoidType();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    VoidMethodSignature that = (VoidMethodSignature) o;
-
-    return signature.equals(that.signature);
-  }
-
-  @Override
-  public int hashCode() {
-    return signature.hashCode();
   }
 }

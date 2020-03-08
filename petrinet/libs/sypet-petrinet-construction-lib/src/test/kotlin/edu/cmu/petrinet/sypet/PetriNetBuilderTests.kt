@@ -2,8 +2,6 @@ package edu.cmu.petrinet.sypet
 
 import edu.cmu.petrinet.simple.PetriNetFactory
 import edu.cmu.petrinet.simple.SimplePetriNet
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -87,13 +85,20 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(mockk<Type>()) { addCloneTransition(it) }
+            val builder = createBuilder()
+            val type = DefaultType()
+
+            builder.addPlace(type)
+            val net1 = builder.addCloneTransition(type).build()
+            val net2 = builder.addCloneTransition(type).build()
+
+            assertEquals(expected = net1, actual = net2)
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
             `resulting Petri net contains the transition`(
-                mockk(),
+                DefaultMethodSignature(),
                 PetriNetBuilder::addTransition,
                 SyPetriNet::containsTransition
             )
@@ -101,7 +106,7 @@ class PetriNetBuilderTests {
 
         @Test
         fun `throws if a type is missing`() {
-            `throws if a type is missing`(mockk(), PetriNetBuilder::addCloneTransition)
+            `throws if a type is missing`(DefaultType(), PetriNetBuilder::addCloneTransition)
         }
 
     }
@@ -111,13 +116,22 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(mockk<Type>(), mockk(), PetriNetBuilder::addCastTransition)
+            val builder = createBuilder()
+
+            val from = DefaultType(isCastableTo = true)
+            val to = DefaultType()
+
+            builder.addPlace(from).addPlace(to)
+            val net1 = builder.addCastTransition(from, to).build()
+            val net2 = builder.addCastTransition(from, to).build()
+
+            assertEquals(expected = net1, actual = net2)
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
             `resulting Petri net contains the transition`(
-                mockk(),
+                DefaultMethodSignature(),
                 PetriNetBuilder::addTransition,
                 SyPetriNet::containsTransition
             )
@@ -125,31 +139,31 @@ class PetriNetBuilderTests {
 
         @Test
         fun `throws if a type is missing`() {
-            val type1 = mockk<Type>()
-            val type2 = mockk<Type>()
+            val from = DefaultType(isCastableTo = true)
+            val to = DefaultType(isCastableTo = true)
 
-            every { type1 != type2 } returns false
-
-            `throws if a type is missing`(type1, type2, PetriNetBuilder::addCastTransition)
+            `throws if a type is missing`(from, to, PetriNetBuilder::addCastTransition)
         }
 
         @Test
         fun `throws if the types are not castable`() {
             val builder = createBuilder()
 
-            val type1 = mockk<Type>()
-            val type2 = mockk<Type>()
+            val from = DefaultType()
+            val to = DefaultType()
 
-            every { type1.isCastableTo(type2) } returns false
+            builder
+                .addPlace(from)
+                .addPlace(to)
 
-            assertThrows<BadCastException> { builder.addCastTransition(type1, type2) }
+            assertThrows<BadCastException> { builder.addCastTransition(from, to) }
         }
 
     }
 
-    private class DefaultType : Type {
+    private class DefaultType(private val isCastableTo: Boolean = false) : Type {
         override fun isCastableTo(type: Type?): Boolean {
-            TODO()
+            return isCastableTo
         }
 
         override fun name(): String {
