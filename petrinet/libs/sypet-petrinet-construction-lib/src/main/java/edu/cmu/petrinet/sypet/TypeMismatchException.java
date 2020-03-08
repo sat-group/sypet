@@ -1,3 +1,3 @@
-package edu.cmu.sypet.petrinet.simple;
+package edu.cmu.petrinet.sypet;
 
 class TypeMismatchException extends RuntimeException {}

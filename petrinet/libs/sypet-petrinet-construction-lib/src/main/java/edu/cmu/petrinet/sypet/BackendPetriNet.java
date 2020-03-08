@@ -1,4 +1,4 @@
-package edu.cmu.sypet.petrinet.simple;
+package edu.cmu.petrinet.sypet;
 
 public interface BackendPetriNet<T, MS> {
 

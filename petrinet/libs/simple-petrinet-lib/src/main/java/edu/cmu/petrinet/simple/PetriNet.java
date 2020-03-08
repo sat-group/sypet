@@ -1,4 +1,4 @@
-package edu.cmu.sypet.petrinet.simple;
+package edu.cmu.petrinet.simple;
 
 import java.util.Map;
 import java.util.Set;

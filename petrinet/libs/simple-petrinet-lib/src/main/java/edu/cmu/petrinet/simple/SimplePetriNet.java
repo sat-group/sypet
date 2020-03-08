@@ -1,4 +1,4 @@
-package edu.cmu.sypet.petrinet.simple;
+package edu.cmu.petrinet.simple;
 
 public interface SimplePetriNet<Place, Transition> {
 

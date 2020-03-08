@@ -1,5 +1,7 @@
-package edu.cmu.sypet.petrinet.simple
+package edu.cmu.petrinet.sypet
 
+import edu.cmu.petrinet.simple.PetriNetFactory
+import edu.cmu.petrinet.simple.SimplePetriNet
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Nested
@@ -9,10 +11,6 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private typealias MSignature = MethodSignature<Type>
-private typealias PNBuilder = PetriNetBuilder<Type, MSignature>
-private typealias FrontendPN = SyPetriNet<Type, MSignature>
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PetriNetBuilderTests {
 
@@ -21,7 +19,7 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(type, PNBuilder::addPlace)
+            `is idempotent`(type, PetriNetBuilder::addPlace)
         }
 
         @Test
@@ -47,14 +45,14 @@ class PetriNetBuilderTests {
         fun `the resulting Petri net contains the transition`() {
             `resulting Petri net contains the transition`(
                 signature = signature,
-                add = PNBuilder::addTransition,
-                contains = FrontendPN::containsTransition
+                add = PetriNetBuilder::addTransition,
+                contains = SyPetriNet::containsTransition
             )
         }
 
         @Test
         fun `throws if a type is missing`() {
-            `throws if a type is missing`(signature, PNBuilder::addTransition)
+            `throws if a type is missing`(signature, PetriNetBuilder::addTransition)
         }
 
     }
@@ -64,17 +62,21 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(mockk<MSignature>()) { addVoidTransition(it) }
+            `is idempotent`(signature = signature) { addVoidTransition(it) }
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
-            `resulting Petri net contains the transition`(mockk(), PNBuilder::addTransition, FrontendPN::containsTransition)
+            `resulting Petri net contains the transition`(
+                mockk(),
+                PetriNetBuilder::addTransition,
+                SyPetriNet::containsTransition
+            )
         }
 
         @Test
         fun `throws if types are missing`() {
-            `throws if a type is missing`(mockk(), PNBuilder::addVoidTransition)
+            `throws if a type is missing`(mockk(), PetriNetBuilder::addVoidTransition)
         }
 
     }
@@ -89,12 +91,16 @@ class PetriNetBuilderTests {
 
         @Test
         fun `the resulting Petri net contains the transition`() {
-            `resulting Petri net contains the transition`(mockk(), PNBuilder::addTransition, FrontendPN::containsTransition)
+            `resulting Petri net contains the transition`(
+                mockk(),
+                PetriNetBuilder::addTransition,
+                SyPetriNet::containsTransition
+            )
         }
 
         @Test
         fun `throws if a type is missing`() {
-            `throws if a type is missing`(mockk(), PNBuilder::addCloneTransition)
+            `throws if a type is missing`(mockk(), PetriNetBuilder::addCloneTransition)
         }
 
     }
@@ -104,12 +110,16 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(mockk<Type>(), mockk(), PNBuilder::addCastTransition)
+            `is idempotent`(mockk<Type>(), mockk(), PetriNetBuilder::addCastTransition)
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
-            `resulting Petri net contains the transition`(mockk(), PNBuilder::addTransition,  FrontendPN::containsTransition)
+            `resulting Petri net contains the transition`(
+                mockk(),
+                PetriNetBuilder::addTransition,
+                SyPetriNet::containsTransition
+            )
         }
 
         @Test
@@ -119,7 +129,7 @@ class PetriNetBuilderTests {
 
             every { type1 != type2 } returns false
 
-            `throws if a type is missing`(type1, type2, PNBuilder::addCastTransition)
+            `throws if a type is missing`(type1, type2, PetriNetBuilder::addCastTransition)
         }
 
         @Test
@@ -154,7 +164,7 @@ class PetriNetBuilderTests {
         }
     }
 
-    private val signature = object : MSignature {
+    private val signature = object : MethodSignature {
         override fun returnType(): Type {
             return type
         }
@@ -176,31 +186,49 @@ class PetriNetBuilderTests {
         }
     }
 
-    private fun createBuilder(): PNBuilder {
-        val simplePetriNet = PetriNetFactory().create<Type, MSignature>()
+    private class DefaultBackendPetriNet(val petriNet: SimplePetriNet<Type, MethodSignature>) :
+        BackendPetriNet<Type, MethodSignature> {
+        override fun containsPlace(type: Type): Boolean {
+            return petriNet.containsPlace(type)
+        }
 
-        return PNBuilder(object : BackendPetriNet<Type, MSignature> {
-            override fun containsPlace(type: Type): Boolean {
-                return simplePetriNet.containsPlace(type)
+        override fun containsTransition(signature: MethodSignature): Boolean {
+            return petriNet.containsTransition(signature)
+        }
+
+        override fun addPlace(type: Type) {
+            return petriNet.addPlace(type)
+        }
+
+        override fun addTransition(signature: MethodSignature) {
+            return petriNet.addTransition(signature)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+            if (other == null || this::class != other::class) {
+                return false
             }
 
-            override fun containsTransition(signature: MSignature): Boolean {
-                return simplePetriNet.containsTransition(signature)
-            }
+            val defaulPetriNet = other as DefaultBackendPetriNet
+            return this.petriNet == defaulPetriNet.petriNet
+        }
 
-            override fun addPlace(type: Type) {
-                return simplePetriNet.addPlace(type)
-            }
+        override fun hashCode(): Int {
+            return petriNet.hashCode()
+        }
+    }
 
-            override fun addTransition(signature: MSignature?) {
-                return addTransition(signature)
-            }
-        })
+    private fun createBuilder(): PetriNetBuilder {
+        val simplePetriNet = PetriNetFactory().create<Type, MethodSignature>()
+        return PetriNetBuilder(DefaultBackendPetriNet(simplePetriNet))
     }
 
     private fun <T> `is idempotent`(
         node: T,
-        add: PNBuilder.(T) -> PNBuilder
+        add: PetriNetBuilder.(T) -> PetriNetBuilder
     ) {
         val builder = createBuilder()
 
@@ -211,8 +239,8 @@ class PetriNetBuilderTests {
     }
 
     private fun `is idempotent`(
-        signature: MSignature,
-        add: PNBuilder.(MSignature) -> PNBuilder
+        signature: MethodSignature,
+        add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder
     ) {
         val builder = createBuilder()
 
@@ -225,8 +253,8 @@ class PetriNetBuilderTests {
     }
 
     private fun `add method types`(
-        builder: PNBuilder,
-        signature: MSignature
+        builder: PetriNetBuilder,
+        signature: MethodSignature
     ) {
         builder.addPlace(signature.returnType())
         for (type in signature.parametersTypes()) {
@@ -237,7 +265,7 @@ class PetriNetBuilderTests {
     private fun <T, U> `is idempotent`(
         node1: T,
         node2: U,
-        add: PNBuilder.(T, U) -> PNBuilder
+        add: PetriNetBuilder.(T, U) -> PetriNetBuilder
     ) {
         val builder = createBuilder()
 
@@ -248,9 +276,9 @@ class PetriNetBuilderTests {
     }
 
     private fun `resulting Petri net contains the transition`(
-        signature: MSignature,
-        add: PNBuilder.(MSignature) -> PNBuilder,
-        contains: FrontendPN.(MSignature) -> Boolean
+        signature: MethodSignature,
+        add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder,
+        contains: SyPetriNet.(MethodSignature) -> Boolean
     ) {
         val builder = createBuilder()
 
@@ -262,7 +290,7 @@ class PetriNetBuilderTests {
 
     private fun <T> `throws if a type is missing`(
         node: T,
-        add: PNBuilder.(T) -> PNBuilder
+        add: PetriNetBuilder.(T) -> PetriNetBuilder
     ) {
         val builder = createBuilder()
 
@@ -274,7 +302,7 @@ class PetriNetBuilderTests {
     private fun <T, U> `throws if a type is missing`(
         node1: T,
         node2: U,
-        add: PNBuilder.(T, U) -> PNBuilder
+        add: PetriNetBuilder.(T, U) -> PetriNetBuilder
     ) {
         val builder = createBuilder()
 
