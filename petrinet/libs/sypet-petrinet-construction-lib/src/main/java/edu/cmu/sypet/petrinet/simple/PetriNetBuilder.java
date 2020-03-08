@@ -1,10 +1,6 @@
-package edu.cmu.sypet.petrinet.middleware.standard;
+package edu.cmu.sypet.petrinet.simple;
 
 import com.rits.cloning.Cloner;
-import edu.cmu.sypet.java.MethodSignature;
-import edu.cmu.sypet.java.Type;
-import edu.cmu.sypet.petrinet.backend.BackendPetriNet;
-import edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNet;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -65,8 +61,8 @@ final class PetriNetBuilder<T extends Type, MS extends MethodSignature<T>> {
   }
 
   // this method should return a new copy of the private net
-  public final MiddlewarePetriNet<T, MS> build() {
+  public final SyPetriNet<T, MS> build() {
     BackendPetriNet<T, MS> copy = new Cloner().deepClone(this.net);
-    return new PetriNet<>(copy);
+    return new PetriNet<T, MS>(copy);
   }
 }

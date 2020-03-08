@@ -1,9 +1,5 @@
-package edu.cmu.sypet.petrinet.middleware.standard
+package edu.cmu.sypet.petrinet.simple
 
-import edu.cmu.sypet.java.MethodSignature
-import edu.cmu.sypet.java.Type
-import edu.cmu.sypet.petrinet.backend.standard.PetriNetFactory
-import edu.cmu.sypet.petrinet.middleware.MiddlewarePetriNet
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Nested
@@ -15,7 +11,7 @@ import kotlin.test.assertTrue
 
 private typealias MSignature = MethodSignature<Type>
 private typealias PNBuilder = PetriNetBuilder<Type, MSignature>
-private typealias FrontendPN = MiddlewarePetriNet<Type, MSignature>
+private typealias FrontendPN = SyPetriNet<Type, MSignature>
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PetriNetBuilderTests {
@@ -158,10 +154,9 @@ class PetriNetBuilderTests {
         }
     }
 
-    private val signature = object :
-        MSignature {
+    private val signature = object : MSignature {
         override fun returnType(): Type {
-            return type;
+            return type
         }
 
         override fun name(): String {
@@ -182,9 +177,25 @@ class PetriNetBuilderTests {
     }
 
     private fun createBuilder(): PNBuilder {
-        val petriNetWrite = PetriNetFactory<Type, MSignature>().create()
+        val simplePetriNet = PetriNetFactory().create<Type, MSignature>()
 
-        return PNBuilder(petriNetWrite)
+        return PNBuilder(object : BackendPetriNet<Type, MSignature> {
+            override fun containsPlace(type: Type): Boolean {
+                return simplePetriNet.containsPlace(type)
+            }
+
+            override fun containsTransition(signature: MSignature): Boolean {
+                return simplePetriNet.containsTransition(signature)
+            }
+
+            override fun addPlace(type: Type) {
+                return simplePetriNet.addPlace(type)
+            }
+
+            override fun addTransition(signature: MSignature?) {
+                return addTransition(signature)
+            }
+        })
     }
 
     private fun <T> `is idempotent`(

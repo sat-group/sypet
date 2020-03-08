@@ -1,10 +1,9 @@
-package edu.cmu.sypet.petrinet.backend.standard;
+package edu.cmu.sypet.petrinet.simple;
 
 import java.util.Map;
 import java.util.Set;
 
-public final class PetriNet<Place, Transition>
-    implements edu.cmu.sypet.petrinet.backend.BackendPetriNet<Place, Transition> {
+final class PetriNet<Place, Transition> implements SimplePetriNet<Place, Transition> {
 
   private final Set<Place> places;
   private final Set<Transition> transitions;
