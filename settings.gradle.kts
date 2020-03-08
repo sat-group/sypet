@@ -9,21 +9,90 @@
 
 rootProject.name = "sypet"
 
-include(
-    "sypet-api",
-    "sypet-cli",
-    "sypet-compiler-api",
-    "sypet-gui",
-    "sypet-intellij-plugin",
-    "sypet-lang-api",
-    "sypet-petrinet-backend",
-    "sypet-petrinet-backend-api",
-    "sypet-petrinet-frontend-api",
-    "sypet-petrinet-middleware",
-    "sypet-petrinet-middleware-api",
-    "sypet-rest-api",
-    "sypet-runtime-api",
-    "sypet-sketcher-api",
-    "sypet-sketch-solver-api",
-    "reachability-lib"
+// Declare the projects under the folder `sypet`.
+
+val `sypet-adapters` = listOf().map { "$it-adapter" }
+
+val `sypet-apis` = listOf(
+// "compiler",
+"lang",
+// "runtime",
+// "sketch-solver",
+// "sketcher",
+"synthesiser"
+).map { "$it-api" }
+
+val `sypet-apps` = listOf(
+// "cli",
+// "gui",
+// "intellij-plugin",
+// "rest-api"
 )
+
+val `sypet-libs` = listOf(
+// "compiler",
+// "java-lang",
+// "runtime",
+// "sketch-solver",
+// "sketcher",
+// "synthesiser"
+).map { "$it-lib" }
+
+val sypet = listOf(
+    `sypet-adapters`,
+    `sypet-apis`,
+    `sypet-apps`,
+    `sypet-libs`
+).flatten()
+
+// Declare the projects under the folder `petrinet`.
+
+val `petrinet-adapters` = listOf().map { "$it-adapter" }
+
+val `petrinet-apis` = listOf(
+"petrinet-backend",
+"petrinet-construction"
+).map { "$it-api" }
+
+val `petrinet-libs` = listOf(
+"simple-petrinet",
+"sypet-petrinet-construction",
+"sypet-petrinet-reachability"
+).map { "$it-lib" }
+
+val petrinet = listOf(
+    `petrinet-adapters`,
+    `petrinet-apis`,
+    `petrinet-libs`
+).flatten()
+
+val includes = listOf(
+    sypet,
+    petrinet
+).flatten()
+
+// Include all the projects.
+includes.map { include(it) }
+
+// Tell Gradle where to find the projects.
+
+fun String.setProjectDir(dir: String) {
+    project(":$this").projectDir = file("$dir/$this")
+}
+
+fun List<String>.setProjectDir(dir: String) {
+    map { it.setProjectDir(dir) }
+}
+
+val `sypet-dir` = "sypet"
+
+`sypet-adapters`.setProjectDir("$`sypet-dir`/adapters")
+`sypet-apis`.setProjectDir("$`sypet-dir`/apis")
+`sypet-apps`.setProjectDir("$`sypet-dir`/apps")
+`sypet-libs`.setProjectDir("$`sypet-dir`/libs")
+
+val `petri-net-dir` = "petrinet"
+
+`petrinet-adapters`.setProjectDir("$`petri-net-dir`/adapters")
+`petrinet-apis`.setProjectDir("$`petri-net-dir`/apis")
+`petrinet-libs`.setProjectDir("$`petri-net-dir`/libs")
