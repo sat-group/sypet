@@ -19,16 +19,16 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(type, PetriNetBuilder::addPlace)
+            `is idempotent`(DefaultType(), PetriNetBuilder::addPlace)
         }
 
         @Test
         fun `the resulting Petri net contains the place`() {
             val builder = createBuilder()
 
-            val net = builder.addPlace(type).build()
+            val net = builder.addPlace(DefaultType()).build()
 
-            assertTrue(net.containsPlace(type))
+            assertTrue(net.containsPlace(DefaultType()))
         }
 
     }
@@ -38,13 +38,13 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(signature = signature) { addTransition(it) }
+            `is idempotent`(signature = DefaultMethodSignature()) { addTransition(it) }
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
             `resulting Petri net contains the transition`(
-                signature = signature,
+                signature = DefaultMethodSignature(),
                 add = PetriNetBuilder::addTransition,
                 contains = SyPetriNet::containsTransition
             )
@@ -52,7 +52,7 @@ class PetriNetBuilderTests {
 
         @Test
         fun `throws if a type is missing`() {
-            `throws if a type is missing`(signature, PetriNetBuilder::addTransition)
+            `throws if a type is missing`(DefaultMethodSignature(), PetriNetBuilder::addTransition)
         }
 
     }
@@ -62,13 +62,13 @@ class PetriNetBuilderTests {
 
         @Test
         fun `is idempotent`() {
-            `is idempotent`(signature = signature) { addVoidTransition(it) }
+            `is idempotent`(signature = DefaultMethodSignature()) { addVoidTransition(it) }
         }
 
         @Test
         fun `the resulting Petri net contains the transition`() {
             `resulting Petri net contains the transition`(
-                mockk(),
+                DefaultMethodSignature(),
                 PetriNetBuilder::addTransition,
                 SyPetriNet::containsTransition
             )
@@ -76,7 +76,8 @@ class PetriNetBuilderTests {
 
         @Test
         fun `throws if types are missing`() {
-            `throws if a type is missing`(mockk(), PetriNetBuilder::addVoidTransition)
+            `throws if a type is missing`(DefaultMethodSignature(),
+                PetriNetBuilder::addVoidTransition)
         }
 
     }
@@ -146,7 +147,7 @@ class PetriNetBuilderTests {
 
     }
 
-    private val type = object : Type {
+    private class DefaultType : Type {
         override fun isCastableTo(type: Type?): Boolean {
             TODO()
         }
@@ -156,17 +157,20 @@ class PetriNetBuilderTests {
         }
 
         override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return name().hashCode()
+            return javaClass.hashCode()
         }
+
     }
 
-    private val signature = object : MethodSignature {
+    private class DefaultMethodSignature() : MethodSignature {
         override fun returnType(): Type {
-            return type
+            return DefaultType()
         }
 
         override fun name(): String {
@@ -174,16 +178,19 @@ class PetriNetBuilderTests {
         }
 
         override fun parametersTypes(): MutableList<Type> {
-            return MutableList(size = 3) { type }
+            return MutableList(size = 3) { DefaultType() }
         }
 
         override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return 0
+            return javaClass.hashCode()
         }
+
     }
 
     private class DefaultBackendPetriNet(val petriNet: SimplePetriNet<Type, MethodSignature>) :
@@ -208,7 +215,7 @@ class PetriNetBuilderTests {
             if (this === other) {
                 return true
             }
-            if (other == null || this::class != other::class) {
+            if (other == null || javaClass != other.javaClass) {
                 return false
             }
 

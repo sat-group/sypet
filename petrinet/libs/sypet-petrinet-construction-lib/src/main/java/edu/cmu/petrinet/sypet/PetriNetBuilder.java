@@ -50,30 +50,12 @@ final class PetriNetBuilder {
   }
 
   final PetriNetBuilder addVoidTransition(final MethodSignature signature) {
-    final Type voidType = new TypeFactory().createVoidType();
-    final MethodSignature voidSignature = new MethodSignature() {
-      @Override
-      public Collection<Type> parametersTypes() {
-        return signature.parametersTypes();
-      }
+    final MethodSignature voidSignature = new VoidMethodSignature(signature);
 
-      @Override
-      public String name() {
-        return signature.name();
-      }
+    this.addPlace(voidSignature.returnType());
+    this.addTransition(voidSignature);
 
-      @Override
-      public Type returnType() {
-        return voidType;
-      }
-    };
-
-    // Ensure idempotency.
-    if (!this.net.containsTransition(voidSignature)) {
-      this.net.addTransition(voidSignature);
-    }
-
-    throw new UnsupportedOperationException();
+    return this;
   }
 
   final PetriNetBuilder addCloneTransition(final Type type) {
@@ -88,5 +70,47 @@ final class PetriNetBuilder {
   public final SyPetriNet build() {
     BackendPetriNet<Type, MethodSignature> copy = new Cloner().deepClone(this.net);
     return new PetriNet(copy);
+  }
+}
+
+final class VoidMethodSignature implements MethodSignature {
+  private final MethodSignature signature;
+
+  public VoidMethodSignature(MethodSignature signature) {
+    this.signature = signature;
+  }
+
+  @Override
+  public Collection<Type> parametersTypes() {
+    return signature.parametersTypes();
+  }
+
+  @Override
+  public String name() {
+    return signature.name();
+  }
+
+  @Override
+  public Type returnType() {
+    return new TypeFactory().createVoidType();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    VoidMethodSignature that = (VoidMethodSignature) o;
+
+    return signature.equals(that.signature);
+  }
+
+  @Override
+  public int hashCode() {
+    return signature.hashCode();
   }
 }
