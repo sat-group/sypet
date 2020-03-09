@@ -6,8 +6,6 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.kostaskougios:cloning:1.10.1")
-
     testImplementation(kotlin("stdlib-jdk8"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")

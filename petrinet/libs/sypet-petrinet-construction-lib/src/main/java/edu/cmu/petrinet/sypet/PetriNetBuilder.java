@@ -1,6 +1,5 @@
 package edu.cmu.petrinet.sypet;
 
-import com.rits.cloning.Cloner;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -91,7 +90,6 @@ final class PetriNetBuilder {
 
   // this method should return a new copy of the private net
   public final SyPetriNet build() {
-    BackendPetriNet<Type, MethodSignature> copy = new Cloner().deepClone(this.net);
-    return new PetriNet(copy);
+    return new PetriNet(this.net);
   }
 }
