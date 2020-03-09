@@ -1,7 +1,7 @@
 package edu.cmu.petrinet.sypet;
 
-public final class TypeFactory {
-  public Type createVoidType() {
+final class TypeFactory {
+  Type createVoidType() {
     return new VoidType();
   }
 }

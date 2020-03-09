@@ -3,10 +3,10 @@ package edu.cmu.petrinet.sypet;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CloneMethodSignature implements MethodSignature {
+class CloneMethodSignature implements MethodSignature {
   private final Type type;
 
-  public CloneMethodSignature(Type type) {
+  CloneMethodSignature(Type type) {
     this.type = type;
   }
 

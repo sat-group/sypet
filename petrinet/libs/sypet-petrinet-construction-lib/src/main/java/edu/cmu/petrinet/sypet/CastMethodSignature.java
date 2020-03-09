@@ -3,11 +3,11 @@ package edu.cmu.petrinet.sypet;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class CastMethodSignature implements MethodSignature {
+class CastMethodSignature implements MethodSignature {
   private final Type subtype;
   private final Type supertype;
 
-  public CastMethodSignature(Type subtype, Type supertype) {
+  CastMethodSignature(Type subtype, Type supertype) {
     this.subtype = subtype;
     this.supertype = supertype;
   }
