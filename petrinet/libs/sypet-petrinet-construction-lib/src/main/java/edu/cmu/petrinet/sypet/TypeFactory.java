@@ -2,25 +2,22 @@ package edu.cmu.petrinet.sypet;
 
 final class TypeFactory {
   Type createVoidType() {
-    return new VoidType();
+    return new SimpleType("void", false);
   }
 }
 
-final class VoidType implements Type {
-  private final String name = "void";
-  private final boolean isCastableTo = false;
+final class SimpleType implements Type {
+  private final String name;
+  private final boolean isCastable;
 
-  VoidType() {
+  public SimpleType(String name, boolean isCastable) {
+    this.name = name;
+    this.isCastable = isCastable;
   }
 
   @Override
   public String name() {
-    return name;
-  }
-
-  @Override
-  public boolean isCastableTo(Type type) {
-    return isCastableTo;
+    return this.name;
   }
 
   @Override
@@ -32,18 +29,23 @@ final class VoidType implements Type {
       return false;
     }
 
-    VoidType voidType = (VoidType) o;
+    SimpleType that = (SimpleType) o;
 
-    if (isCastableTo != voidType.isCastableTo) {
+    if (isCastable != that.isCastable) {
       return false;
     }
-    return name.equals(voidType.name);
+    return name.equals(that.name);
   }
 
   @Override
   public int hashCode() {
     int result = name.hashCode();
-    result = 31 * result + (isCastableTo ? 1 : 0);
+    result = 31 * result + (isCastable ? 1 : 0);
     return result;
+  }
+
+  @Override
+  public boolean isCastableTo(Type type) {
+    return this.isCastable;
   }
 }
