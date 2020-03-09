@@ -10,7 +10,7 @@ final class PetriNetBuilder {
 
   private final BackendPetriNet<Type, MethodSignature> net;
 
-  public PetriNetBuilder(final BackendPetriNet<Type, MethodSignature> net) {
+  PetriNetBuilder(final BackendPetriNet<Type, MethodSignature> net) {
     this.net = net;
   }
 
@@ -85,11 +85,7 @@ final class PetriNetBuilder {
   }
 
   final PetriNetBuilder addCastTransition(final Type from, final Type to)
-      throws BadCastException, NoSuchPlaceException {
-    if (!from.isCastableTo(to)) {
-      throw new BadCastException(from, to);
-    }
-
+      throws NoSuchPlaceException {
     return this.addTransition(new CastMethodSignature(from, to));
   }
 
