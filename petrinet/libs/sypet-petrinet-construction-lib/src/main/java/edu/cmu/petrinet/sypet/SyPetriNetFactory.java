@@ -12,33 +12,35 @@ public final class SyPetriNetFactory {
   }
 
   public SyPetriNet createFrom(final Library library) {
-    final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
+    try {
+      final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
 
-    for (Type type : library.types()) {
-      builder
-          .addPlace(type)
-          .addCloneTransition(type);
+      builder.addVoid();
+
+      for (Type type : library.types()) {
+        builder
+            .addPlace(type)
+            .addCloneTransition(type);
+      }
+
+      for (MethodSignature signature : library.signatures()) {
+        builder
+            .addTransition(signature)
+            .addVoidTransition(signature);
+      }
+
+      for (Entry<Type, Type> entry : library.castRelation()) {
+        final Type subtype = entry.getKey();
+        final Type supertype = entry.getValue();
+
+        builder.addCastTransition(subtype, supertype);
+      }
+
+      return builder.build();
+    } catch (BadCastException e) {
+      throw new PetriNetConstructionException(e);
+    } catch (NoSuchPlaceException e) {
+      throw new PetriNetConstructionException(e);
     }
-
-    for (MethodSignature signature : library.signatures()) {
-      builder
-          .addTransition(signature)
-          .addVoidTransition(signature);
-    }
-
-    for (Entry<Type, Type> entry : library.subtypeRelation()) {
-      final Type subtype = entry.getKey();
-      final Type supertype = entry.getValue();
-
-      builder.addCastTransition(subtype, supertype);
-    }
-
-    return builder.build();
-
-//    try{
-//    } catch (BadCastException e) {
-//    } catch (NoSuchPlaceException e) {
-//    } catch (TypeMismatchException e) {
-//    }
   }
 }

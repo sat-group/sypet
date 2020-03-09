@@ -1,8 +1,9 @@
 package edu.cmu.petrinet.sypet;
 
-class NoSuchPlaceException extends RuntimeException {
+class NoSuchPlaceException extends Exception {
 
-  NoSuchPlaceException(String message) {
-    super(message);
+  NoSuchPlaceException(Type type, MethodSignature signature) {
+    super("Error while adding signature of " + signature.name() + ": type " + type.name()
+        + " not found");
   }
 }

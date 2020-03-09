@@ -9,5 +9,5 @@ public interface Library {
 
   Collection<MethodSignature> signatures();
 
-  Set<Entry<Type, Type>> subtypeRelation();
+  Set<Entry<Type, Type>> castRelation();
 }

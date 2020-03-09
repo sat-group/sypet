@@ -23,10 +23,15 @@ final class PetriNetBuilder {
     return this;
   }
 
-  public PetriNetBuilder addTransition(final MethodSignature signature) {
+  public final PetriNetBuilder addVoid() {
+    return this.addPlace(new TypeFactory().createVoidType());
+  }
+
+  public PetriNetBuilder addTransition(final MethodSignature signature)
+      throws NoSuchPlaceException {
     // Validate that all types in the signature are present in the net.
-    validateTypesArePresent(signature.parametersTypes().stream());
-    validateTypeIsPresent(signature.returnType());
+    validateTypesArePresent(signature.parametersTypes().stream(), signature);
+    validateTypeIsPresent(signature.returnType(), signature);
 
     // Ensure idempotence.
     if (!this.net.containsTransition(signature)) {
@@ -47,7 +52,6 @@ final class PetriNetBuilder {
           }
         });
 
-
     // Connect the signature to the return type.
     // Ensure idempotence.
     if (!this.net.isTransitionAdjacentToPlace(signature, signature.returnType())) {
@@ -57,47 +61,36 @@ final class PetriNetBuilder {
     return this;
   }
 
-  private void validateTypesArePresent(Stream<Type> types) {
+  private void validateTypesArePresent(Stream<Type> types, MethodSignature signature)
+      throws NoSuchPlaceException {
     Optional<Type> notFoundType = types.filter(type -> !net.containsPlace(type)).findAny();
 
     if (notFoundType.isPresent()) {
-      throw new NoSuchPlaceException(notFoundType.get().name());
+      throw new NoSuchPlaceException(notFoundType.get(), signature);
     }
   }
 
-  private void validateTypeIsPresent(Type type) {
-    if (!this.net.containsPlace(type)) {
-      throw new NoSuchPlaceException(type.name());
-    }
+  private void validateTypeIsPresent(Type type, MethodSignature signature)
+      throws NoSuchPlaceException {
+    validateTypesArePresent(Stream.of(type), signature);
   }
 
-  final PetriNetBuilder addVoidTransition(final MethodSignature signature) {
-    final MethodSignature voidSignature = new VoidMethodSignature(signature);
-
-    this.addPlace(voidSignature.returnType());
-    this.addTransition(voidSignature);
-
-    return this;
+  final PetriNetBuilder addVoidTransition(final MethodSignature signature)
+      throws NoSuchPlaceException {
+    return this.addTransition(new VoidMethodSignature(signature));
   }
 
-  final PetriNetBuilder addCloneTransition(final Type type) {
-    final MethodSignature cloneSignature = new CloneMethodSignature(type);
-
-    this.addTransition(cloneSignature);
-
-    return this;
+  final PetriNetBuilder addCloneTransition(final Type type) throws NoSuchPlaceException {
+    return this.addTransition(new CloneMethodSignature(type));
   }
 
-  final PetriNetBuilder addCastTransition(final Type from, final Type to) {
-    final MethodSignature castSignature = new CastMethodSignature(from, to);
-
+  final PetriNetBuilder addCastTransition(final Type from, final Type to)
+      throws BadCastException, NoSuchPlaceException {
     if (!from.isCastableTo(to)) {
       throw new BadCastException(from, to);
     }
 
-    this.addTransition(castSignature);
-
-    return this;
+    return this.addTransition(new CastMethodSignature(from, to));
   }
 
   // this method should return a new copy of the private net
