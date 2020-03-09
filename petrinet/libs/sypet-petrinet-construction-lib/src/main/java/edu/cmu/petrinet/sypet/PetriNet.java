@@ -19,6 +19,26 @@ final class PetriNet implements SyPetriNet {
   }
 
   @Override
+  public boolean isTypeAdjacentToSignature(Type type, MethodSignature signature) {
+    return this.net.isPlaceAdjacentToTransition(type, signature);
+  }
+
+  @Override
+  public boolean isSignatureAdjacentToType(MethodSignature signature, Type type) {
+    return this.net.isTransitionAdjacentToPlace(signature, type);
+  }
+
+  @Override
+  public int getArcWeightFromTypeToSignature(Type type, MethodSignature signature) {
+    return this.net.getArcWeightFromTypeToSignature(type, signature);
+  }
+
+  @Override
+  public int getArcWeightFromSignatureToType(MethodSignature signature, Type type) {
+    return this.net.getArcWeightFromSignatureToType(signature, type);
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

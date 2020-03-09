@@ -43,6 +43,6 @@ public class CloneMethodSignature implements MethodSignature {
 
   @Override
   public int hashCode() {
-    return type.hashCode();
+    return name().hashCode();
   }
 }

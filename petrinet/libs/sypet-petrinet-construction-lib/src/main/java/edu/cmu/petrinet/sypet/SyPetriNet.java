@@ -1,14 +1,16 @@
 package edu.cmu.petrinet.sypet;
 
-public interface SyPetriNet {
+public interface SyPetriNet<T extends Type, MS extends MethodSignature> {
 
-  boolean containsPlace(Type type);
+  boolean containsPlace(T type);
 
-  boolean containsTransition(MethodSignature signature);
+  boolean containsTransition(MS signature);
 
-  @Override
-  boolean equals(Object o);
+  boolean isTypeAdjacentToSignature(T type, MS signature);
 
-  @Override
-  int hashCode();
+  boolean isSignatureAdjacentToType(MS signature, T type);
+
+  int getArcWeightFromTypeToSignature(T type, MS signature);
+
+  int getArcWeightFromSignatureToType(MS signature, T type);
 }

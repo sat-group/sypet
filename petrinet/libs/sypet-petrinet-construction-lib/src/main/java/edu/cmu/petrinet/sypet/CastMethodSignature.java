@@ -51,6 +51,6 @@ public class CastMethodSignature implements MethodSignature {
   public int hashCode() {
     int result = subtype.hashCode();
     result = 31 * result + supertype.hashCode();
-    return result;
+    return 31 * result + name().hashCode();
   }
 }

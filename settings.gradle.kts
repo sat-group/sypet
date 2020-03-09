@@ -11,7 +11,7 @@ rootProject.name = "sypet"
 
 // Declare the projects under the folder `sypet`.
 
-val `sypet-adapters` = listOf().map { "$it-adapter" }
+val `sypet-adapters` = listOf<String>().map { "$it-adapter" }
 
 val `sypet-apis` = listOf(
 // "compiler",
@@ -22,14 +22,14 @@ val `sypet-apis` = listOf(
 "synthesiser"
 ).map { "$it-api" }
 
-val `sypet-apps` = listOf(
+val `sypet-apps` = listOf<String>(
 // "cli",
 // "gui",
 // "intellij-plugin",
 // "rest-api"
 )
 
-val `sypet-libs` = listOf(
+val `sypet-libs` = listOf<String>(
 // "compiler",
 // "java-lang",
 // "runtime",
@@ -47,7 +47,9 @@ val sypet = listOf(
 
 // Declare the projects under the folder `petrinet`.
 
-val `petrinet-adapters` = listOf().map { "$it-adapter" }
+val `petrinet-adapters` = listOf(
+    "apt-sypet-backend"
+).map { "$it-adapter" }
 
 val `petrinet-apis` = listOf(
 "petrinet-backend",
@@ -55,7 +57,6 @@ val `petrinet-apis` = listOf(
 ).map { "$it-api" }
 
 val `petrinet-libs` = listOf(
-"simple-petrinet",
 "sypet-petrinet-construction",
 "sypet-petrinet-reachability"
 ).map { "$it-lib" }

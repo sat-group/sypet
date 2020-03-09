@@ -2,6 +2,8 @@ package edu.cmu.petrinet.sypet;
 
 import com.rits.cloning.Cloner;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class PetriNetBuilder {
@@ -29,6 +31,27 @@ final class PetriNetBuilder {
     // Ensure idempotence.
     if (!this.net.containsTransition(signature)) {
       this.net.addTransition(signature);
+    }
+
+    // Connect the parameters types to the signature.
+    // Count how many times a type appears in the parameters types and set that as the arc weight.
+    signature.parametersTypes().stream()
+        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+        .entrySet()
+        .forEach(entry -> {
+          final Type type = entry.getKey();
+          final Long count = entry.getValue();
+
+          if (!this.net.isPlaceAdjacentToTransition(type, signature)) {
+            this.net.addArcFromPlaceToTransition(type, signature, count.intValue());
+          }
+        });
+
+
+    // Connect the signature to the return type.
+    // Ensure idempotence.
+    if (!this.net.isTransitionAdjacentToPlace(signature, signature.returnType())) {
+      this.net.addArcFromTransitionToPlace(signature, signature.returnType(), 1);
     }
 
     return this;

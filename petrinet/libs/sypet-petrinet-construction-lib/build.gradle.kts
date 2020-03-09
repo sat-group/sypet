@@ -11,10 +11,9 @@ dependencies {
     testImplementation(kotlin("stdlib-jdk8"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
-    testImplementation("io.mockk:mockk:1.9.3")
     testImplementation(kotlin("test"))
 
-    testImplementation(project(":simple-petrinet-lib"))
+    testImplementation(project(":apt-sypet-backend-adapter"))
 }
 
 tasks.test {

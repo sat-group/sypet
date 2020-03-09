@@ -16,7 +16,7 @@ final class VoidMethodSignature implements MethodSignature {
 
   @Override
   public String name() {
-    return signature.name();
+    return signature.name() + "##Void";
   }
 
   @Override
@@ -40,6 +40,6 @@ final class VoidMethodSignature implements MethodSignature {
 
   @Override
   public int hashCode() {
-    return signature.hashCode();
+    return name().hashCode();
   }
 }
