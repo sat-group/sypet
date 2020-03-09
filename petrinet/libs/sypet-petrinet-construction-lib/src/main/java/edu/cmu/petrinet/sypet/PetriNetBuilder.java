@@ -13,7 +13,7 @@ final class PetriNetBuilder {
     this.net = net;
   }
 
-  public final PetriNetBuilder addPlace(final Type type) {
+  final PetriNetBuilder addPlace(final Type type) {
     // Ensure idempotence.
     if (!this.net.containsPlace(type)) {
       this.net.addPlace(type);
@@ -22,12 +22,11 @@ final class PetriNetBuilder {
     return this;
   }
 
-  public final PetriNetBuilder addVoid() {
+  final PetriNetBuilder addVoid() {
     return this.addPlace(new TypeFactory().createVoidType());
   }
 
-  public PetriNetBuilder addTransition(final MethodSignature signature)
-      throws NoSuchTypeException {
+  final PetriNetBuilder addTransition(final MethodSignature signature) throws NoSuchTypeException {
     // Validate that all types in the signature are present in the net.
     validateTypesArePresent(signature.parametersTypes().stream(), signature);
     validateTypeIsPresent(signature.returnType(), signature);
@@ -89,7 +88,7 @@ final class PetriNetBuilder {
   }
 
   // this method should return a new copy of the private net
-  public final SyPetriNet build() {
+  final SyPetriNet build() {
     return new PetriNet(this.net);
   }
 }
