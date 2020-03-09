@@ -37,7 +37,7 @@ public final class SyPetriNetFactory {
       }
 
       return builder.build();
-    } catch (NoSuchPlaceException e) {
+    } catch (NoSuchTypeException e) {
       throw new PetriNetConstructionException(e);
     }
   }

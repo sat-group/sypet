@@ -28,7 +28,7 @@ final class PetriNetBuilder {
   }
 
   public PetriNetBuilder addTransition(final MethodSignature signature)
-      throws NoSuchPlaceException {
+      throws NoSuchTypeException {
     // Validate that all types in the signature are present in the net.
     validateTypesArePresent(signature.parametersTypes().stream(), signature);
     validateTypeIsPresent(signature.returnType(), signature);
@@ -62,30 +62,30 @@ final class PetriNetBuilder {
   }
 
   private void validateTypesArePresent(Stream<Type> types, MethodSignature signature)
-      throws NoSuchPlaceException {
+      throws NoSuchTypeException {
     Optional<Type> notFoundType = types.filter(type -> !net.containsPlace(type)).findAny();
 
     if (notFoundType.isPresent()) {
-      throw new NoSuchPlaceException(notFoundType.get(), signature);
+      throw new NoSuchTypeException(notFoundType.get(), signature);
     }
   }
 
   private void validateTypeIsPresent(Type type, MethodSignature signature)
-      throws NoSuchPlaceException {
+      throws NoSuchTypeException {
     validateTypesArePresent(Stream.of(type), signature);
   }
 
   final PetriNetBuilder addVoidTransition(final MethodSignature signature)
-      throws NoSuchPlaceException {
+      throws NoSuchTypeException {
     return this.addTransition(new VoidMethodSignature(signature));
   }
 
-  final PetriNetBuilder addCloneTransition(final Type type) throws NoSuchPlaceException {
+  final PetriNetBuilder addCloneTransition(final Type type) throws NoSuchTypeException {
     return this.addTransition(new CloneMethodSignature(type));
   }
 
   final PetriNetBuilder addCastTransition(final Type from, final Type to)
-      throws NoSuchPlaceException {
+      throws NoSuchTypeException {
     return this.addTransition(new CastMethodSignature(from, to));
   }
 

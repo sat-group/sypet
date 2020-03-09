@@ -34,7 +34,7 @@ class PetriNetBuilderTests {
         @TestFactory
         fun `is idempotent`() =
             generate(signatures, displayName = "`is idempotent`") { signature ->
-                `is idempotent`(signature = signature) { addTransition(it) }
+                `is idempotent`(signature = signature, add = PetriNetBuilder::addTransition)
         }
 
         @TestFactory
@@ -101,7 +101,10 @@ class PetriNetBuilderTests {
 
         @TestFactory
         fun `is idempotent`() = generate(signatures, displayName = "`is idempotent`") { signature ->
-            `is idempotent`(signature = signature) { addVoidTransition(it) }
+            `is idempotent`(signature = signature, add = PetriNetBuilder::addVoidTransition) {
+                val builder = createBuilder()
+                builder.addPlace(TypeFactory().createVoidType())
+            }
         }
 
         @TestFactory
@@ -117,13 +120,9 @@ class PetriNetBuilderTests {
         }
 
         @TestFactory
-        fun `throws if types are missing`() = generate(
-            signatures,
-            displayName = "`throws if types are missing`"
-        ) { signature ->
-            if (signature.parametersTypes().isNotEmpty()) {
+        fun `throws if types are missing`() =
+            generate(signatures, displayName = "`throws if types are missing`") { signature ->
                 `throws if a type is missing`(signature, PetriNetBuilder::addVoidTransition)
-            }
         }
 
     }
@@ -168,13 +167,14 @@ class PetriNetBuilderTests {
 
     @Nested
     inner class AddCastTransition {
+        private val testTypes = types.zip(types.reversed())
 
         @TestFactory
-        fun `is idempotent`() = generate(types, displayName = "`is idempotent`") { type ->
+        fun `is idempotent`() = generate(
+            testTypes,
+            displayName = "`is idempotent`"
+        ) { (from, to) ->
             val builder = createBuilder()
-
-            val from = DefaultType(isCastableTo = true)
-            val to = type
 
             builder.addPlace(from).addPlace(to)
             val net1 = builder.addCastTransition(from, to).build()
@@ -197,30 +197,15 @@ class PetriNetBuilderTests {
 
         @TestFactory
         fun `throws if a type is missing`() = generate(
-            types,
+            testTypes.filter { (type1, type2) -> type1 != type2 },
             displayName = "`throws if a type is missing`"
-        ) { type ->
-            val from = DefaultType(isCastableTo = true)
-            val to = type
+        ) { (type1, type2) ->
 
-            `throws if a type is missing`(from, to, PetriNetBuilder::addCastTransition)
-        }
-
-        @TestFactory
-        fun `throws if the types are not castable`() = generate(
-            types,
-            displayName = "`throws if the types are not castable`"
-        ) { type ->
             val builder = createBuilder()
+            builder.addPlace(type1)
 
-            val from = DefaultType(isCastableTo = false)
-            val to = type
-
-            builder
-                .addPlace(from)
-                .addPlace(to)
-
-            assertThrows<BadCastException> { builder.addCastTransition(from, to) }
+            `throws if a type is missing`(type1, type2, PetriNetBuilder::addCastTransition, builder)
+            `throws if a type is missing`(type2, type1, PetriNetBuilder::addCastTransition, builder)
         }
 
     }
@@ -249,9 +234,10 @@ private fun <T> `is idempotent`(
 
 private fun `is idempotent`(
     signature: MethodSignature,
-    add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder
+    add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder,
+    mkBuilder: () -> PetriNetBuilder = { createBuilder() }
 ) {
-    val builder = createBuilder()
+    val builder = mkBuilder()
 
     `add method types`(builder, signature)
 
@@ -292,19 +278,18 @@ private fun <T> `throws if a type is missing`(
 
     val action = { builder.add(node) }
 
-    assertThrows<NoSuchPlaceException> { action() }
+    assertThrows<NoSuchTypeException> { action() }
 }
 
 private fun <T, U> `throws if a type is missing`(
     node1: T,
     node2: U,
-    add: PetriNetBuilder.(T, U) -> PetriNetBuilder
+    add: PetriNetBuilder.(T, U) -> PetriNetBuilder,
+    builder: PetriNetBuilder
 ) {
-    val builder = createBuilder()
-
     val action = { builder.add(node1, node2) }
 
-    assertThrows<NoSuchPlaceException> { action() }
+    assertThrows<NoSuchTypeException> { action() }
 }
 
 private fun `the places and the transition are adjacent`(

@@ -1,13 +1,8 @@
 package edu.cmu.petrinet.sypet
 
 data class DefaultType(
-    private val isCastableTo: Boolean = false,
     private val name: String = "Any"
 ) : Type {
-    override fun isCastableTo(type: Type): Boolean {
-        return isCastableTo
-    }
-
     override fun name(): String {
         return name
     }

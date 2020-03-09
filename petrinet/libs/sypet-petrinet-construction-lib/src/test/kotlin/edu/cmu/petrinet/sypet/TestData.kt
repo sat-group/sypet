@@ -18,6 +18,6 @@ val signatures = listOf<MethodSignature>(
 )
 
 val types = listOf<Type>(
-    DefaultType(isCastableTo = false),
-    DefaultType(isCastableTo = true)
+    DefaultType(name = "Type1"),
+    DefaultType(name = "Type2")
 )
