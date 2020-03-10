@@ -1,6 +1,5 @@
 package edu.cmu.petrinet.apt
 
-import edu.cmu.petrinet.sypet.*
 import uniol.apt.adt.pn.*
 
 private val Type.id
@@ -9,7 +8,8 @@ private val Type.id
 private val MethodSignature.id
     get() = hashCode().toString()
 
-class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
+class SyPetBackendAdapter :
+    edu.cmu.petrinet.sypet.backend.BackendPetriNet<Type, MethodSignature> {
     private val net: PetriNet = PetriNet()
 
     override fun addPlace(type: Type?) {
@@ -126,31 +126,35 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
 
     private fun requireContainsPlace(type: Type) {
         if (!this.net.containsPlace(type.id)) {
-            throw NoSuchPlaceException(type)
+            throw edu.cmu.petrinet.sypet.backend.NoSuchPlaceException(type)
         }
     }
 
     private fun requireNotContainsPlace(type: Type) {
         if (this.net.containsPlace(type.id)) {
-            throw PlaceAlreadyExistsException(type)
+            throw edu.cmu.petrinet.sypet.backend.PlaceAlreadyExistsException(type)
         }
     }
 
     private fun requireContainsTransition(signature: MethodSignature) {
         if (!this.net.containsTransition(signature.id)) {
-            throw NoSuchTransitionException(signature)
+            throw edu.cmu.petrinet.sypet.backend.NoSuchTransitionException(
+                signature
+            )
         }
     }
 
     private fun requireNotContainsTransition(signature: MethodSignature) {
         if (this.net.containsTransition(signature.id)) {
-            throw TransitionAlreadyExistsException(signature)
+            throw edu.cmu.petrinet.sypet.backend.TransitionAlreadyExistsException(
+                signature
+            )
         }
     }
 
     private fun requirePlaceNotAdjacentToTransition(type: Type, signature: MethodSignature) {
         if (this.isPlaceAdjacentToTransition(type, signature)) {
-            throw ArcAlreadyExistsException(
+            throw edu.cmu.petrinet.sypet.backend.ArcAlreadyExistsException(
                 type,
                 signature
             )
@@ -159,19 +163,28 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
 
     private fun requireTransitionNotAdjacentToPlace(signature: MethodSignature, type: Type) {
         if (this.isTransitionAdjacentToPlace(signature, type)) {
-            throw ArcAlreadyExistsException(signature, type)
+            throw edu.cmu.petrinet.sypet.backend.ArcAlreadyExistsException(
+                signature,
+                type
+            )
         }
     }
 
     private fun requirePlaceAdjacentToTransition(type: Type?, signature: MethodSignature?) {
         if (!this.isPlaceAdjacentToTransition(type, signature)) {
-            throw NoSuchArcException(type, signature)
+            throw edu.cmu.petrinet.sypet.backend.NoSuchArcException(
+                type,
+                signature
+            )
         }
     }
 
     private fun requireTransitionAdjacentToPlace(signature: MethodSignature?, type: Type?) {
         if (!this.isTransitionAdjacentToPlace(signature, type)) {
-            throw NoSuchArcException(signature, type)
+            throw edu.cmu.petrinet.sypet.backend.NoSuchArcException(
+                signature,
+                type
+            )
         }
     }
 }

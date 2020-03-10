@@ -6,6 +6,9 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":sypet-petrinet-backend-api"))
+    implementation(project(":sypet-petrinet-frontend-api"))
+
     testImplementation(kotlin("stdlib-jdk8"))
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")

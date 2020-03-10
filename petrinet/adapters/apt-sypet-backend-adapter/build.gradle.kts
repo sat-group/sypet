@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation(fileTree("lib"))
-    implementation(project(":sypet-petrinet-construction-lib"))
+    implementation(project(":sypet-petrinet-backend-api"))
     implementation(kotlin("stdlib-jdk8"))
 }
 

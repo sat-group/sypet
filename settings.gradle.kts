@@ -52,12 +52,12 @@ val `petrinet-adapters` = listOf(
 ).map { "$it-adapter" }
 
 val `petrinet-apis` = listOf(
-"petrinet-backend",
-"petrinet-construction"
+"sypet-petrinet-backend",
+"sypet-petrinet-frontend"
 ).map { "$it-api" }
 
 val `petrinet-libs` = listOf(
-"sypet-petrinet-construction",
+"sypet-petrinet",
 "sypet-petrinet-reachability"
 ).map { "$it-lib" }
 
