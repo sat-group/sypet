@@ -1,37 +1,35 @@
 package edu.cmu.petrinet.sypet;
 
-public interface BackendPetriNet<T extends Type, MS extends MethodSignature> {
+public interface BackendPetriNet<T, U> {
 
-  void addPlace(T type) throws
-      PlaceAlreadyExistsException;
+  void addNode(BackendPlace<T> place) throws PlaceAlreadyExistsException;
 
-  void addTransition(MS signature) throws
-      TransitionAlreadyExistsException;
+  void addNode(BackendTransition<U> transition) throws TransitionAlreadyExistsException;
 
-  void addArcFromPlaceToTransition(T type, MS signature, Integer weight) throws
+  void addArc(BackendPlace<T> place, BackendTransition<U> transition, Integer weight) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  void addArcFromTransitionToPlace(MS transition, T type, Integer weight) throws
+  void addArc(BackendTransition<U> transition, BackendPlace<T> place, Integer weight) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  boolean containsPlace(T type);
+  boolean containsNode(BackendPlace<T> place);
 
-  boolean containsTransition(MS signature);
+  boolean containsNode(BackendTransition<U> transition);
 
-  boolean isPlaceAdjacentToTransition(T type, MS signature);
+  boolean containsArc(BackendPlace<T> place, BackendTransition<U> transition);
 
-  boolean isTransitionAdjacentToPlace(MS signature, T type);
+  boolean containsArc(BackendTransition<U> transition, BackendPlace<T> place);
 
-  int getArcWeightFromTypeToSignature(T type, MS signature) throws
+  int getArcWeight(BackendPlace<T> place, BackendTransition<U> transition) throws
       NoSuchArcException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  int getArcWeightFromSignatureToType(MS signature, T type) throws
+  int getArcWeight(BackendTransition<U> transition, BackendPlace<T> place) throws
       NoSuchArcException,
       NoSuchPlaceException,
       NoSuchTransitionException;

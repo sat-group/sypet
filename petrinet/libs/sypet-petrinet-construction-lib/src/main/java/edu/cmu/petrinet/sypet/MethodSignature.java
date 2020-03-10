@@ -2,11 +2,8 @@ package edu.cmu.petrinet.sypet;
 
 import java.util.Collection;
 
-public interface MethodSignature {
+public interface MethodSignature<T, U> extends Identifiable<U> {
+  Collection<Type<T>> parametersTypes();
 
-  Collection<Type> parametersTypes();
-
-  String name();
-
-  Type returnType();
+  Type<T> returnType();
 }

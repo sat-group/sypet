@@ -1,46 +1,39 @@
 package edu.cmu.petrinet.sypet;
 
-final class PetriNet implements SyPetriNet {
+import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlace;
+import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransition;
 
-  private final BackendPetriNet<Type, MethodSignature> net;
+final class PetriNet<T, U> implements SyPetriNet<T, U> {
 
-  public PetriNet(BackendPetriNet<Type, MethodSignature> net) {
+  private final BackendPetriNet<Type<T>, MethodSignature<T, U>> net;
+
+  public PetriNet(BackendPetriNet<Type<T>, MethodSignature<T, U>> net) {
     this.net = net;
   }
 
   @Override
-  public boolean containsPlace(final Type type) {
-    return net.containsPlace(type);
+  public boolean contains(final Type<T> type) {
+    return this.net.containsNode(newPlace(type));
   }
 
   @Override
-  public boolean containsTransition(final MethodSignature signature) {
-    return net.containsTransition(signature);
+  public boolean contains(final MethodSignature<T, U>  signature) {
+    return this.net.containsNode(newTransition(signature));
   }
 
   @Override
-  public boolean isTypeAdjacentToSignature(Type type, MethodSignature signature) {
-    return this.net.isPlaceAdjacentToTransition(type, signature);
-  }
-
-  @Override
-  public boolean isSignatureAdjacentToType(MethodSignature signature, Type type) {
-    return this.net.isTransitionAdjacentToPlace(signature, type);
-  }
-
-  @Override
-  public int getArcWeightFromTypeToSignature(Type type, MethodSignature signature) {
+  public int getArcWeight(Type<T> type, MethodSignature<T, U>  signature) {
     try {
-      return this.net.getArcWeightFromTypeToSignature(type, signature);
+      return this.net.getArcWeight(newPlace(type), newTransition(signature));
     } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }
   }
 
   @Override
-  public int getArcWeightFromSignatureToType(MethodSignature signature, Type type) {
+  public int getArcWeight(MethodSignature<T, U>  signature, Type<T> type) {
     try {
-      return this.net.getArcWeightFromSignatureToType(signature, type);
+      return this.net.getArcWeight(newTransition(signature), newPlace(type));
     } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }

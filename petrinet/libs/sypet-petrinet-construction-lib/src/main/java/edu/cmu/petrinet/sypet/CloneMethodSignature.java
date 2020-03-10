@@ -3,23 +3,23 @@ package edu.cmu.petrinet.sypet;
 import java.util.ArrayList;
 import java.util.Collection;
 
-class CloneMethodSignature implements MethodSignature {
-  private final Type type;
+class CloneMethodSignature<T> implements MethodSignature<T, T> {
+  private final Type<T> type;
 
-  CloneMethodSignature(Type type) {
+  CloneMethodSignature(Type<T> type) {
     this.type = type;
   }
 
   @Override
-  public Collection<Type> parametersTypes() {
-    final Collection<Type> list = new ArrayList<>();
+  public Collection<Type<T>> parametersTypes() {
+    final Collection<Type<T>> list = new ArrayList<>();
     list.add(this.type);
     return list;
   }
 
   @Override
-  public String name() {
-    return type.name() + "##Clone";
+  public T id() {
+    return this.type.id();
   }
 
   @Override
@@ -43,6 +43,6 @@ class CloneMethodSignature implements MethodSignature {
 
   @Override
   public int hashCode() {
-    return name().hashCode();
+    return this.type.hashCode();
   }
 }
