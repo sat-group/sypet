@@ -1,13 +1,12 @@
 package edu.cmu.petrinet.sypet;
 
-import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public interface Library {
-  Collection<Type> types();
+  Set<Type> types();
 
-  Collection<MethodSignature> signatures();
+  Set<MethodSignature> signatures();
 
   Set<Entry<Type, Type>> castRelation();
 }

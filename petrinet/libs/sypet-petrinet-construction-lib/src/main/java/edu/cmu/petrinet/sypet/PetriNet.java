@@ -30,12 +30,20 @@ final class PetriNet implements SyPetriNet {
 
   @Override
   public int getArcWeightFromTypeToSignature(Type type, MethodSignature signature) {
-    return this.net.getArcWeightFromTypeToSignature(type, signature);
+    try {
+      return this.net.getArcWeightFromTypeToSignature(type, signature);
+    } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
+      throw new PetriNetBuildException(e);
+    }
   }
 
   @Override
   public int getArcWeightFromSignatureToType(MethodSignature signature, Type type) {
-    return this.net.getArcWeightFromSignatureToType(signature, type);
+    try {
+      return this.net.getArcWeightFromSignatureToType(signature, type);
+    } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
+      throw new PetriNetBuildException(e);
+    }
   }
 
   @Override

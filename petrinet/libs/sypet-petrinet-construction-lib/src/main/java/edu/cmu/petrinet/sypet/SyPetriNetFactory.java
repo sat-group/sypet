@@ -37,8 +37,12 @@ public final class SyPetriNetFactory {
       }
 
       return builder.build();
-    } catch (NoSuchTypeException e) {
-      throw new PetriNetConstructionException(e);
+    } catch (ArcAlreadyExistsException
+        | NoSuchPlaceException
+        | NoSuchTransitionException
+        | PlaceAlreadyExistsException
+        | TransitionAlreadyExistsException e) {
+      throw new PetriNetBuildException(e);
     }
   }
 }

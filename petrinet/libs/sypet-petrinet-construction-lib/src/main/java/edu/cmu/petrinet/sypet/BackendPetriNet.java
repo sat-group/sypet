@@ -2,13 +2,21 @@ package edu.cmu.petrinet.sypet;
 
 public interface BackendPetriNet<T extends Type, MS extends MethodSignature> {
 
-  void addPlace(T type);
+  void addPlace(T type) throws
+      PlaceAlreadyExistsException;
 
-  void addTransition(MS signature);
+  void addTransition(MS signature) throws
+      TransitionAlreadyExistsException;
 
-  void addArcFromPlaceToTransition(T type, MS transition, Integer weight);
+  void addArcFromPlaceToTransition(T type, MS signature, Integer weight) throws
+      ArcAlreadyExistsException,
+      NoSuchPlaceException,
+      NoSuchTransitionException;
 
-  void addArcFromTransitionToPlace(MS transition, T type, Integer weight);
+  void addArcFromTransitionToPlace(MS transition, T type, Integer weight) throws
+      ArcAlreadyExistsException,
+      NoSuchPlaceException,
+      NoSuchTransitionException;
 
   boolean containsPlace(T type);
 
@@ -18,7 +26,13 @@ public interface BackendPetriNet<T extends Type, MS extends MethodSignature> {
 
   boolean isTransitionAdjacentToPlace(MS signature, T type);
 
-  int getArcWeightFromTypeToSignature(T type, MS signature);
+  int getArcWeightFromTypeToSignature(T type, MS signature) throws
+      NoSuchArcException,
+      NoSuchPlaceException,
+      NoSuchTransitionException;
 
-  int getArcWeightFromSignatureToType(MS signature, T type);
+  int getArcWeightFromSignatureToType(MS signature, T type) throws
+      NoSuchArcException,
+      NoSuchPlaceException,
+      NoSuchTransitionException;
 }

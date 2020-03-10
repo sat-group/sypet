@@ -1,12 +1,7 @@
 package edu.cmu.petrinet.apt
 
-import edu.cmu.petrinet.sypet.BackendPetriNet
-import edu.cmu.petrinet.sypet.MethodSignature
-import edu.cmu.petrinet.sypet.Type
-import uniol.apt.adt.pn.Flow
-import uniol.apt.adt.pn.PetriNet
-import uniol.apt.adt.pn.Place
-import uniol.apt.adt.pn.Transition
+import edu.cmu.petrinet.sypet.*
+import uniol.apt.adt.pn.*
 
 private val Type.id
     get() = hashCode().toString()
@@ -19,11 +14,15 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
 
     override fun addPlace(type: Type?) {
         requireNotNull(type)
+        requireNotContainsPlace(type)
+
         this.net.createPlace(type.id)
     }
 
     override fun addTransition(signature: MethodSignature?) {
         requireNotNull(signature)
+        requireNotContainsTransition(signature)
+
         this.net.createTransition(signature.id)
     }
 
@@ -35,9 +34,11 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
         requireNotNull(type)
         requireNotNull(signature)
         requireNotNull(weight)
-        require(!this.isPlaceAdjacentToTransition(type, signature))
+        requireContainsPlace(type)
+        requireContainsTransition(signature)
+        requirePlaceNotAdjacentToTransition(type, signature)
 
-        this.net.createFlow(type.id, signature.id, weight)
+        this.net.createFlow(type.id, signature.id)
     }
 
     override fun addArcFromTransitionToPlace(
@@ -48,7 +49,9 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
         requireNotNull(signature)
         requireNotNull(type)
         requireNotNull(weight)
-        require(!this.isTransitionAdjacentToPlace(signature, type))
+        requireContainsTransition(signature)
+        requireContainsPlace(type)
+        requireTransitionNotAdjacentToPlace(signature, type)
 
         this.net.createFlow(signature.id, type.id, weight)
     }
@@ -66,8 +69,8 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
     override fun isPlaceAdjacentToTransition(type: Type?, signature: MethodSignature?): Boolean {
         requireNotNull(type)
         requireNotNull(signature)
-        require(this.net.containsPlace(type.id))
-        require(this.net.containsTransition(signature.id))
+        requireContainsPlace(type)
+        requireContainsTransition(signature)
 
         return this.net.getPlace(type.id).postset.any { transition ->
             transition.id == signature.id
@@ -77,8 +80,8 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
     override fun isTransitionAdjacentToPlace(signature: MethodSignature?, type: Type?): Boolean {
         requireNotNull(signature)
         requireNotNull(type)
-        require(this.net.containsTransition(signature.id))
-        require(this.net.containsPlace(type.id))
+        requireContainsTransition(signature)
+        requireContainsPlace(type)
 
         return this.net.getTransition(signature.id).postset.any { place ->
             place.id == type.id
@@ -86,19 +89,21 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
     }
 
     override fun getArcWeightFromTypeToSignature(type: Type?, signature: MethodSignature?): Int {
-        require(this.isPlaceAdjacentToTransition(type, signature))
+        requirePlaceAdjacentToTransition(type, signature)
         return this.net.getFlow(type!!.id, signature!!.id).weight
     }
 
     override fun getArcWeightFromSignatureToType(signature: MethodSignature?, type: Type?): Int {
-        require(isTransitionAdjacentToPlace(signature, type))
+        requireTransitionAdjacentToPlace(signature, type)
         return this.net.getFlow(signature!!.id, type!!.id).weight
     }
 
     private val places
         get() = net.places.map(::PlaceWrapper).toSet()
+
     private val transitions
         get() = net.transitions.map(::TransitionWrapper).toSet()
+
     private val flows
         get() = net.edges.map(::FlowWrapper).toSet()
 
@@ -117,6 +122,57 @@ class SyPetBackendAdapter : BackendPetriNet<Type, MethodSignature> {
 
     override fun hashCode(): Int {
         return net.hashCode()
+    }
+
+    private fun requireContainsPlace(type: Type) {
+        if (!this.net.containsPlace(type.id)) {
+            throw NoSuchPlaceException(type)
+        }
+    }
+
+    private fun requireNotContainsPlace(type: Type) {
+        if (this.net.containsPlace(type.id)) {
+            throw PlaceAlreadyExistsException(type)
+        }
+    }
+
+    private fun requireContainsTransition(signature: MethodSignature) {
+        if (!this.net.containsTransition(signature.id)) {
+            throw NoSuchTransitionException(signature)
+        }
+    }
+
+    private fun requireNotContainsTransition(signature: MethodSignature) {
+        if (this.net.containsTransition(signature.id)) {
+            throw TransitionAlreadyExistsException(signature)
+        }
+    }
+
+    private fun requirePlaceNotAdjacentToTransition(type: Type, signature: MethodSignature) {
+        if (this.isPlaceAdjacentToTransition(type, signature)) {
+            throw ArcAlreadyExistsException(
+                type,
+                signature
+            )
+        }
+    }
+
+    private fun requireTransitionNotAdjacentToPlace(signature: MethodSignature, type: Type) {
+        if (this.isTransitionAdjacentToPlace(signature, type)) {
+            throw ArcAlreadyExistsException(signature, type)
+        }
+    }
+
+    private fun requirePlaceAdjacentToTransition(type: Type?, signature: MethodSignature?) {
+        if (!this.isPlaceAdjacentToTransition(type, signature)) {
+            throw NoSuchArcException(type, signature)
+        }
+    }
+
+    private fun requireTransitionAdjacentToPlace(signature: MethodSignature?, type: Type?) {
+        if (!this.isTransitionAdjacentToPlace(signature, type)) {
+            throw NoSuchArcException(signature, type)
+        }
     }
 }
 
