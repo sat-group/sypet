@@ -12,7 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class EncodingUtil {
 
   /*
-   * Given petrinet and input, create a set of <Place, Integer> pair that
+   * Given edu.cmu.petrinet and input, create a set of <Place, Integer> pair that
    * represents the initial state
    */
   public static Set<Pair<Place, Integer>> setInitialState(PetriNet pnet, List<String> inputs) {
@@ -53,7 +53,7 @@ public class EncodingUtil {
   }
 
   /*
-   * Given petrinet and output , create a set of <Place, Integer> pair that
+   * Given edu.cmu.petrinet and output , create a set of <Place, Integer> pair that
    * represents the goal state
    */
   public static Set<Pair<Place, Integer>> setGoalState(PetriNet pnet, String retType) {

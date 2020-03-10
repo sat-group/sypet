@@ -57,7 +57,8 @@ val `petrinet-apis` = listOf(
 ).map { "$it-api" }
 
 val `petrinet-libs` = listOf(
-"sypet-petrinet",
+    "sypet-petrinet",
+    "sypet-petrinet-test",
 "sypet-petrinet-reachability"
 ).map { "$it-lib" }
 

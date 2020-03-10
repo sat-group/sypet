@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-final class PetriNetBuilder<T, U> {
+public final class PetriNetBuilder<T, U> {
 
   private final BackendPetriNet<Type<T>, MethodSignature<T, U>> net;
 
@@ -16,12 +16,12 @@ final class PetriNetBuilder<T, U> {
     this.net = net;
   }
 
-  final PetriNetBuilder addPlace(final Type<T> type) throws PlaceAlreadyExistsException {
+  public final PetriNetBuilder<T, U> addPlace(final Type<T> type) throws PlaceAlreadyExistsException {
     this.net.addNode(newPlace(type));
     return this;
   }
 
-  final PetriNetBuilder addTransition(final MethodSignature<T, U> signature) throws
+  public final PetriNetBuilder<T, U> addTransition(final MethodSignature<T, U> signature) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException,
@@ -47,7 +47,7 @@ final class PetriNetBuilder<T, U> {
     return this;
   }
 
-  final PetriNetBuilder addVoidTransition(
+  public final PetriNetBuilder<T, U> addVoidTransition(
       final MethodSignature<T, U> signature,
       final Type<T> voidType
   ) throws
@@ -58,7 +58,7 @@ final class PetriNetBuilder<T, U> {
     return this.addTransition(new VoidMethodSignature(signature, voidType));
   }
 
-  final PetriNetBuilder addCloneTransition(final Type type) throws
+  public final PetriNetBuilder<T, U> addCloneTransition(final Type type) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException,
@@ -66,7 +66,7 @@ final class PetriNetBuilder<T, U> {
     return this.addTransition(new CloneMethodSignature(type));
   }
 
-  final PetriNetBuilder addCastTransition(final Type from, final Type to) throws
+  public final PetriNetBuilder<T, U> addCastTransition(final Type from, final Type to) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException,
@@ -74,7 +74,7 @@ final class PetriNetBuilder<T, U> {
     return this.addTransition(new CastMethodSignature(from, to));
   }
 
-  final PetriNet build() {
+  public final SyPetriNet<T, U> build() {
     return new PetriNet(this.net);
   }
 }
