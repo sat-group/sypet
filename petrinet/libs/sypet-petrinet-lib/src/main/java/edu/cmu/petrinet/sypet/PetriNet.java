@@ -1,7 +1,7 @@
 package edu.cmu.petrinet.sypet;
 
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlace;
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransition;
+import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlaceAdapter;
+import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransitionAdapter;
 
 final class PetriNet<T, U> implements SyPetriNet<T, U> {
 
@@ -13,18 +13,18 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
 
   @Override
   public boolean contains(final Type<T> type) {
-    return this.net.containsNode(newPlace(type));
+    return this.net.containsNode(newPlaceAdapter(type));
   }
 
   @Override
   public boolean contains(final MethodSignature<T, U>  signature) {
-    return this.net.containsNode(newTransition(signature));
+    return this.net.containsNode(newTransitionAdapter(signature));
   }
 
   @Override
   public int getArcWeight(Type<T> type, MethodSignature<T, U>  signature) {
     try {
-      return this.net.getArcWeight(newPlace(type), newTransition(signature));
+      return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
     } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }
@@ -33,7 +33,7 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
   @Override
   public int getArcWeight(MethodSignature<T, U>  signature, Type<T> type) {
     try {
-      return this.net.getArcWeight(newTransition(signature), newPlace(type));
+      return this.net.getArcWeight(newTransitionAdapter(signature), newPlaceAdapter(type));
     } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }
