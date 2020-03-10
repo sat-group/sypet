@@ -23,7 +23,7 @@ public final class SyPetriNetFactory<T, U> {
     this.newVoidTransition = newVoidTransition;
   }
 
-  public SyPetriNet createFrom(final Library<T, U> library) {
+  public SyPetriNet newSyPetriNet(final Library<T, U> library) {
     try {
       final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
 
