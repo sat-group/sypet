@@ -6,11 +6,11 @@ public class NoSuchArcException extends PNBInternalException {
     return "No arc from \"" + source + "\" to target \"" + target + "\" exists.";
   }
 
-  public NoSuchArcException(final Type type, final MethodSignature signature) {
-    super(message(type, signature));
+  public NoSuchArcException(final BackendPlace place, final BackendTransition transition) {
+    super(message(place, transition));
   }
 
-  public NoSuchArcException(final MethodSignature signature, final Type type) {
-    super(message(signature, type));
+  public NoSuchArcException(final BackendTransition transition, final BackendPlace place) {
+    super(message(transition, place));
   }
 }
