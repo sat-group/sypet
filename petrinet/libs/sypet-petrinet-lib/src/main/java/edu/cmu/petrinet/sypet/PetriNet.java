@@ -22,6 +22,16 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
   }
 
   @Override
+  public boolean containsArc(Type<T> type, MethodSignature<T, U> signature) {
+    return this.net.containsArc(newPlaceAdapter(type), newTransitionAdapter(signature));
+  }
+
+  @Override
+  public boolean containsArc(MethodSignature<T, U> signature, Type<T> type) {
+    return this.net.containsArc(newTransitionAdapter(signature), newPlaceAdapter(type));
+  }
+
+  @Override
   public int getArcWeight(Type<T> type, MethodSignature<T, U>  signature) {
     try {
       return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
