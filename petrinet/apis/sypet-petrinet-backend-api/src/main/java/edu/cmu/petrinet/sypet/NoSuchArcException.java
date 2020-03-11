@@ -1,16 +1,12 @@
 package edu.cmu.petrinet.sypet;
 
-public final class NoSuchArcException extends Exception {
-  public final BackendNode source;
-  public final BackendNode target;
+public final class NoSuchArcException extends ArcException {
 
-  public NoSuchArcException(final BackendPlace place, final BackendTransition transition) {
-    this.source = place;
-    this.target = transition;
+  public NoSuchArcException(BackendPlace place, BackendTransition transition) {
+    super(place, transition);
   }
 
-  public NoSuchArcException(final BackendTransition transition, final BackendPlace place) {
-    this.source = transition;
-    this.target = place;
+  public NoSuchArcException(BackendTransition transition, BackendPlace place) {
+    super(transition, place);
   }
 }
