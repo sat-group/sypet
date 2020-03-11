@@ -51,21 +51,21 @@ val `petrinet-adapters` = listOf(
     "apt-sypet-backend"
 ).map { "$it-adapter" }
 
-val `petrinet-apis` = listOf(
-"sypet-petrinet-backend",
-"sypet-petrinet-frontend"
-).map { "$it-api" }
+val sypetPetrinet = listOf(
+    "sypet-petrinet-backend-api",
+    "sypet-petrinet-frontend-api",
+    "sypet-petrinet-lib",
+    "sypet-petrinet-test-lib"
+)
 
-val `petrinet-libs` = listOf(
-    "sypet-petrinet",
-    "sypet-petrinet-test",
-"sypet-petrinet-reachability"
-).map { "$it-lib" }
+val sypetReachability = listOf(
+    "sypet-reachability-lib"
+)
 
 val petrinet = listOf(
     `petrinet-adapters`,
-    `petrinet-apis`,
-    `petrinet-libs`
+    sypetPetrinet,
+    sypetReachability
 ).flatten()
 
 val includes = listOf(
@@ -96,5 +96,5 @@ val `sypet-dir` = "sypet"
 val `petri-net-dir` = "petrinet"
 
 `petrinet-adapters`.setProjectDir("$`petri-net-dir`/adapters")
-`petrinet-apis`.setProjectDir("$`petri-net-dir`/apis")
-`petrinet-libs`.setProjectDir("$`petri-net-dir`/libs")
+sypetPetrinet.setProjectDir("$`petri-net-dir`/sypet-petrinet")
+sypetReachability.setProjectDir("$`petri-net-dir`/sypet-reachability")
