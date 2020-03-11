@@ -1,16 +1,16 @@
 package edu.cmu.petrinet.sypet;
 
-public class NoSuchArcException extends PNBInternalException {
-
-  private static <T, U> String message(final T source, final U target) {
-    return "No arc from \"" + source + "\" to target \"" + target + "\" exists.";
-  }
+public final class NoSuchArcException extends Exception {
+  public final BackendNode source;
+  public final BackendNode target;
 
   public NoSuchArcException(final BackendPlace place, final BackendTransition transition) {
-    super(message(place, transition));
+    this.source = place;
+    this.target = transition;
   }
 
   public NoSuchArcException(final BackendTransition transition, final BackendPlace place) {
-    super(message(transition, place));
+    this.source = transition;
+    this.target = place;
   }
 }

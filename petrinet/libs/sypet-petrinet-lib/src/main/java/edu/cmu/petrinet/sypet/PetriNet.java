@@ -35,7 +35,11 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
   public int getArcWeight(Type<T> type, MethodSignature<T, U>  signature) {
     try {
       return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
-    } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
+    } catch (NoSuchArcException e) {
+      throw new PetriNetBuildException(e);
+    } catch (NoSuchPlaceException e) {
+      throw new PetriNetBuildException(e);
+    } catch (NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }
   }
@@ -44,7 +48,11 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
   public int getArcWeight(MethodSignature<T, U>  signature, Type<T> type) {
     try {
       return this.net.getArcWeight(newTransitionAdapter(signature), newPlaceAdapter(type));
-    } catch (NoSuchArcException | NoSuchPlaceException | NoSuchTransitionException e) {
+    } catch (NoSuchArcException e) {
+      throw new PetriNetBuildException(e);
+    } catch (NoSuchPlaceException e) {
+      throw new PetriNetBuildException(e);
+    } catch (NoSuchTransitionException e) {
       throw new PetriNetBuildException(e);
     }
   }

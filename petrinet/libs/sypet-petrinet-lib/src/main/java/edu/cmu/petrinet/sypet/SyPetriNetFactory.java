@@ -24,38 +24,30 @@ public final class SyPetriNetFactory<T, U> {
   }
 
   public SyPetriNet newSyPetriNet(final Library<T, U> library) {
-    try {
-      final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
+    final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
 
-      builder.addPlace(library.voidType());
+    builder.addPlace(library.voidType());
 
-      for (Type type : library.types()) {
-        builder
-            .addPlace(type)
-            .addCloneTransition(this.newCloneTransition.apply(type));
-      }
-
-      for (MethodSignature signature : library.signatures()) {
-        builder
-            .addTransition(signature)
-            .addVoidTransition(this.newVoidTransition.apply(signature));
-      }
-
-      for (Entry<Type<T>, Type<T>> entry : library.castRelation()) {
-        final Type subtype = entry.getKey();
-        final Type supertype = entry.getValue();
-
-        builder.addCastTransition(this.newCastTransition.apply(subtype, supertype));
-      }
-
-      return builder.build();
-    } catch (ArcAlreadyExistsException
-        | NoSuchPlaceException
-        | NoSuchTransitionException
-        | PlaceAlreadyExistsException
-        | TransitionAlreadyExistsException e) {
-      throw new PetriNetBuildException(e);
+    for (Type type : library.types()) {
+      builder
+          .addPlace(type)
+          .addCloneTransition(this.newCloneTransition.apply(type));
     }
+
+    for (MethodSignature signature : library.signatures()) {
+      builder
+          .addTransition(signature)
+          .addVoidTransition(this.newVoidTransition.apply(signature));
+    }
+
+    for (Entry<Type<T>, Type<T>> entry : library.castRelation()) {
+      final Type subtype = entry.getKey();
+      final Type supertype = entry.getValue();
+
+      builder.addCastTransition(this.newCastTransition.apply(subtype, supertype));
+    }
+
+    return builder.build();
   }
 
 }

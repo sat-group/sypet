@@ -1,8 +1,9 @@
 package edu.cmu.petrinet.sypet;
 
-public class TransitionAlreadyExistsException extends PNBInternalException {
+public final class TransitionAlreadyExistsException extends Exception {
+  public final BackendTransition transition;
 
   public TransitionAlreadyExistsException(final BackendTransition transition) {
-    super("Transition \"" + transition + "\" already exists in the net.");
+    this.transition = transition;
   }
 }

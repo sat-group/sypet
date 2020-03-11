@@ -1,8 +1,9 @@
 package edu.cmu.petrinet.sypet;
 
-public class NoSuchPlaceException extends PNBInternalException {
+public final class NoSuchPlaceException extends Exception {
+  public final BackendPlace place;
 
   public NoSuchPlaceException(final BackendPlace place) {
-    super("Place \"" + place + "\" does not exist in the net.");
+    this.place = place;
   }
 }

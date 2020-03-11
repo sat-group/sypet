@@ -1,8 +1,9 @@
 package edu.cmu.petrinet.sypet;
 
-public class PlaceAlreadyExistsException extends PNBInternalException {
+public final class PlaceAlreadyExistsException extends Exception {
+  public final BackendPlace place;
 
   public PlaceAlreadyExistsException(final BackendPlace place) {
-    super("Place \"" + place + "\" already exists in the net.");
+    this.place = place;
   }
 }
