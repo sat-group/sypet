@@ -7,7 +7,7 @@ public class PetriNetBuildException extends RuntimeException {
   }
 
   PetriNetBuildException(final ArcAlreadyExistsException e) {
-    this("Arc from \"" + e.place + "\" to \"" + e.transition + "\" already exists");
+    this("Arc from \"" + e.source + "\" to \"" + e.target + "\" already exists");
   }
 
   PetriNetBuildException(final NoSuchArcException e) {

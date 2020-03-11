@@ -1,4 +1,4 @@
 package edu.cmu.petrinet.sypet;
 
-public interface Type<T> extends Identifiable<T> {
+public interface Type extends Identifiable {
 }

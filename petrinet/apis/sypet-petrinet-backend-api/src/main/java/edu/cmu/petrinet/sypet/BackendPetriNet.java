@@ -1,35 +1,35 @@
 package edu.cmu.petrinet.sypet;
 
-public interface BackendPetriNet<T, U> {
+public interface BackendPetriNet {
 
-  void addNode(BackendPlace<T> place) throws PlaceAlreadyExistsException;
+  void addNode(BackendPlace place) throws PlaceAlreadyExistsException;
 
-  void addNode(BackendTransition<U> transition) throws TransitionAlreadyExistsException;
+  void addNode(BackendTransition transition) throws TransitionAlreadyExistsException;
 
-  void addArc(BackendPlace<T> place, BackendTransition<U> transition, Integer weight) throws
+  void addArc(BackendPlace place, BackendTransition transition, Integer weight) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  void addArc(BackendTransition<U> transition, BackendPlace<T> place, Integer weight) throws
+  void addArc(BackendTransition transition, BackendPlace place, Integer weight) throws
       ArcAlreadyExistsException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  boolean containsNode(BackendPlace<T> place);
+  boolean containsNode(BackendPlace place);
 
-  boolean containsNode(BackendTransition<U> transition);
+  boolean containsNode(BackendTransition transition);
 
-  boolean containsArc(BackendPlace<T> place, BackendTransition<U> transition);
+  boolean containsArc(BackendPlace place, BackendTransition transition);
 
-  boolean containsArc(BackendTransition<U> transition, BackendPlace<T> place);
+  boolean containsArc(BackendTransition transition, BackendPlace place);
 
-  int getArcWeight(BackendPlace<T> place, BackendTransition<U> transition) throws
+  int getArcWeight(BackendPlace place, BackendTransition transition) throws
       NoSuchArcException,
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  int getArcWeight(BackendTransition<U> transition, BackendPlace<T> place) throws
+  int getArcWeight(BackendTransition transition, BackendPlace place) throws
       NoSuchArcException,
       NoSuchPlaceException,
       NoSuchTransitionException;

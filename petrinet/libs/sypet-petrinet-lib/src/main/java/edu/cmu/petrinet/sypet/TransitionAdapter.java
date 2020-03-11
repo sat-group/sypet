@@ -1,10 +1,8 @@
 package edu.cmu.petrinet.sypet;
 
-final class TransitionAdapter<T, U>
-    extends NodeAdapter<MethodSignature<T, U>, U>
-    implements BackendTransition<MethodSignature<T, U>> {
+final class TransitionAdapter extends NodeAdapter implements BackendTransition {
 
-  TransitionAdapter(MethodSignature<T, U> identifiable) {
+  TransitionAdapter(MethodSignature identifiable) {
     super(identifiable);
   }
 }

@@ -1,7 +1,7 @@
 package edu.cmu.petrinet.sypet
 
-internal fun <T, U> PetriNetBuilder<T, U>.addMethodTypes(
-    signature: MethodSignature<T, U>
+internal fun  PetriNetBuilder.addMethodTypes(
+    signature: MethodSignature
 ) {
     addPlace(signature.returnType())
 

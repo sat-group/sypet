@@ -1,4 +1,4 @@
 package edu.cmu.petrinet.sypet;
 
-interface Transition<T> extends Identifiable<T> {
+interface Transition extends Identifiable {
 }

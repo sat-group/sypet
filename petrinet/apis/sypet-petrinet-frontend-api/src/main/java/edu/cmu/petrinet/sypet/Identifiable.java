@@ -1,5 +1,5 @@
 package edu.cmu.petrinet.sypet;
 
-interface Identifiable<T> {
-  T id();
+interface Identifiable {
+  String id();
 }

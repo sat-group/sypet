@@ -1,8 +1,8 @@
 package edu.cmu.petrinet.sypet;
 
-final class PlaceAdapter<T> extends NodeAdapter<Type<T>, T> implements BackendPlace<Type<T>> {
+final class PlaceAdapter extends NodeAdapter implements BackendPlace {
 
-  PlaceAdapter(Type<T> identifiable) {
+  PlaceAdapter(Type identifiable) {
     super(identifiable);
   }
 }

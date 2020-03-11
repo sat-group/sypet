@@ -1,4 +1,4 @@
 package edu.cmu.petrinet.sypet;
 
-public interface BackendTransition<T> extends BackendNode<T> {
+public interface BackendTransition extends BackendNode {
 }

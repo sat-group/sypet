@@ -2,8 +2,8 @@ package edu.cmu.petrinet.sypet;
 
 import java.util.Collection;
 
-public interface MethodSignature<T, U> extends Transition<U> {
-  Collection<Type<T>> parametersTypes();
+public interface MethodSignature extends Transition {
+  Collection<Type> parametersTypes();
 
-  Type<T> returnType();
+  Type returnType();
 }

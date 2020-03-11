@@ -1,6 +1,6 @@
 package edu.cmu.petrinet.sypet;
 
-abstract class NodeAdapter<T extends Identifiable<U>, U> implements BackendNode<T> {
+abstract class NodeAdapter<T extends Identifiable> implements BackendNode {
   private final T identifiable;
 
   NodeAdapter(T identifiable) {
@@ -8,8 +8,8 @@ abstract class NodeAdapter<T extends Identifiable<U>, U> implements BackendNode<
   }
 
   @Override
-  public T id() {
-    return identifiable;
+  public String id() {
+    return identifiable.id();
   }
 
   @Override
@@ -20,7 +20,7 @@ abstract class NodeAdapter<T extends Identifiable<U>, U> implements BackendNode<
       return false;
     }
 
-    NodeAdapter<?, ?> that = (NodeAdapter<?, ?>) o;
+    NodeAdapter<?> that = (NodeAdapter<?>) o;
 
     return identifiable.equals(that.identifiable);
   }

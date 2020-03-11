@@ -1,5 +1,5 @@
 package edu.cmu.petrinet.sypet;
 
-interface BackendNode<T> {
-  T id();
+public interface BackendNode {
+  String id();
 }

@@ -5,25 +5,25 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 // `PetriNetBuilder` director
-public final class SyPetriNetFactory<T, U> {
+public final class SyPetriNetFactory {
 
-  private final BackendPetriNet<Type<T>, MethodSignature<T, U>> backendPetriNet;
-  private final BiFunction<Type<T>, Type<T>, CastTransition<U>> newCastTransition;
-  private final Function<Type<T>, CloneTransition<U>> newCloneTransition;
-  private final Function<MethodSignature<T, U>, VoidTransition<T, U>> newVoidTransition;
+  private final BackendPetriNet backendPetriNet;
+  private final BiFunction<Type, Type, CastTransition> newCastTransition;
+  private final Function<Type, CloneTransition> newCloneTransition;
+  private final Function<MethodSignature, VoidTransition> newVoidTransition;
 
   public SyPetriNetFactory(
-      final BackendPetriNet<Type<T>, MethodSignature<T, U>> backendPetriNet,
-      BiFunction<Type<T>, Type<T>, CastTransition<U>> newCastTransition,
-      Function<Type<T>, CloneTransition<U>> newCloneTransition,
-      Function<MethodSignature<T, U>, VoidTransition<T, U>> newVoidTransition) {
+      final BackendPetriNet backendPetriNet,
+      BiFunction<Type, Type, CastTransition> newCastTransition,
+      Function<Type, CloneTransition> newCloneTransition,
+      Function<MethodSignature, VoidTransition> newVoidTransition) {
     this.backendPetriNet = backendPetriNet;
     this.newCastTransition = newCastTransition;
     this.newCloneTransition = newCloneTransition;
     this.newVoidTransition = newVoidTransition;
   }
 
-  public SyPetriNet newSyPetriNet(final Library<T, U> library) {
+  public SyPetriNet newSyPetriNet(final Library library) {
     final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
 
     builder.addPlace(library.voidType());
@@ -40,7 +40,7 @@ public final class SyPetriNetFactory<T, U> {
           .addVoidTransition(this.newVoidTransition.apply(signature));
     }
 
-    for (Entry<Type<T>, Type<T>> entry : library.castRelation()) {
+    for (Entry<Type, Type> entry : library.castRelation()) {
       final Type subtype = entry.getKey();
       final Type supertype = entry.getValue();
 

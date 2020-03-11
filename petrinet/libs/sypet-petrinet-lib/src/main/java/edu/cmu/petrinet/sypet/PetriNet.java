@@ -3,36 +3,36 @@ package edu.cmu.petrinet.sypet;
 import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlaceAdapter;
 import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransitionAdapter;
 
-final class PetriNet<T, U> implements SyPetriNet<T, U> {
+final class PetriNet implements SyPetriNet {
 
-  private final BackendPetriNet<Type<T>, MethodSignature<T, U>> net;
+  private final BackendPetriNet net;
 
-  public PetriNet(BackendPetriNet<Type<T>, MethodSignature<T, U>> net) {
+  public PetriNet(BackendPetriNet net) {
     this.net = net;
   }
 
   @Override
-  public boolean contains(final Type<T> type) {
+  public boolean contains(final Type type) {
     return this.net.containsNode(newPlaceAdapter(type));
   }
 
   @Override
-  public boolean contains(final MethodSignature<T, U>  signature) {
+  public boolean contains(final MethodSignature  signature) {
     return this.net.containsNode(newTransitionAdapter(signature));
   }
 
   @Override
-  public boolean containsArc(Type<T> type, MethodSignature<T, U> signature) {
+  public boolean containsArc(Type type, MethodSignature signature) {
     return this.net.containsArc(newPlaceAdapter(type), newTransitionAdapter(signature));
   }
 
   @Override
-  public boolean containsArc(MethodSignature<T, U> signature, Type<T> type) {
+  public boolean containsArc(MethodSignature signature, Type type) {
     return this.net.containsArc(newTransitionAdapter(signature), newPlaceAdapter(type));
   }
 
   @Override
-  public int getArcWeight(Type<T> type, MethodSignature<T, U>  signature) {
+  public int getArcWeight(Type type, MethodSignature  signature) {
     try {
       return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
     } catch (NoSuchArcException e) {
@@ -45,7 +45,7 @@ final class PetriNet<T, U> implements SyPetriNet<T, U> {
   }
 
   @Override
-  public int getArcWeight(MethodSignature<T, U>  signature, Type<T> type) {
+  public int getArcWeight(MethodSignature  signature, Type type) {
     try {
       return this.net.getArcWeight(newTransitionAdapter(signature), newPlaceAdapter(type));
     } catch (NoSuchArcException e) {
