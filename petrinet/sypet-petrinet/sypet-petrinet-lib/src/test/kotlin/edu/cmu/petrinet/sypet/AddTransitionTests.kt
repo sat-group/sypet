@@ -27,28 +27,28 @@ private fun newMockMethodSignature(
     id: String = idGen.random().first(),
     parametersTypes: Collection<Type> = paramsGen.random().first(),
     returnType: Type = TypeGen().random().first()
-): MethodSignature {
-    return object : MethodSignature {
+): MethodTransition {
+    return object : MethodTransition {
         override fun id() = id
         override fun parametersTypes() = parametersTypes
         override fun returnType() = returnType
     }
 }
 
-class MethodSignatureGen : Gen<MethodSignature> {
+class MethodSignatureGen : Gen<MethodTransition> {
     override fun constants() = listOf(
         newMockMethodSignature(parametersTypes = emptyList())
     )
 
-    override fun random(): Sequence<MethodSignature> = generateSequence {
+    override fun random(): Sequence<MethodTransition> = generateSequence {
         newMockMethodSignature()
     }
 }
 
-private fun newMockBackendTransition(signature: MethodSignature): BackendTransition {
+private fun newMockBackendTransition(transition: MethodTransition): BackendTransition {
     val transition = mockk<BackendTransition>()
 
-    every { transition.id() } returns signature.id()
+    every { transition.id() } returns transition.id()
 
     return transition
 }
@@ -60,26 +60,26 @@ class AddTransitionTests : AnnotationSpec() {
 
     @Test
     fun `the net contains the transition`() {
-        MethodSignatureGen().forAll { signature: MethodSignature ->
+        MethodSignatureGen().forAll { transition: MethodTransition ->
             val backend = mockk<BackendPetriNet>(relaxed = true)
             val slot = slot<BackendTransition>()
 
             every { backend.addNode(capture(slot)) } just Runs
 
             val net = PetriNetBuilder(backend)
-                .add(signature)
+                .add(transition)
                 .build()
 
             every { backend.containsNode(slot.captured) } returns true
             every { backend.containsNode(neq(slot.captured)) } returns false
 
-            net.contains(signature)
+            net.contains(transition)
         }
     }
 
     @Test
     fun `the places and the transition are adjacent`() {
-        MethodSignatureGen().forAll { signature: MethodSignature ->
+        MethodSignatureGen().forAll { transition: MethodTransition ->
             val backend = mockk<BackendPetriNet>(relaxed = true)
             val transitionSlot = slot<BackendTransition>()
             val placeSlots = mutableListOf<BackendPlace>()
@@ -88,23 +88,23 @@ class AddTransitionTests : AnnotationSpec() {
             every { backend.addNode(capture(placeSlots)) } just Runs
 
             val net = PetriNetBuilder(backend)
-                .add(signature.parametersTypes())
-                .add(signature.returnType())
-                .add(signature)
+                .add(transition.parametersTypes())
+                .add(transition.returnType())
+                .add(transition)
                 .build()
 
-            placeSlots.filter { it.id() == signature.returnType().id() }.map {
+            placeSlots.filter { it.id() == transition.returnType().id() }.map {
                 every { backend.containsArc(transitionSlot.captured, it) } returns true
             }
 
             placeSlots.filter { placeSlot ->
-                signature.parametersTypes().any { type -> type.id() == placeSlot.id() }
+                transition.parametersTypes().any { type -> type.id() == placeSlot.id() }
             }.map {
                 every { backend.containsArc(it, transitionSlot.captured) } returns true
             }
 
-            signature.parametersTypes().all { net.containsArc(it, signature) } &&
-                    net.containsArc(signature, signature.returnType())
+            transition.parametersTypes().all { net.containsArc(it, transition) } &&
+                    net.containsArc(transition, transition.returnType())
         }
     }
 }

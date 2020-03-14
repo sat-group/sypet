@@ -10,13 +10,13 @@ public final class SyPetriNetFactory {
   private final BackendPetriNet backendPetriNet;
   private final BiFunction<Type, Type, CastTransition> newCastTransition;
   private final Function<Type, CloneTransition> newCloneTransition;
-  private final Function<MethodSignature, VoidTransition> newVoidTransition;
+  private final Function<MethodTransition, VoidTransition> newVoidTransition;
 
   public SyPetriNetFactory(
       final BackendPetriNet backendPetriNet,
       BiFunction<Type, Type, CastTransition> newCastTransition,
       Function<Type, CloneTransition> newCloneTransition,
-      Function<MethodSignature, VoidTransition> newVoidTransition) {
+      Function<MethodTransition, VoidTransition> newVoidTransition) {
     this.backendPetriNet = backendPetriNet;
     this.newCastTransition = newCastTransition;
     this.newCloneTransition = newCloneTransition;
@@ -34,7 +34,7 @@ public final class SyPetriNetFactory {
           .add(this.newCloneTransition.apply(type));
     }
 
-    for (MethodSignature signature : library.signatures()) {
+    for (MethodTransition signature : library.signatures()) {
       builder
           .add(signature)
           .add(this.newVoidTransition.apply(signature));

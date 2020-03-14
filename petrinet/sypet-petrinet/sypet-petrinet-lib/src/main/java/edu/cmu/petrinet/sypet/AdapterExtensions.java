@@ -9,7 +9,7 @@ class AdapterExtensions {
     return new PlaceAdapter(type);
   }
 
-  static BackendTransition newTransitionAdapter(MethodSignature signature) {
-    return new TransitionAdapter(signature);
+  static BackendTransition newTransitionAdapter(Transition transition) {
+    return new TransitionAdapter(transition);
   }
 }

@@ -6,9 +6,9 @@ import java.util.Set;
 public interface Library {
   Set<Type> types();
 
-  Type voidType();
+  VoidType voidType();
 
-  Set<MethodSignature> signatures();
+  Set<MethodTransition> signatures();
 
   Set<Entry<Type, Type>> castRelation();
 }

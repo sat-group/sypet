@@ -5,83 +5,83 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 interface AbstractAddTransitionTests {
-    val add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder
+    val add: PetriNetBuilder.(MethodTransition) -> PetriNetBuilder
 
     fun `the resulting Petri net contains the transition`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     )
 
     fun `the places and the transition are adjacent`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     )
 
     fun `the arcs have the correct weights`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     )
 
     fun `throws if a type is missing`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     ): PetriNetBuildException
 }
 
 data class AddTransitionTests(
-    override val add: PetriNetBuilder.(MethodSignature) -> PetriNetBuilder
+    override val add: PetriNetBuilder.(MethodTransition) -> PetriNetBuilder
 ) : AbstractAddTransitionTests {
     override fun `the resulting Petri net contains the transition`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     ) {
-        builder.addMethodTypes(signature)
+        builder.addMethodTypes(transition)
 
-        val net = builder.add(signature).build()
+        val net = builder.add(transition).build()
 
-        assertTrue(net.contains(signature))
+        assertTrue(net.contains(transition))
     }
 
     override fun `the places and the transition are adjacent`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     ) {
-        builder.addMethodTypes(signature)
+        builder.addMethodTypes(transition)
 
-        val net = builder.add(signature).build()
+        val net = builder.add(transition).build()
 
-        signature.parametersTypes().map { net.containsArc(it, signature) }
-        assertTrue(net.containsArc(signature, signature.returnType()))
+        transition.parametersTypes().map { net.containsArc(it, transition) }
+        assertTrue(net.containsArc(transition, transition.returnType()))
     }
 
     override fun `the arcs have the correct weights`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
+        transition: MethodTransition
     ) {
-        builder.addMethodTypes(signature)
+        builder.addMethodTypes(transition)
 
-        val net = builder.add(signature).build()
+        val net = builder.add(transition).build()
 
         // Each parameter increments by one the weight of the arc between its type and the
         // method signature.
-        signature.parametersTypes().toSet().map { type ->
+        transition.parametersTypes().toSet().map { type ->
             assertEquals(
-                expected = signature.parametersTypes().count { it == type },
-                actual = net.getArcWeight(type, signature)
+                expected = transition.parametersTypes().count { it == type },
+                actual = net.getArcWeight(type, transition)
             )
         }
 
         // Java methods can return at most one value.
         assertEquals(
             expected = 1,
-            actual = net.getArcWeight(signature, signature.returnType())
+            actual = net.getArcWeight(transition, transition.returnType())
         )
     }
 
     override fun `throws if a type is missing`(
         builder: PetriNetBuilder,
-        signature: MethodSignature
-    ) = assertFailsWith<PetriNetBuildException> { builder.add(signature) }
+        transition: MethodTransition
+    ) = assertFailsWith<PetriNetBuildException> { builder.add(transition) }
 }
 
 // TODO

@@ -1,11 +1,11 @@
 package edu.cmu.petrinet.sypet
 
 internal fun  PetriNetBuilder.addMethodTypes(
-    signature: MethodSignature
+    transition: MethodTransition
 ) {
-    add(signature.returnType())
+    add(transition.returnType())
 
-    for (type in signature.parametersTypes().toSet()) {
+    for (type in transition.parametersTypes().toSet()) {
         add(type)
     }
 }

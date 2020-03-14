@@ -17,22 +17,22 @@ final class PetriNet implements SyPetriNet {
   }
 
   @Override
-  public boolean contains(final MethodSignature  signature) {
+  public boolean contains(final MethodTransition signature) {
     return this.net.containsNode(newTransitionAdapter(signature));
   }
 
   @Override
-  public boolean containsArc(Type type, MethodSignature signature) {
+  public boolean containsArc(Type type, MethodTransition signature) {
     return this.net.containsArc(newPlaceAdapter(type), newTransitionAdapter(signature));
   }
 
   @Override
-  public boolean containsArc(MethodSignature signature, Type type) {
+  public boolean containsArc(MethodTransition signature, Type type) {
     return this.net.containsArc(newTransitionAdapter(signature), newPlaceAdapter(type));
   }
 
   @Override
-  public int getArcWeight(Type type, MethodSignature  signature) {
+  public int getArcWeight(Type type, MethodTransition signature) {
     try {
       return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
     } catch (NoSuchArcException e) {
@@ -45,7 +45,7 @@ final class PetriNet implements SyPetriNet {
   }
 
   @Override
-  public int getArcWeight(MethodSignature  signature, Type type) {
+  public int getArcWeight(MethodTransition signature, Type type) {
     try {
       return this.net.getArcWeight(newTransitionAdapter(signature), newPlaceAdapter(type));
     } catch (NoSuchArcException e) {

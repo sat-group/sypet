@@ -2,31 +2,31 @@ package edu.cmu.petrinet.sypet;
 
 public class PetriNetBuildException extends RuntimeException {
 
-  private PetriNetBuildException(final String message) {
+  PetriNetBuildException(final String message) {
     super("Internal error while building the Petri net: " + message);
   }
 
-  PetriNetBuildException(final ArcAlreadyExistsException e) {
+  private PetriNetBuildException(final ArcAlreadyExistsException e) {
     this("Arc from \"" + e.source + "\" to \"" + e.target + "\" already exists");
   }
 
-  PetriNetBuildException(final NoSuchArcException e) {
+  private PetriNetBuildException(final NoSuchArcException e) {
     this("No arc from \"" + e.source + "\" to target \"" + e.target + "\" exists.");
   }
 
-  PetriNetBuildException(final NoSuchPlaceException e) {
+  private PetriNetBuildException(final NoSuchPlaceException e) {
     this("Place \"" + e.place + "\" does not exist in the net.");
   }
 
-  PetriNetBuildException(final NoSuchTransitionException e) {
+  private PetriNetBuildException(final NoSuchTransitionException e) {
     this("Transition \"" + e.transition + "\" does not exist in the net.");
   }
 
-  PetriNetBuildException(final PlaceAlreadyExistsException e) {
+  private PetriNetBuildException(final PlaceAlreadyExistsException e) {
     this("Place \"" + e.place + "\" already exists in the net.");
   }
 
-  PetriNetBuildException(final TransitionAlreadyExistsException e) {
+  private PetriNetBuildException(final TransitionAlreadyExistsException e) {
     this("Transition \"" + e.transition + "\" already exists in the net.");
   }
 

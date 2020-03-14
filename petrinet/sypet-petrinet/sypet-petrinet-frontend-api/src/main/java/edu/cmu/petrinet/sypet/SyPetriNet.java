@@ -4,13 +4,13 @@ public interface SyPetriNet {
 
   boolean contains(Type type);
 
-  boolean contains(MethodSignature signature);
+  boolean contains(MethodTransition signature);
 
-  boolean containsArc(Type type, MethodSignature signature);
+  boolean containsArc(Type type, MethodTransition signature);
 
-  boolean containsArc(MethodSignature signature, Type type);
+  boolean containsArc(MethodTransition signature, Type type);
 
-  int getArcWeight(Type type, MethodSignature signature);
+  int getArcWeight(Type type, MethodTransition signature);
 
-  int getArcWeight(MethodSignature signature, Type type);
+  int getArcWeight(MethodTransition signature, Type type);
 }
