@@ -6,27 +6,27 @@ public class PetriNetBuildException extends RuntimeException {
     super("Internal error while building the Petri net: " + message);
   }
 
-  private PetriNetBuildException(final ArcAlreadyExistsException e) {
+  PetriNetBuildException(final ArcAlreadyExistsException e) {
     this("Arc from \"" + e.source + "\" to \"" + e.target + "\" already exists");
   }
 
-  private PetriNetBuildException(final NoSuchArcException e) {
+  PetriNetBuildException(final NoSuchArcException e) {
     this("No arc from \"" + e.source + "\" to target \"" + e.target + "\" exists.");
   }
 
-  private PetriNetBuildException(final NoSuchPlaceException e) {
+  PetriNetBuildException(final NoSuchPlaceException e) {
     this("Place \"" + e.place + "\" does not exist in the net.");
   }
 
-  private PetriNetBuildException(final NoSuchTransitionException e) {
+  PetriNetBuildException(final NoSuchTransitionException e) {
     this("Transition \"" + e.transition + "\" does not exist in the net.");
   }
 
-  private PetriNetBuildException(final PlaceAlreadyExistsException e) {
+  PetriNetBuildException(final PlaceAlreadyExistsException e) {
     this("Place \"" + e.place + "\" already exists in the net.");
   }
 
-  private PetriNetBuildException(final TransitionAlreadyExistsException e) {
+  PetriNetBuildException(final TransitionAlreadyExistsException e) {
     this("Transition \"" + e.transition + "\" already exists in the net.");
   }
 
