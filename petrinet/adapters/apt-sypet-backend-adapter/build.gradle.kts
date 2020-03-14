@@ -8,6 +8,15 @@ dependencies {
     implementation(fileTree("lib"))
     implementation(project(":sypet-petrinet-backend-api"))
     implementation(kotlin("stdlib-jdk8"))
+
+    testImplementation(project(":sypet-petrinet-test-lib"))
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
+    testImplementation("io.mockk:mockk:1.9")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    ignoreFailures = true
 }
 
 val compileKotlin: KotlinCompile by tasks
