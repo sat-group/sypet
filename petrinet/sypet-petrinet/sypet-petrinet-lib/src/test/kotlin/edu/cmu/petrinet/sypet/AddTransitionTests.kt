@@ -64,14 +64,14 @@ class AddTransitionTests : AnnotationSpec() {
             val backend = mockk<BackendPetriNet>(relaxed = true)
             val slot = slot<BackendTransition>()
 
-            every { backend.addNode(capture(slot)) } just Runs
+            every { backend.add(capture(slot)) } just Runs
 
             val net = PetriNetBuilder(backend)
                 .add(transition)
                 .build()
 
-            every { backend.containsNode(slot.captured) } returns true
-            every { backend.containsNode(neq(slot.captured)) } returns false
+            every { backend.contains(slot.captured) } returns true
+            every { backend.contains(neq(slot.captured)) } returns false
 
             net.contains(transition)
         }
@@ -84,8 +84,8 @@ class AddTransitionTests : AnnotationSpec() {
             val transitionSlot = slot<BackendTransition>()
             val placeSlots = mutableListOf<BackendPlace>()
 
-            every { backend.addNode(capture(transitionSlot)) } just Runs
-            every { backend.addNode(capture(placeSlots)) } just Runs
+            every { backend.add(capture(transitionSlot)) } just Runs
+            every { backend.add(capture(placeSlots)) } just Runs
 
             val net = PetriNetBuilder(backend)
                 .add(transition.parametersTypes())

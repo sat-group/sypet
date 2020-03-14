@@ -2,9 +2,9 @@ package edu.cmu.petrinet.sypet;
 
 public interface BackendPetriNet {
 
-  void addNode(BackendPlace place) throws PlaceAlreadyExistsException;
+  void add(BackendPlace place) throws PlaceAlreadyExistsException;
 
-  void addNode(BackendTransition transition) throws TransitionAlreadyExistsException;
+  void add(BackendTransition transition) throws TransitionAlreadyExistsException;
 
   void addArc(BackendPlace place, BackendTransition transition, Integer weight) throws
       ArcAlreadyExistsException,
@@ -16,9 +16,9 @@ public interface BackendPetriNet {
       NoSuchPlaceException,
       NoSuchTransitionException;
 
-  boolean containsNode(BackendPlace place);
+  boolean contains(BackendPlace place);
 
-  boolean containsNode(BackendTransition transition);
+  boolean contains(BackendTransition transition);
 
   boolean containsArc(BackendPlace place, BackendTransition transition);
 

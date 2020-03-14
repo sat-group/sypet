@@ -4,14 +4,14 @@ import edu.cmu.petrinet.sypet.*
 import uniol.apt.adt.pn.PetriNet
 
 data class SyPetBackendAdapter(val net: PetriNet) : BackendPetriNet {
-    override fun addNode(place: BackendPlace?) {
+    override fun add(place: BackendPlace?) {
         requireNotNull(place)
         requireNotContainsPlace(place)
 
         this.net.createPlace(place.id())
     }
 
-    override fun addNode(transition: BackendTransition?) {
+    override fun add(transition: BackendTransition?) {
         requireNotNull(transition)
         requireNotContainsTransition(transition)
 
@@ -40,12 +40,12 @@ data class SyPetBackendAdapter(val net: PetriNet) : BackendPetriNet {
         this.net.createFlow(transition.id(), place.id(), weight)
     }
 
-    override fun containsNode(place: BackendPlace?): Boolean {
+    override fun contains(place: BackendPlace?): Boolean {
         requireNotNull(place)
         return this.net.containsPlace(place.id())
     }
 
-    override fun containsNode(transition: BackendTransition?): Boolean {
+    override fun contains(transition: BackendTransition?): Boolean {
         requireNotNull(transition)
         return this.net.containsTransition(transition.id())
     }

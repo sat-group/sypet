@@ -19,7 +19,7 @@ public final class PetriNetBuilder {
   }
 
   public final PetriNetBuilder add(final Type type) {
-    PetriNetBuildException.handle(() -> this.net.addNode(newPlaceAdapter(type)));
+    PetriNetBuildException.handle(() -> this.net.add(newPlaceAdapter(type)));
     return this;
   }
 
@@ -37,7 +37,7 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final MethodTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.addNode(newTransitionAdapter(transition));
+      this.net.add(newTransitionAdapter(transition));
       addParametersTypes(transition.parametersTypes(), transition);
       this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.returnType()), 1);
     });
@@ -47,7 +47,7 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final CastTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.addNode(newTransitionAdapter(transition));
+      this.net.add(newTransitionAdapter(transition));
       this.net.addArc(newPlaceAdapter(transition.subtype()), newTransitionAdapter(transition),1);
       this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.supertype()),1);
     });
@@ -57,7 +57,7 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final CloneTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.addNode(newTransitionAdapter(transition));
+      this.net.add(newTransitionAdapter(transition));
       this.net.addArc(newPlaceAdapter(transition.type()), newTransitionAdapter(transition), 1);
       this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.type()), 2);
     });

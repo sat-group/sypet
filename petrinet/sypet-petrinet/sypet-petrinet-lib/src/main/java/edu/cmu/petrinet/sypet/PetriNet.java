@@ -13,12 +13,12 @@ final class PetriNet implements SyPetriNet {
 
   @Override
   public boolean contains(final Type type) {
-    return this.net.containsNode(newPlaceAdapter(type));
+    return this.net.contains(newPlaceAdapter(type));
   }
 
   @Override
   public boolean contains(final MethodTransition signature) {
-    return this.net.containsNode(newTransitionAdapter(signature));
+    return this.net.contains(newTransitionAdapter(signature));
   }
 
   @Override
