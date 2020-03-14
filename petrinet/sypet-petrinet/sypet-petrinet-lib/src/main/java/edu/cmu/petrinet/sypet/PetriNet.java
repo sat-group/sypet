@@ -1,8 +1,5 @@
 package edu.cmu.petrinet.sypet;
 
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlaceAdapter;
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransitionAdapter;
-
 final class PetriNet implements SyPetriNet {
 
   private final BackendPetriNet net;
@@ -13,48 +10,28 @@ final class PetriNet implements SyPetriNet {
 
   @Override
   public boolean contains(final Type type) {
-    return this.net.contains(newPlaceAdapter(type));
+    return this.net.contains(new PlaceAdapter(type));
   }
 
   @Override
   public boolean contains(final MethodTransition signature) {
-    return this.net.contains(newTransitionAdapter(signature));
+    return this.net.contains(new TransitionAdapter(signature));
   }
 
   @Override
   public boolean containsArc(Type type, MethodTransition signature) {
-    return this.net.containsArc(newPlaceAdapter(type), newTransitionAdapter(signature));
+    final BackendPlace from = new PlaceAdapter(type);
+    final BackendTransition to = new TransitionAdapter(signature);
+
+    return this.net.contains(new InputArcAdapter(from, to, null));
   }
 
   @Override
   public boolean containsArc(MethodTransition signature, Type type) {
-    return this.net.containsArc(newTransitionAdapter(signature), newPlaceAdapter(type));
-  }
+    final BackendTransition from = new TransitionAdapter(signature);
+    final BackendPlace to = new PlaceAdapter(type);
 
-  @Override
-  public int getArcWeight(Type type, MethodTransition signature) {
-    try {
-      return this.net.getArcWeight(newPlaceAdapter(type), newTransitionAdapter(signature));
-    } catch (NoSuchArcException e) {
-      throw new PetriNetBuildException(e);
-    } catch (NoSuchPlaceException e) {
-      throw new PetriNetBuildException(e);
-    } catch (NoSuchTransitionException e) {
-      throw new PetriNetBuildException(e);
-    }
-  }
-
-  @Override
-  public int getArcWeight(MethodTransition signature, Type type) {
-    try {
-      return this.net.getArcWeight(newTransitionAdapter(signature), newPlaceAdapter(type));
-    } catch (NoSuchArcException e) {
-      throw new PetriNetBuildException(e);
-    } catch (NoSuchPlaceException e) {
-      throw new PetriNetBuildException(e);
-    } catch (NoSuchTransitionException e) {
-      throw new PetriNetBuildException(e);
-    }
+    return this.net.contains(new OutputArcAdapter(from, to, null));
   }
 
   @Override

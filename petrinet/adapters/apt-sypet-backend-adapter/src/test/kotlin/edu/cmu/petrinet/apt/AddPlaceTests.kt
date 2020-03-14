@@ -1,7 +1,7 @@
 package edu.cmu.petrinet.apt
 
 import edu.cmu.petrinet.sypet.BackendPlace
-import edu.cmu.petrinet.sypet.PlaceAlreadyExistsException
+import edu.cmu.petrinet.sypet.NodeAlreadyExistsException
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.BehaviorSpec
@@ -12,59 +12,41 @@ import uniol.apt.adt.pn.PetriNet
 fun newMockPlace(): BackendPlace {
     val mockPlace = mockk<BackendPlace>()
 
-    every { mockPlace.id() } returns "0"
+    every { mockPlace.id } returns "0"
 
     return mockPlace
 }
 
 class AddPlaceTests : BehaviorSpec({
     given("an empty Petri net") {
-        and("and a null place") {
-            `when`("added to the net") {
-                then("should throw IllegalArgumentException") {
-                    // Arrange.
-                    val adapter = SyPetBackendAdapter(PetriNet())
-                    val newPlace: BackendPlace? = null
+        `when`("a new place is added to the net") {
+            then("the net should contain the place") {
+                // Arrange.
+                val adapter = SyPetBackendAdapter(PetriNet())
+                val newPlace = newMockPlace()
 
-                    // Act.
-                    val action = { adapter.add(newPlace) }
+                // Act.
+                adapter.add(newPlace)
 
-                    // Assert.
-                    shouldThrow<IllegalArgumentException>(action)
-                }
+                // Assert.
+                adapter.contains(newPlace).shouldBeTrue()
             }
         }
 
-        and("a new place") {
-            `when`("the place is added to the net") {
-                then("the net should contain the place") {
-                    // Arrange.
-                    val adapter = SyPetBackendAdapter(PetriNet())
-                    val newPlace = newMockPlace()
+        `when`("the place is added twice to the net") {
+            then("should throw PlaceAlreadyExistsException") {
+                // Arrange.
+                val adapter = SyPetBackendAdapter(PetriNet())
+                val newPlace = newMockPlace()
 
-                    // Act.
+                // Act.
+                val action = {
                     adapter.add(newPlace)
-
-                    // Assert.
-                    adapter.contains(newPlace).shouldBeTrue()
+                    adapter.add(newPlace)
                 }
-            }
 
-            `when`("the place is added twice to the net") {
-                then("should throw PlaceAlreadyExistsException") {
-                    // Arrange.
-                    val adapter = SyPetBackendAdapter(PetriNet())
-                    val newPlace = newMockPlace()
-
-                    // Act.
-                    val action = {
-                        adapter.add(newPlace)
-                        adapter.add(newPlace)
-                    }
-
-                    // Assert.
-                    shouldThrow<PlaceAlreadyExistsException>(action)
-                }
+                // Assert.
+                shouldThrow<NodeAlreadyExistsException>(action)
             }
         }
     }

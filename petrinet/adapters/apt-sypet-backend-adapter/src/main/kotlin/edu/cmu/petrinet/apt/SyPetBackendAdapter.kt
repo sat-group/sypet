@@ -4,129 +4,104 @@ import edu.cmu.petrinet.sypet.*
 import uniol.apt.adt.pn.PetriNet
 
 data class SyPetBackendAdapter(val net: PetriNet) : BackendPetriNet {
-    override fun add(place: BackendPlace?) {
-        requireNotNull(place)
-        requireNotContainsPlace(place)
-
-        this.net.createPlace(place.id())
+    override fun add(node: BackendNode) {
+        when (node) {
+            is BackendPlace -> add(node)
+            is BackendTransition -> add(node)
+        }.let {}
     }
 
-    override fun add(transition: BackendTransition?) {
-        requireNotNull(transition)
-        requireNotContainsTransition(transition)
+    internal fun add(place: BackendPlace) {
+        requireNotContains(place)
 
-        this.net.createTransition(transition.id())
+        this.net.createPlace(place.id)
     }
 
-    override fun addArc(place: BackendPlace?, transition: BackendTransition?, weight: Int?) {
-        requireNotNull(place)
-        requireNotNull(transition)
-        requireNotNull(weight)
-        requireContainsPlace(place)
-        requireContainsTransition(transition)
-        requireNotContainsArc(place, transition)
+    internal fun add(transition: BackendTransition) {
+        requireNotContains(transition)
 
-        this.net.createFlow(place.id(), transition.id())
+        this.net.createTransition(transition.id)
     }
 
-    override fun addArc(transition: BackendTransition?, place: BackendPlace?, weight: Int?) {
-        requireNotNull(transition)
-        requireNotNull(place)
-        requireNotNull(weight)
-        requireContainsTransition(transition)
-        requireContainsPlace(place)
-        requireNotContainsArc(transition, place)
-
-        this.net.createFlow(transition.id(), place.id(), weight)
-    }
-
-    override fun contains(place: BackendPlace?): Boolean {
-        requireNotNull(place)
-        return this.net.containsPlace(place.id())
-    }
-
-    override fun contains(transition: BackendTransition?): Boolean {
-        requireNotNull(transition)
-        return this.net.containsTransition(transition.id())
-    }
-
-    override fun containsArc(place: BackendPlace?, transition: BackendTransition?): Boolean {
-        requireNotNull(place)
-        requireNotNull(transition)
-        requireContainsPlace(place)
-        requireContainsTransition(transition)
-
-        return this.net.getPlace(place.id()).postset.any { _transition ->
-            _transition.id == transition.id()
+    override fun add(arc: BackendArc) {
+        when (arc) {
+            is BackendInputArc -> add(arc)
+            is BackendOutputArc -> add(arc)
         }
     }
 
-    override fun containsArc(transition: BackendTransition?, place: BackendPlace?): Boolean {
-        requireNotNull(transition)
-        requireNotNull(place)
-        requireContainsTransition(transition)
-        requireContainsPlace(place)
+    internal fun add(arc: BackendInputArc) {
+        requireContains(arc.from)
+        requireContains(arc.to)
+        requireNotContains(arc)
 
-        return this.net.getTransition(transition.id()).postset.any { _place ->
-            _place.id == place.id()
+        this.net.createFlow(arc.from.id, arc.to.id)
+    }
+
+    internal fun add(arc: BackendOutputArc) {
+        requireContains(arc.from)
+        requireContains(arc.to)
+        requireNotContains(arc)
+
+        this.net.createFlow(arc.from.id, arc.to.id, arc.weight!!)
+    }
+
+    override fun contains(node: BackendNode): Boolean {
+        return when (node) {
+            is BackendPlace -> contains(node)
+            is BackendTransition -> contains(node)
         }
     }
 
-    override fun getArcWeight(place: BackendPlace?, transition: BackendTransition?): Int {
-        requireContainsArc(place, transition)
-        return this.net.getFlow(place!!.id(), transition!!.id()).weight
+    internal fun contains(place: BackendPlace): Boolean {
+        return this.net.containsPlace(place.id)
     }
 
-    override fun getArcWeight(transition: BackendTransition?, place: BackendPlace?): Int {
-        requireContainsArc(transition, place)
-        return this.net.getFlow(transition!!.id(), place!!.id()).weight
+    internal fun contains(transition: BackendTransition): Boolean {
+        return this.net.containsTransition(transition.id)
     }
 
-    private fun requireContainsPlace(place: BackendPlace) {
-        if (!this.net.containsPlace(place.id())) {
-            throw NoSuchPlaceException(place)
+    override operator fun contains(arc: BackendArc): Boolean {
+        return when(arc) {
+            is BackendInputArc -> contains(arc)
+            is BackendOutputArc -> contains(arc)
         }
     }
 
-    private fun requireNotContainsPlace(place: BackendPlace) {
-        if (this.net.containsPlace(place.id())) {
-            throw PlaceAlreadyExistsException(place)
+    internal fun contains(arc: BackendInputArc): Boolean {
+        requireContains(arc.from)
+        requireContains(arc.to)
+
+        return this.net.getPlace(arc.from.id).postset.any { it.id == arc.to.id }
+    }
+
+    internal fun contains(arc: BackendOutputArc): Boolean {
+        requireContains(arc.from)
+        requireContains(arc.to)
+
+        return this.net.getTransition(arc.from.id).postset.any { it.id == arc.to.id }
+    }
+
+    private fun requireContains(node: BackendNode) {
+        when (node) {
+            is BackendPlace ->
+                if (!this.net.containsPlace(node.id)) throw NoSuchNodeException(node)
+                else return
+            is BackendTransition ->
+                if (!this.net.containsTransition(node.id)) throw NoSuchNodeException(node)
+                else return
+        }.let {}
+    }
+
+    private fun requireNotContains(node: BackendNode) {
+        if (this.net.containsPlace(node.id)) {
+            throw NodeAlreadyExistsException(node)
         }
     }
 
-    private fun requireContainsTransition(transition: BackendTransition) {
-        if (!this.net.containsTransition(transition.id())) {
-            throw NoSuchTransitionException(transition)
-        }
-    }
-
-    private fun requireNotContainsTransition(transition: BackendTransition) {
-        if (this.net.containsTransition(transition.id())) {
-            throw TransitionAlreadyExistsException(transition)
-        }
-    }
-
-    private fun requireNotContainsArc(place: BackendPlace, transition: BackendTransition) {
-        if (this.containsArc(place, transition)) {
-            throw ArcAlreadyExistsException(place, transition)
-        }
-    }
-
-    private fun requireNotContainsArc(transition: BackendTransition, place: BackendPlace) {
-        if (this.containsArc(transition, place)) {
-            throw ArcAlreadyExistsException(transition, place)
-        }
-    }
-
-    private fun requireContainsArc(place: BackendPlace?, transition: BackendTransition?) {
-        if (!this.containsArc(place, transition)) {
-            throw NoSuchArcException(place, transition)
-        }
-    }
-
-    private fun requireContainsArc(transition: BackendTransition?, place: BackendPlace?) {
-        if (!this.containsArc(transition, place)) {
-            throw NoSuchArcException(transition, place)
+    private fun requireNotContains(arc: BackendArc) {
+        if (this.contains(arc)) {
+            throw ArcAlreadyExistsException(arc)
         }
     }
 }

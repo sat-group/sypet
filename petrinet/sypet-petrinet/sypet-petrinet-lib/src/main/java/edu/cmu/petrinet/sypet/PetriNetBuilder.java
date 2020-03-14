@@ -1,8 +1,5 @@
 package edu.cmu.petrinet.sypet;
 
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newPlaceAdapter;
-import static edu.cmu.petrinet.sypet.AdapterExtensions.newTransitionAdapter;
-
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -19,7 +16,7 @@ public final class PetriNetBuilder {
   }
 
   public final PetriNetBuilder add(final Type type) {
-    PetriNetBuildException.handle(() -> this.net.add(newPlaceAdapter(type)));
+    PetriNetBuildException.handle(() -> this.net.add(new PlaceAdapter(type)));
     return this;
   }
 
@@ -37,9 +34,12 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final MethodTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.add(newTransitionAdapter(transition));
+      this.net.add(new TransitionAdapter(transition));
       addParametersTypes(transition.parametersTypes(), transition);
-      this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.returnType()), 1);
+      this.net.add(new OutputArcAdapter(
+          new TransitionAdapter(transition),
+          new PlaceAdapter(transition.returnType()),
+          1));
     });
 
     return this;
@@ -47,9 +47,15 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final CastTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.add(newTransitionAdapter(transition));
-      this.net.addArc(newPlaceAdapter(transition.subtype()), newTransitionAdapter(transition),1);
-      this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.supertype()),1);
+      this.net.add(new TransitionAdapter(transition));
+      this.net.add(new InputArcAdapter(
+          new PlaceAdapter(transition.subtype()),
+          new TransitionAdapter(transition),
+          1));
+      this.net.add(new OutputArcAdapter(
+          new TransitionAdapter(transition),
+          new PlaceAdapter(transition.supertype()),
+          1));
     });
 
     return this;
@@ -57,9 +63,15 @@ public final class PetriNetBuilder {
 
   public final PetriNetBuilder add(final CloneTransition transition) {
     PetriNetBuildException.handle(() -> {
-      this.net.add(newTransitionAdapter(transition));
-      this.net.addArc(newPlaceAdapter(transition.type()), newTransitionAdapter(transition), 1);
-      this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(transition.type()), 2);
+      this.net.add(new TransitionAdapter(transition));
+      this.net.add(new InputArcAdapter(
+          new PlaceAdapter(transition.type()),
+          new TransitionAdapter(transition),
+          1));
+      this.net.add(new OutputArcAdapter(
+          new TransitionAdapter(transition),
+          new PlaceAdapter(transition.type()),
+          2));
     });
 
     return this;
@@ -73,7 +85,10 @@ public final class PetriNetBuilder {
 
     PetriNetBuildException.handle(() -> {
       this.addParametersTypes(transition.parametersTypes(), transition);
-      this.net.addArc(newTransitionAdapter(transition), newPlaceAdapter(this.voidType), 1);
+      this.net.add(new OutputArcAdapter(
+          new TransitionAdapter(transition),
+          new PlaceAdapter(this.voidType),
+          1));
     });
 
     return this;
@@ -84,7 +99,7 @@ public final class PetriNetBuilder {
   }
 
   private void addParametersTypes(Collection<Type> parametersTypes, Transition transition)
-      throws ArcAlreadyExistsException, NoSuchPlaceException, NoSuchTransitionException {
+      throws ArcAlreadyExistsException, NoSuchNodeException {
     // Count how many times a type appears in the parameters types and set that as the arc weight.
     Set<Entry<Type, Long>> entries = parametersTypes.stream()
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
@@ -94,7 +109,10 @@ public final class PetriNetBuilder {
       final Type type = entry.getKey();
       final Long count = entry.getValue();
 
-      this.net.addArc(newPlaceAdapter(type), newTransitionAdapter(transition), count.intValue());
+      this.net.add(new InputArcAdapter(
+          new PlaceAdapter(type),
+          new TransitionAdapter(transition),
+          count.intValue()));
     }
   }
 }

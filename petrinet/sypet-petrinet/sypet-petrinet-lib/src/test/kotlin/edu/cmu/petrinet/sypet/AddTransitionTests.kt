@@ -14,7 +14,7 @@ class TypeGen : Gen<Type> {
         return generateSequence {
             val type = mockk<Type>()
 
-            every { type.id() } returns idGen.random().first()
+            every { type.getId() } returns idGen.random().first()
 
             type
         }
@@ -23,38 +23,25 @@ class TypeGen : Gen<Type> {
 
 val paramsGen = Gen.list(gen = TypeGen(), maxSize = 5)
 
-private fun newMockMethodSignature(
-    id: String = idGen.random().first(),
-    parametersTypes: Collection<Type> = paramsGen.random().first(),
-    returnType: Type = TypeGen().random().first()
+private data class MockMethodSignature(
+    private val id: String = idGen.random().first(),
+    private val parametersTypes: Collection<Type> = paramsGen.random().first(),
+    private val returnType: Type = TypeGen().random().first()
 ): MethodTransition {
-    return object : MethodTransition {
-        override fun id() = id
-        override fun parametersTypes() = parametersTypes
-        override fun returnType() = returnType
-    }
+    override fun getId() = id
+    override fun parametersTypes() = parametersTypes
+    override fun returnType() = returnType
 }
 
-class MethodSignatureGen : Gen<MethodTransition> {
+private class MethodSignatureGen : Gen<MethodTransition> {
     override fun constants() = listOf(
-        newMockMethodSignature(parametersTypes = emptyList())
+        MockMethodSignature(parametersTypes = emptyList())
     )
 
     override fun random(): Sequence<MethodTransition> = generateSequence {
-        newMockMethodSignature()
+        MockMethodSignature()
     }
 }
-
-private fun newMockBackendTransition(transition: MethodTransition): BackendTransition {
-    val transition = mockk<BackendTransition>()
-
-    every { transition.id() } returns transition.id()
-
-    return transition
-}
-
-private val backendTransitionGen =
-    MethodSignatureGen().random().map { newMockBackendTransition(it) }
 
 class AddTransitionTests : AnnotationSpec() {
 
@@ -93,15 +80,22 @@ class AddTransitionTests : AnnotationSpec() {
                 .add(transition)
                 .build()
 
-            placeSlots.filter { it.id() == transition.returnType().id() }.map {
-                every { backend.containsArc(transitionSlot.captured, it) } returns true
+            placeSlots.filter { it.id == transition.returnType().id }.forEach {
+                val outputArc = mockk<BackendOutputArc>()
+
+                every { outputArc.from } returns transitionSlot.captured
+                every { outputArc.to } returns it
+                every { backend.contains(outputArc) } returns true
             }
 
-            placeSlots.filter { placeSlot ->
-                transition.parametersTypes().any { type -> type.id() == placeSlot.id() }
-            }.map {
-                every { backend.containsArc(it, transitionSlot.captured) } returns true
-            }
+            placeSlots.filter { transition.parametersTypes().any { type -> type.id == it.id } }
+                .forEach {
+                    val inputArc = mockk<BackendInputArc>()
+
+                    every { inputArc.from } returns it
+                    every { inputArc.to } returns transitionSlot.captured
+                    every { backend.contains(inputArc) } returns true
+                }
 
             transition.parametersTypes().all { net.containsArc(it, transition) } &&
                     net.containsArc(transition, transition.returnType())

@@ -10,7 +10,7 @@ public interface SyPetriNet {
 
   boolean containsArc(MethodTransition signature, Type type);
 
-  int getArcWeight(Type type, MethodTransition signature);
+//  int getArcWeight(Type type, MethodTransition signature);
 
-  int getArcWeight(MethodTransition signature, Type type);
+//  int getArcWeight(MethodTransition signature, Type type);
 }

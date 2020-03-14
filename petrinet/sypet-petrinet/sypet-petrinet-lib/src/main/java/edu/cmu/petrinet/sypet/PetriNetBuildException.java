@@ -7,27 +7,16 @@ public class PetriNetBuildException extends RuntimeException {
   }
 
   PetriNetBuildException(final ArcAlreadyExistsException e) {
-    this("Arc from \"" + e.source + "\" to \"" + e.target + "\" already exists");
+    this("Arc from \"" + e.getArc().getFrom() + "\" to \"" + e.getArc().getTo()
+        + "\" already exists");
   }
 
-  PetriNetBuildException(final NoSuchArcException e) {
-    this("No arc from \"" + e.source + "\" to target \"" + e.target + "\" exists.");
+  PetriNetBuildException(final NoSuchNodeException e) {
+    this("Node \"" + e.getNode() + "\" does not exist.");
   }
 
-  PetriNetBuildException(final NoSuchPlaceException e) {
-    this("Place \"" + e.place + "\" does not exist in the net.");
-  }
-
-  PetriNetBuildException(final NoSuchTransitionException e) {
-    this("Transition \"" + e.transition + "\" does not exist in the net.");
-  }
-
-  PetriNetBuildException(final PlaceAlreadyExistsException e) {
-    this("Place \"" + e.place + "\" already exists in the net.");
-  }
-
-  PetriNetBuildException(final TransitionAlreadyExistsException e) {
-    this("Transition \"" + e.transition + "\" already exists in the net.");
+  PetriNetBuildException(final NodeAlreadyExistsException e) {
+    this("Node \"" + e.getNode() + "\" already exists.");
   }
 
   static void handle(final Block block) throws PetriNetBuildException {
@@ -35,26 +24,18 @@ public class PetriNetBuildException extends RuntimeException {
       block.run();
     } catch (ArcAlreadyExistsException e) {
       throw new PetriNetBuildException(e);
-    } catch (NoSuchArcException e) {
+    } catch (NoSuchNodeException e) {
       throw new PetriNetBuildException(e);
-    } catch (NoSuchPlaceException e) {
-      throw new PetriNetBuildException(e);
-    } catch (NoSuchTransitionException e) {
-      throw new PetriNetBuildException(e);
-    } catch (PlaceAlreadyExistsException e) {
-      throw new PetriNetBuildException(e);
-    } catch (TransitionAlreadyExistsException e) {
+    } catch (NodeAlreadyExistsException e) {
       throw new PetriNetBuildException(e);
     }
   }
 
   interface Block {
+
     void run() throws
         ArcAlreadyExistsException,
-        NoSuchArcException,
-        NoSuchPlaceException,
-        NoSuchTransitionException,
-        PlaceAlreadyExistsException,
-        TransitionAlreadyExistsException;
+        NoSuchNodeException,
+        NodeAlreadyExistsException;
   }
 }
