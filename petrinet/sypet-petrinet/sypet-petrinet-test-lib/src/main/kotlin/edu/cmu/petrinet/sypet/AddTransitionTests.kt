@@ -88,7 +88,7 @@ data class AddTransitionTests(
 //data class AddVoidTransitionTests(
 //    val voidType: Type
 //) : AbstractAddTransitionTests by AddTransitionTests(add = { sig ->
-//    addVoidTransition(
+//    add(
 //        sig,
 //        voidType
 //    )
@@ -102,7 +102,7 @@ object AddCloneTransition {
 //    ) = `the resulting Petri net contains the transition`(
 //        builder = builder,
 //        signature = signature,
-//        add = PetriNetBuilder::addCloneTransition
+//        add = PetriNetBuilder::add
 //    )
 
 // TODO
@@ -112,7 +112,7 @@ object AddCloneTransition {
 //    ) = `the places and the transition are adjacent`(
 //        builder = builder,
 //        signature = CloneMethodSignature(type),
-//        add = { addCloneTransition(type)}
+//        add = { add(type)}
 //    )
 
 // TODO
@@ -122,14 +122,14 @@ object AddCloneTransition {
 //    ) = `the arcs have the correct weights`(
 //        builder = builder,
 //        signature = signature,
-//        add = PetriNetBuilder::addCloneTransition
+//        add = PetriNetBuilder::add
 //    )
 
 // TODO
 //    fun  `throws if a type is missing`(
 //        builder: PetriNetBuilder,
 //        type: Type
-//    ) = assertFailsWith<PetriNetBuildException> { builder.addCloneTransition(type) }
+//    ) = assertFailsWith<PetriNetBuildException> { builder.add(type) }
 }
 
 object AddCastTransition {
@@ -140,7 +140,7 @@ object AddCastTransition {
 //    ) = `the resulting Petri net contains the transition`(
 //        builder = builder,
 //        signature = signature,
-//        add = PetriNetBuilder::addCastTransition
+//        add = PetriNetBuilder::add
 //    )
 
 // TODO
@@ -150,7 +150,7 @@ object AddCastTransition {
 //    ) = `the places and the transition are adjacent`(
 //        builder = builder,
 //        signature = signature,
-//        add = PetriNetBuilder::addCastTransition
+//        add = PetriNetBuilder::add
 //    )
 
 // TODO
@@ -160,7 +160,7 @@ object AddCastTransition {
 //    ) = `the arcs have the correct weights`(
 //        builder = builder,
 //        signature = signature,
-//        add = PetriNetBuilder::addCastTransition
+//        add = PetriNetBuilder::add
 //    )
 
 // TODO
@@ -168,6 +168,6 @@ object AddCastTransition {
 //        builder: PetriNetBuilder,
 //        source: Type,
 //        target: Type
-//    ) = assertFailsWith<PetriNetBuildException> { builder.addCastTransition(source, target) }
+//    ) = assertFailsWith<PetriNetBuildException> { builder.add(source, target) }
 
 }

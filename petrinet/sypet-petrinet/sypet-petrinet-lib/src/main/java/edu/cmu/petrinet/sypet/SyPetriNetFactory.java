@@ -26,25 +26,25 @@ public final class SyPetriNetFactory {
   public SyPetriNet newSyPetriNet(final Library library) {
     final PetriNetBuilder builder = new PetriNetBuilder(this.backendPetriNet);
 
-    builder.addPlace(library.voidType());
+    builder.add(library.voidType());
 
     for (Type type : library.types()) {
       builder
-          .addPlace(type)
-          .addCloneTransition(this.newCloneTransition.apply(type));
+          .add(type)
+          .add(this.newCloneTransition.apply(type));
     }
 
     for (MethodSignature signature : library.signatures()) {
       builder
-          .addTransition(signature)
-          .addVoidTransition(this.newVoidTransition.apply(signature));
+          .add(signature)
+          .add(this.newVoidTransition.apply(signature));
     }
 
     for (Entry<Type, Type> entry : library.castRelation()) {
       final Type subtype = entry.getKey();
       final Type supertype = entry.getValue();
 
-      builder.addCastTransition(this.newCastTransition.apply(subtype, supertype));
+      builder.add(this.newCastTransition.apply(subtype, supertype));
     }
 
     return builder.build();

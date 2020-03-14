@@ -16,12 +16,19 @@ public final class PetriNetBuilder {
     this.net = net;
   }
 
-  public final PetriNetBuilder addPlace(final Type type) {
+  public final PetriNetBuilder add(final Type type) {
     PetriNetBuildException.handle(() -> this.net.addNode(newPlaceAdapter(type)));
     return this;
   }
 
-  public final PetriNetBuilder addTransition(final MethodSignature signature) {
+  public final PetriNetBuilder add(final Iterable<Type> types) {
+    for (Type type : types) {
+      add(type);
+    }
+    return this;
+  }
+
+  public final PetriNetBuilder add(final MethodSignature signature) {
     PetriNetBuildException.handle(() -> {
       this.net.addNode(newTransitionAdapter(signature));
 
@@ -45,15 +52,15 @@ public final class PetriNetBuilder {
     return this;
   }
 
-  public final PetriNetBuilder addCastTransition(final CastTransition transition) {
+  public final PetriNetBuilder add(final CastTransition transition) {
     throw new UnsupportedOperationException();
   }
 
-  public final PetriNetBuilder addCloneTransition(final CloneTransition transition) {
+  public final PetriNetBuilder add(final CloneTransition transition) {
     throw new UnsupportedOperationException();
   }
 
-  public final PetriNetBuilder addVoidTransition(final VoidTransition transition) {
+  public final PetriNetBuilder add(final VoidTransition transition) {
     throw new UnsupportedOperationException();
   }
 
