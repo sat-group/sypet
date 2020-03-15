@@ -34,6 +34,10 @@ root(name = "sypet") {
         }
     }
     dir("sypet") {
+        module("all-in-one")
+        dir("sypet-learner") {
+            module("sypet-learner-lib")
+        }
         dir("sypet-synthesiser") {
             module("sypet-synthesiser-backend-api")
             module("sypet-synthesiser-frontend-api")
