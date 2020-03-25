@@ -1,10 +1,8 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace CMU.SyPet.Synthesis
+namespace CMU.SyPet.Synthesis.PetriNetTests
 {
-    using Builder = PetriNetBuilder<FakePlace>;
-
     public static class TestDataGenerator
     {
         // =========================================================================================
@@ -28,6 +26,11 @@ namespace CMU.SyPet.Synthesis
         // =========================================================================================
         // Data Generators
         // =========================================================================================
+
+        public static FakePlace VoidTypeGenerator() => 
+            // It is assumed that the rest of the test data does not include a place with the same
+            // id.
+            new FakePlace(id: -1);
 
         private static IEnumerable<FakePlace> PlaceGenerator() => new[] { FP(0), FP(1) };
 
