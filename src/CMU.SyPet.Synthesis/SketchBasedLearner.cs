@@ -37,21 +37,29 @@ namespace CMU.SyPet.Synthesis
         // ^ We should consider changing this to depend also on the sketch that solver will try to
         // solve.
 
-        /// <summary>A hook to filter/prioritize the sketches. It could be automatic (for example,
-        /// the application of a machine learning model) or manual (for example, the end user picks
-        /// the sketches interactively).</summary>
-        protected abstract IEnumerable<TSketch> PickSketches(IEnumerable<TSketch> sketches);
+        /// <summary>A hook to apply some kind of operation to the sketches before passing them to
+        /// the sketch solver. It could be automatic (for example, the application of a machine
+        /// learning model) or manual (for example, the end user picks the sketches
+        /// interactively).</summary>
+        protected abstract IEnumerable<TSketch> SelectSketches(IEnumerable<TSketch> sketches);
 
-        /// <summary>A hook to process the sketches before passing them to the sketch solver. It
-        /// could be automatic (for example, the application of a machine learning model) or manual
-        /// (for example, the end user picks the sketches interactively).</summary>
-        protected abstract IEnumerable<TSketch> ProcessSketches(IEnumerable<TSketch> sketch);
+        /// <summary>A hook to pick and apply some kind of operation to a program before passing
+        /// creating a query. It could be automatic (for example, the application of a machine
+        /// learning model) or manual (for example, the end user picks the sketches
+        /// interactively).</summary>
+        /// <remarks>This method assumes that the input is non-empty.</remarks>
+        protected abstract TProgram SelectProgram(IEnumerable<TProgram> programs);
 
         /// <summary>Create a query to the oracle out of a candidate program.</summary>
-        protected abstract TQuery CreateQuery(TProgram sketch);
+        protected abstract TQuery CreateQuery(TProgram program);
 
         /// <summary>Create a learning result out of an oracle response.</summary>
-        protected abstract Either<TQuery, TProgram?> CreateResult(TResponse response);
+        /// <remark>This method is called when the learning process is finished.</remark>
+        protected abstract TProgram? CreateResult(TResponse response);
+
+        /// <summary>Decide whether the learning process is finished and we can produce a
+        /// result.</summary>
+        protected abstract bool Finished(TResponse response);
 
         public virtual TQuery? FirstQuery(TSpec spec)
         {
@@ -63,23 +71,31 @@ namespace CMU.SyPet.Synthesis
 
         public virtual Either<TQuery, TProgram?> Learn(TSpec spec, TResponse response)
         {
+            if (Finished(response))
+            { return CreateResult(response); }
+
             var sketcherHint = CreateSketcherHint(response);
             var sketchSolverHint = CreateSketchSolverHint(response);
             var sketches = Sketcher.Sketch(spec, sketcherHint);
             var programs = FindCandidatePrograms(
                 sketches, 
                 sketch => SketchSolver.Solve(sketch, sketchSolverHint));
-            var result = CreateResult(response);
 
-            return result;
+            if (!programs.Any())
+            {
+                // Go back and select the programs again?
+            }
+
+            var candidateProgram = SelectProgram(programs);
+
+            return CreateQuery(candidateProgram);
         }
 
-        private IEnumerable<TProgram> FindCandidatePrograms(
+        protected virtual IEnumerable<TProgram> FindCandidatePrograms(
             IEnumerable<TSketch> sketches,
             Func<TSketch, IEnumerable<TProgram>> solver)
         {
-            var pickedSketches = PickSketches(sketches);
-            var processedSketches = ProcessSketches(pickedSketches);
+            var processedSketches = SelectSketches(sketches);
             var programs = processedSketches.SelectMany(solver);
 
             if (!programs.Any())
