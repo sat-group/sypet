@@ -1,0 +1,47 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "who cares about when"
+                }
+            ],
+            "output": {
+                "Left": "updated on who cares about "
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "maybe someone will care"
+                }
+            ],
+            "output": {
+                "Left": "updated on maybe someone wi"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "but then who else?"
+                }
+            ],
+            "output": {
+                "Left": "updated on but then who els"
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "strconst":[
+      "updated on "
+    ],
+    "intconst":[
+        0,
+        16
+    ],    
+    "text": "Concat(\"updated on \", Substr(x0, 0, 16))",
+    "size": 2
+}

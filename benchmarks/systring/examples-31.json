@@ -1,0 +1,46 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "john.doe@outsystems.com"
+                }
+            ],
+            "output": {
+                "Left": "john.doe"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "jane.moe@cmu.edu"
+                }
+            ],
+            "output": {
+                "Left": "jane.moe"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "anonymous@tecnico.pt"
+                }
+            ],
+            "output": {
+                "Left": "anonymous"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "strconst":[
+      "@"
+    ],
+    "intconst":[
+        0
+    ],    
+    "text": "Substr(x0, 0, Index(x0, \"@\", 0))",
+    "size": 2
+}

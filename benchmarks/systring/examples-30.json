@@ -1,0 +1,46 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "outsystems.com"
+                }
+            ],
+            "output": {
+                "Left": "outsystems"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "cmu.edu"
+                }
+            ],
+            "output": {
+                "Left": "cmu"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "tecnico.pt"
+                }
+            ],
+            "output": {
+                "Left": "tecnico"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "strconst":[
+      "."
+    ],
+    "intconst":[
+        0
+    ],    
+    "text": "Substr(x0, 0, Index(x0, \".\", 0))",
+    "size": 2
+}

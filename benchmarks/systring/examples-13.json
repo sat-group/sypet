@@ -1,0 +1,45 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Curabitur commodo volutpat."
+                }
+            ],
+            "output": {
+                "Left": "commodo volutpa"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Phasellus dignissim nullam."
+                }
+            ],
+            "output": {
+                "Left": "dignissim nulla"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Suspendisse potenti nullam."
+                }
+            ],
+            "output": {
+                "Left": "e potenti nulla"
+            }
+        }
+    ],
+    "functions": [
+        "Substr"
+    ],
+    "strconst":[
+    ],
+    "intconst":[
+        10,
+        15
+    ],    
+    "text": "Substr(x0, 10, 15)",
+    "size": 1
+}

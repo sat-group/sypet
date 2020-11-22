@@ -1,0 +1,47 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Praesent sed diam vel amet."
+                }
+            ],
+            "output": {
+                "Left": "Praesent sed diam vel amet...."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Donec ultrices finibus ultrices. Quisque lacus posuere."
+                }
+            ],
+            "output": {
+                "Left": "Donec ultrices finibus ultrices. Quisque lacus pos..."
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "In hac habitasse platea dictumst. Sed dapibus sit amet neque gravida sed."
+                }
+            ],
+            "output": {
+                "Left": "In hac habitasse platea dictumst. Sed dapibus sit ..."
+            }
+        }
+    ],
+    "functions": [
+        "Concat",
+        "Substr"
+    ],
+    "strconst":[
+      "..."
+    ],
+    "intconst":[
+        0,
+        50
+    ],    
+    "text": "Concat(Substr(x0, 0, 50), \"...\")",
+    "size": 2
+}

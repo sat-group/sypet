@@ -1,0 +1,46 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "random,csv"
+                }
+            ],
+            "output": {
+                "Left": "random"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "another,one"
+                }
+            ],
+            "output": {
+                "Left": "another"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "a,larger,one,this,time"
+                }
+            ],
+            "output": {
+                "Left": "a"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "strconst":[
+      ","
+    ],
+    "intconst":[
+        0
+    ],    
+    "text": "Substr(x0, 0, Index(x0, \",\", 0))",
+    "size": 2
+}

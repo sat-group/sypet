@@ -1,0 +1,47 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "Duis eget ultrices sapien. / Nulla eu vehicula enim, in metus."
+                }
+            ],
+            "output": {
+                "Left": "/ Nulla eu"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Sed imperdiet lectus vel amet. / Vestibulum ut ligula metus."
+                }
+            ],
+            "output": {
+                "Left": "/ Vestibul"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Praesent in pulvinar sapien. / Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. / Aliquam cursus est in massa metus."
+                }
+            ],
+            "output": {
+                "Left": "/ Orci var"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Substr"
+    ],
+    "strconst":[
+      "/"
+    ],
+    "intconst":[
+        0,
+        10
+    ],    
+    "text": "Substr(x0, Index(x0, \"/\", 0), 10)",
+    "size": 2
+}

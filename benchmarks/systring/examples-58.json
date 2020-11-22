@@ -1,0 +1,47 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "who cares about the last one."
+                }
+            ],
+            "output": {
+                "Left": "who cares about the last one"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "just let them die!"
+                }
+            ],
+            "output": {
+                "Left": "just let them die"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "oh god what have i become!"
+                }
+            ],
+            "output": {
+                "Left": "oh god what have i become"
+            }
+        }
+    ],
+    "functions": [
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "strconst":[
+    ],
+    "intconst":[
+        0,
+        1
+    ],    
+    "text": "Substr(x0, 0, Sub(Length(x0), 1))",
+    "size": 3
+}

@@ -1,0 +1,51 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "alo_helloworld"
+                }
+            ],
+            "output": {
+                "Left": "hellowor"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "123_testtest"
+                }
+            ],
+            "output": {
+                "Left": "testte"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "wazzuuuuuuuuup_xyz"
+                }
+            ],
+            "output": {
+                "Left": "xyz"
+            }
+        }
+    ],
+    "functions": [
+        "Add",
+        "Index",
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "strconst":[
+      "_"
+    ],
+    "intconst":[
+        0,
+        1,
+        6
+    ],
+    "text": "Substr(x0, Add(Index(x0, \"_\", 0), 1), Sub(Length(x0), 6))",
+    "size": 5
+}

@@ -1,0 +1,53 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "hello word"
+                },
+                {
+                    "Right": 5
+                }
+            ],
+            "output": {
+                "Left": "hello"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "hi my name is"
+                },
+                {
+                    "Right": 10
+                }
+            ],
+            "output": {
+                "Left": "hi my name"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "Praesent sollicitudin varius neque, ut scelerisque justo venenatis nec. Maecenas sodales justo quis neque vestibulum efficitur. Maecenas orci aliquam."
+                },
+                {
+                    "Right": 100
+                }
+            ],
+            "output": {
+                "Left": "Praesent sollicitudin varius neque, ut scelerisque justo venenatis nec. Maecenas sodales justo quis "
+            }
+        }
+    ],
+    "functions": [
+        "Substr"
+    ],
+    "strconst":[
+    ],
+    "intconst":[
+        0
+    ],    
+    "text": "Substr(x0, 0, x1)",
+    "size": 1
+}

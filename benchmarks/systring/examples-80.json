@@ -1,0 +1,48 @@
+{
+    "examples": [
+        {
+            "inputs": [
+                {
+                    "Left": "george.bluth@outsystems.com"
+                }
+            ],
+            "output": {
+                "Left": "@outsystems.com"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "maebe@cmu.edu"
+                }
+            ],
+            "output": {
+                "Left": "@cmu.edu"
+            }
+        },
+        {
+            "inputs": [
+                {
+                    "Left": "michael@tecnico.pt"
+                }
+            ],
+            "output": {
+                "Left": "@tecnico.pt"
+            }
+        }
+    ],
+    "functions": [
+        "Index",
+        "Length",
+        "Sub",
+        "Substr"
+    ],
+    "strconst":[
+      "@"
+    ],
+    "intconst":[
+        0
+    ],    
+    "text": "Substr(x0, Index(x0, \"@\", 0), Sub(Length(x0), Index(x0, \"@\", 0)))",
+    "size": 4
+}
